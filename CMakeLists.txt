@@ -17,3 +17,17 @@ ADD_EXECUTABLE(main
   src/comp_tree.c
 )
 TARGET_LINK_LIBRARIES(main ${FLEX_LIBRARIES})
+
+ENABLE_TESTING()
+SET(i 0)
+FILE(COPY tests DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+FILE(GLOB tests "tests/e*/*tesh")
+LIST(SORT tests)
+FOREACH(file ${tests})
+  MATH(EXPR i ${i}+1)
+  STRING(REGEX REPLACE "^.*/tests/" "" etapa ${file})
+  STRING(REGEX REPLACE "/.*$" "" etapa ${etapa})
+  STRING(REGEX REPLACE ".*/" "" testname ${file})
+  STRING(REGEX REPLACE ".tesh$" "" testname ${testname})
+  ADD_TEST(${etapa}_${testname} ./tests/scripts/tesh ${file})
+ENDFOREACH()
