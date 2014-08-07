@@ -87,9 +87,3 @@ int main (int argc, char **argv)
   return 0;
 #endif
 }
-
-void yyerror (char const *mensagem)
-{
-  fprintf (stderr, "%s\n", mensagem); //altere para que apareça a linha
-}
-
