@@ -4,6 +4,8 @@ extern char *yytext;
 extern int getLineNumber();
 #define print_nome(TOKEN) printf("%d " #TOKEN " [%s]\n", getLineNumber(), yytext);
 #define print_nome2(TOKEN) printf("%d %c\n", getLineNumber(), TOKEN);
+#define USER_INIT main_init (argc, argv);
+#define USER_FINALIZE main_finalize ();
 
 int main_avaliacao_etapa_1 (int argc, char **argv)
 {
@@ -64,15 +66,40 @@ int main_avaliacao_etapa_1 (int argc, char **argv)
 
 int main_avaliacao_etapa_2 (int argc, char **argv)
 {
-  return yyparse();
+  USER_INIT;
+  int ret = yyparse();
+  USER_FINALIZE;
+  return ret;
 }
 
 int main_avaliacao_etapa_3 (int argc, char **argv)
 {
+  USER_INIT;
   gv_init(NULL);
-  int resultado = yyparse();
+  int ret = yyparse();
   gv_close();
-  return resultado;
+  USER_FINALIZE;
+  return ret;
+}
+
+int main_avaliacao_etapa_4 (int argc, char **argv)
+{
+  return main_avaliacao_etapa_2 (argc, argv);
+}
+
+int main_avaliacao_etapa_5 (int argc, char **argv)
+{
+  return main_avaliacao_etapa_2 (argc, argv);
+}
+
+int main_avaliacao_etapa_6 (int argc, char **argv)
+{
+  return main_avaliacao_etapa_2 (argc, argv);
+}
+
+int main_avaliacao_etapa_7 (int argc, char **argv)
+{
+  return main_avaliacao_etapa_2 (argc, argv);
 }
 
 int main (int argc, char **argv)
@@ -83,6 +110,14 @@ int main (int argc, char **argv)
   return main_avaliacao_etapa_2 (argc, argv);
 #elif AVALIACAO_ETAPA_3
   return main_avaliacao_etapa_3 (argc, argv);
+#elif AVALIACAO_ETAPA_4
+  return main_avaliacao_etapa_4 (argc, argv);
+#elif AVALIACAO_ETAPA_5
+  return main_avaliacao_etapa_5 (argc, argv);
+#elif AVALIACAO_ETAPA_6
+  return main_avaliacao_etapa_6 (argc, argv);
+#elif AVALIACAO_ETAPA_7
+  return main_avaliacao_etapa_7 (argc, argv);
 #else
   return 0;
 #endif
