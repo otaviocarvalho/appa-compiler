@@ -1,8 +1,11 @@
+/*
+  Coloque aqui o identificador do grupo e dos seus membros
+*/
 %{
 #include <stdio.h>
 %}
 
-/* Declaração dos tokens da gramática da Linguagem K */
+/* Declaração dos tokens da linguagem */
 %token TK_PR_INT
 %token TK_PR_FLOAT
 %token TK_PR_BOOL
@@ -32,8 +35,8 @@
 %token TOKEN_ERRO
 
 %%
- /* Regras (e ações) da gramática da Linguagem K */
+/* Regras (e ações) da gramática */
 
-s:
+programa:
 
 %%
