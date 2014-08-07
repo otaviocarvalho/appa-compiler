@@ -9,7 +9,7 @@
 #include "comp_dict.h"
 #include "comp_list.h"
 #include "comp_tree.h"
-
+#include "parser.h"
 
 /*
   Constantes a serem utilizadas como valor de retorno no caso de
