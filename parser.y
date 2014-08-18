@@ -1,5 +1,5 @@
 /*
-  Coloque aqui o identificador do grupo e dos seus membros
+  Grupo Appa - Edson Andrade | Otávio Carvalho | Lisandro Procedi
 */
 %{
 #include <stdio.h>
