@@ -14,10 +14,7 @@ UNDERSCORE [_]
 
 %%
 
-"int"       {
-                table_add_symbol();
-                return TK_PR_INT;
-            } ;
+"int"       { return TK_PR_INT; } ;
 
 "float"     { return TK_PR_FLOAT; } ;
 "bool"      { return TK_PR_BOOL; } ;
