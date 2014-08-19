@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int linha = 1;
+extern int cur_line;
+extern struct comp_dict_t* symbol_table_cur_scope;
+
 %}
 
 %x comment
@@ -41,7 +43,7 @@ UNDERSCORE [_]
 "/*"    BEGIN(comment);
 <comment>[^*\n]*
 <comment>"*"+[^*/\n]*
-<comment>\n         linha++;
+<comment>\n         cur_line++;
 <comment>"*"+"/"    BEGIN(INITIAL);
 
 ","|";"|":"|")"|"("|"["|"]"|"{"|"}"|"+"|"-"|"*"|"/"|"<"|">"|"="|"!"|"&"|"$"  { return yytext[0]; }
@@ -55,13 +57,13 @@ UNDERSCORE [_]
 
 ({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* { return TK_IDENTIFICADOR; }
 
--?{DIGIT}+  { return TK_LIT_INT; }
--?{DIGIT}+"."{DIGIT}+ { return TK_LIT_FLOAT; }
-\'.\'       { return TK_LIT_CHAR; }
-\"[^"]*\" { return TK_LIT_STRING;}
+-?{DIGIT}+              { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_INT; }
+-?{DIGIT}+"."{DIGIT}+   { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_FLOAT; }
+\'.\'                   { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_CHAR; }
+\"[^"]*\"               { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_STRING;}
 " "        {  }
 "\t"       {  }
-\n         { linha++; }
+\n         { cur_line++; }
 .          { return TOKEN_ERRO; }
 
 %%

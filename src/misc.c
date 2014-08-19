@@ -2,20 +2,20 @@
 
 int getLineNumber (void)
 {
-  return linha;
+    return cur_line;
 }
 
 void yyerror (char const *mensagem)
 {
-  fprintf (stderr, "%s\n", mensagem); //altere para que apareça a linha
+    fprintf (stderr, "%s (line %d)\n", mensagem, cur_line);
 }
 
 void main_init (int argc, char **argv)
 {
-  //implemente esta função com rotinas de inicialização, se necessário
+    hcreate(HASH_SIZE);
 }
 
 void main_finalize (void)
 {
-  //implemente esta função com rotinas de inicialização, se necessário
+
 }
