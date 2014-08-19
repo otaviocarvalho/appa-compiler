@@ -3,6 +3,8 @@
 */
 %{
 #include <stdio.h>
+#include "main.h"
+extern int linha;
 %}
 
 /* Declaração dos tokens da linguagem */

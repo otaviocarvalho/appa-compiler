@@ -3,9 +3,14 @@
 */
 %{
 #include "parser.h" //arquivo automaticamente gerado pelo bison
+#include <stdlib.h>
+#include <stdio.h>
 
 int linha = 1;
 %}
+
+%x comment
+%x string
 
 DIGIT [0-9]
 LCASE [a-z]
@@ -32,6 +37,13 @@ UNDERSCORE [_]
 "true"      { return TK_LIT_TRUE; }
 "false"     { return TK_LIT_FALSE; }
 
+"//".* { }
+"/*"    BEGIN(comment);
+<comment>[^*\n]*
+<comment>"*"+[^*/\n]*
+<comment>\n         linha++;
+<comment>"*"+"/"    BEGIN(INITIAL);
+
 ","|";"|":"|")"|"("|"["|"]"|"{"|"}"|"+"|"-"|"*"|"/"|"<"|">"|"="|"!"|"&"|"$"  { return yytext[0]; }
 
 "<="    { return TK_OC_LE; }
@@ -41,12 +53,12 @@ UNDERSCORE [_]
 "&&"    { return TK_OC_AND; }
 "||"    { return TK_OC_OR; }
 
-^({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})*$ { return TK_IDENTIFICADOR; }
+({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* { return TK_IDENTIFICADOR; }
 
-^-?{DIGIT}+$  { return TK_LIT_INT; }
-^-?{DIGIT}+"."{DIGIT}+$ { return TK_LIT_FLOAT; }
-^\'.\'$       { return TK_LIT_CHAR; }
-^\".*\"$   { return TK_LIT_STRING; }
+-?{DIGIT}+  { return TK_LIT_INT; }
+-?{DIGIT}+"."{DIGIT}+ { return TK_LIT_FLOAT; }
+\'.\'       { return TK_LIT_CHAR; }
+\"[^"]*\" { return TK_LIT_STRING;}
 " "        {  }
 "\t"       {  }
 \n         { linha++; }
