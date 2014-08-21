@@ -7,7 +7,8 @@
 #include <stdio.h>
 
 extern int cur_line;
-extern struct comp_dict_t* symbol_table_cur_scope;
+extern struct comp_dict_tree_t* symbol_table_root;
+extern struct comp_dict_tree_t* symbol_table_cur;
 
 %}
 
@@ -55,12 +56,15 @@ UNDERSCORE [_]
 "&&"    { return TK_OC_AND; }
 "||"    { return TK_OC_OR; }
 
-({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* { return TK_IDENTIFICADOR; }
+({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* {
+        add_symbol(symbol_table_cur, yytext, cur_line);
+        return TK_IDENTIFICADOR;
+}
 
--?{DIGIT}+              { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_INT; }
--?{DIGIT}+"."{DIGIT}+   { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_FLOAT; }
-\'.\'                   { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_CHAR; }
-\"[^"]*\"               { add_symbol(symbol_table_cur_scope, yytext, TK_LIT_INT); return TK_LIT_STRING;}
+-?{DIGIT}+              { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_INT; }
+-?{DIGIT}+"."{DIGIT}+   { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_FLOAT; }
+\'.\'                   { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_CHAR; }
+\"[^"]*\"               { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_STRING;}
 " "        {  }
 "\t"       {  }
 \n         { cur_line++; }
