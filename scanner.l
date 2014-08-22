@@ -7,8 +7,8 @@
 #include <stdio.h>
 
 extern int cur_line;
-extern struct comp_dict_tree_t* symbol_table_root;
-extern struct comp_dict_tree_t* symbol_table_cur;
+extern struct comp_dict_t* symbol_table_root;
+extern struct comp_dict_t* symbol_table_cur;
 
 %}
 

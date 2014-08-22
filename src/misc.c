@@ -9,12 +9,10 @@ void yyerror (char const *mensagem){
 }
 
 void main_init (int argc, char **argv){
-    hcreate(HASH_SIZE);
     symbol_table_root = init_table_tree();
     symbol_table_cur = symbol_table_root;
 }
 
 void main_finalize (void){
-    hdestroy();
     free_table_tree(symbol_table_root);
 }
