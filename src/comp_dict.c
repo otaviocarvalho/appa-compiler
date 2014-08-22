@@ -39,12 +39,14 @@ int free_dict(comp_dict_t* table){
             comp_dict_node_t* current = table->entries[i];
             comp_dict_node_t* next = current->next;
 
+            free(current->key);
             free(current->item);
             free(current);
             while (next != NULL){
                 current = next;
                 next = current->next;
 
+                free(current->key);
                 free(current->item);
                 free(current);
             }
@@ -114,6 +116,9 @@ int add_symbol(comp_dict_t* cur_table, char* key, int line){
     // Atualiza linha se já existe
     else if ( strcmp(key, cur_table->entries[hash]->key) == 0 ){
         cur_table->entries[hash]->item->line = line;
+        free(node->key);
+        free(node->item);
+        free(node);
     }
     // Se não existir, adiciona elemento no fim da lista
     else {
