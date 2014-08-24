@@ -50,11 +50,25 @@ decl-global:
 ;
 
 decl-local:
+    tipo identificador ';'
+;
+
+decl-parametro:
     tipo identificador
 ;
 
 func:
     cabecalho corpo
+;
+
+chamada-funcao:
+    identificador '(' ')'
+    | identificador '(' lista-argumentos ')'
+;
+
+lista-argumentos:
+    expressao
+    | expressao ',' lista-argumentos
 ;
 
 cabecalho:
@@ -71,8 +85,8 @@ bloco-comando:
 ;
 
 lista-parametros:
-    decl-local
-    | decl-local ',' lista-parametros
+    decl-parametro
+    | decl-parametro ',' lista-parametros
 ;
 
 tipo:
@@ -87,7 +101,16 @@ comando:
     decl-local
     | input
     | output
+    | condicional
+    | expressao ';' comando
+    | chamada-funcao
     | %empty
+;
+
+condicional:
+    TK_PR_IF '(' expressao ')' TK_PR_THEN comando
+    | TK_PR_IF '(' expressao ')' TK_PR_THEN comando TK_PR_ELSE comando
+    /*| TK_PR_DO command '(' expression ')'*/
 ;
 
 input:
