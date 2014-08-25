@@ -3,7 +3,6 @@
 ! timeout 5
 
 $ ./main ./tests/e1/input/nivel10.tokens
-
 > 1 TK_IDENTIFICADOR [_dsdw]
 > 2 TK_IDENTIFICADOR [dsdw]
 > 3 TK_IDENTIFICADOR [_123]

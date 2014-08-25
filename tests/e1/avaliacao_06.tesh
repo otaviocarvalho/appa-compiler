@@ -3,7 +3,6 @@
 ! timeout 5
 
 $ ./main ./tests/e1/input/nivel6.tokens
-
 > 1 ,
 > 1 ;
 > 1 :

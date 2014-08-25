@@ -3,7 +3,6 @@
 ! timeout 5
 
 $ ./main ./tests/e1/input/nivel5.tokens
-
 > 2 TK_LIT_INT [71084]
 > 2 TK_LIT_INT [43179]
 > 2 TK_IDENTIFICADOR [__l6JGktG5T2bjIdBBv1Tq]
