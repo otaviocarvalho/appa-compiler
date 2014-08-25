@@ -1,6 +1,6 @@
 #! ./tesh
- 
+
 ! timeout 5
 ! output ignore
- 
+
 $ ./main ./tests/e1/input/nivel2.tokens
