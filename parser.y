@@ -41,16 +41,16 @@
 programa:
     decl-global programa
     | func programa
-    | %empty
+    | /* %empty */
 ;
 
 decl-global:
-    decl-local
+    decl-local ';'
     | tipo identificador '[' expressao ']' ';'
 ;
 
 decl-local:
-    tipo identificador ';'
+    tipo identificador
 ;
 
 decl-parametro:
@@ -102,15 +102,22 @@ comando:
     | input
     | output
     | condicional
-    | expressao ';' comando
+    | expressao
     | chamada-funcao
-    | %empty
+    | '{' comando '}'
+    | comando ';' comando
+    | laco
+    | /* %empty */
 ;
 
 condicional:
     TK_PR_IF '(' expressao ')' TK_PR_THEN comando
     | TK_PR_IF '(' expressao ')' TK_PR_THEN comando TK_PR_ELSE comando
-    /*| TK_PR_DO command '(' expression ')'*/
+;
+
+laco:
+  while '(' expressao ')' do comando
+  | do comando while '(' expressao ')'
 ;
 
 input:
@@ -133,11 +140,15 @@ expressao:
     identificador
     | expressao operador expressao
     | literal
+    | chamada-funcao
+    | identificador '[' expressao ']'
+    | '(' expressao ')'
+    | return expressao
 ;
 
 lista-expressao:
     expressao
-    | ',' lista-expressao
+    | expressao ',' lista-expressao
 ;
 
 operador:
@@ -163,6 +174,18 @@ literal:
     | TK_LIT_INT
     | TK_LIT_STRING
     | TK_LIT_TRUE
+;
+
+do:
+  TK_PR_DO
+;
+
+while:
+  TK_PR_WHILE
+;
+
+return:
+  TK_PR_RETURN
 ;
 
 %%
