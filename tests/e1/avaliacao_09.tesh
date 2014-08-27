@@ -3,7 +3,6 @@
 ! timeout 5
 
 $ ./main ./tests/e1/input/nivel9.tokens
-
 > 1 TK_OC_LE [<=]
 > 2 TK_OC_GE [>=]
 > 3 TK_OC_EQ [==]
