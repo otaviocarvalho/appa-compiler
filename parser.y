@@ -138,12 +138,38 @@ identificador:
 
 expressao:
     identificador
-    | expressao operador expressao
     | literal
     | chamada-funcao
     | identificador '[' expressao ']'
     | '(' expressao ')'
     | return expressao
+    | expressao-aritmetica
+    | expressao-logica
+    | '-'TK_LIT_INT
+    | '-'TK_LIT_FLOAT
+    | atribuicao
+;
+
+expressao-aritmetica:
+    expressao '+' expressao
+    |expressao '-' expressao
+    |expressao '*' expressao
+    |expressao '/' expressao
+;
+
+expressao-logica:
+    expressao TK_OC_EQ expressao
+    | expressao '<' expressao
+    | expressao TK_OC_LE expressao
+    | expressao '>' expressao
+    | expressao TK_OC_GE expressao
+    | expressao TK_OC_NE expressao
+    | expressao TK_OC_AND expressao
+    | expressao TK_OC_OR expressao
+;
+
+atribuicao:
+    identificador '=' expressao
 ;
 
 lista-expressao:
@@ -151,21 +177,6 @@ lista-expressao:
     | expressao ',' lista-expressao
 ;
 
-operador:
-    '+'
-    | '-'
-    | '*'
-    | '/'
-    | '='
-    | TK_OC_EQ
-    | '<'
-    | TK_OC_LE
-    | '>'
-    | TK_OC_GE
-    | TK_OC_NE
-    | TK_OC_AND
-    | TK_OC_OR
-;
 
 literal:
     TK_LIT_CHAR
@@ -173,7 +184,7 @@ literal:
     | TK_LIT_FLOAT
     | TK_LIT_INT
     | TK_LIT_STRING
-    | TK_LIT_TRUE
+    | TK_LIT_TRUE    
 ;
 
 do:
