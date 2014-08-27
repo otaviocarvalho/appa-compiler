@@ -102,22 +102,23 @@ comando:
     | input
     | output
     | condicional
-    | expressao
     | chamada-funcao
-    | '{' comando '}'
-    | comando ';' comando
     | laco
+    | return
+    | atribuicao
+    | comando ';' comando
+    | '{' comando '}'
     | /* %empty */
 ;
 
 condicional:
-    TK_PR_IF '(' expressao ')' TK_PR_THEN comando
-    | TK_PR_IF '(' expressao ')' TK_PR_THEN comando TK_PR_ELSE comando
+    TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando
+    | TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando TK_PR_ELSE comando
 ;
 
 laco:
-  while '(' expressao ')' do comando
-  | do comando while '(' expressao ')'
+  while '(' expressao-logica ')' do comando
+  | do comando while '(' expressao-logica ')'
 ;
 
 input:
@@ -142,12 +143,8 @@ expressao:
     | chamada-funcao
     | identificador '[' expressao ']'
     | '(' expressao ')'
-    | return expressao
     | expressao-aritmetica
     | expressao-logica
-    | '-'TK_LIT_INT
-    | '-'TK_LIT_FLOAT
-    | atribuicao
 ;
 
 expressao-aritmetica:
@@ -170,6 +167,7 @@ expressao-logica:
 
 atribuicao:
     identificador '=' expressao
+    | identificador '[' expressao ']' '=' expressao
 ;
 
 lista-expressao:
@@ -183,6 +181,8 @@ literal:
     | TK_LIT_FALSE
     | TK_LIT_FLOAT
     | TK_LIT_INT
+    | '-' TK_LIT_FLOAT
+    | '-' TK_LIT_INT
     | TK_LIT_STRING
     | TK_LIT_TRUE    
 ;
@@ -196,7 +196,7 @@ while:
 ;
 
 return:
-  TK_PR_RETURN
+  TK_PR_RETURN expressao
 ;
 
 %%
