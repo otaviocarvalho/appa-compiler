@@ -35,6 +35,19 @@
 %token TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+%left "expressao"
+%left "expressao-logica"
+%left "expressao-aritmetica"
+%left TK_OC_OR
+%left TK_OC_AND
+%nonassoc TK_OC_EQ TK_OC_NE
+%nonassoc '<' '>' TK_OC_LE TK_OC_GE
+%left '!'
+%left '+' '-'
+%left '*' '/'
+%left UMINUS
+%right TK_PR_ELSE TK_PR_THEN
+
 %%
 /* Regras (e ações) da gramática */
 
@@ -147,12 +160,21 @@ expressao:
     | expressao-logica
 ;
 
+
 expressao-aritmetica:
     expressao '+' expressao
     |expressao '-' expressao
     |expressao '*' expressao
     |expressao '/' expressao
+    |'-' expressao %prec UMINUS
 ;
+
+operador:
+    '+'
+    | '-'
+    | '*'
+    | '/'
+  ;
 
 expressao-logica:
     expressao TK_OC_EQ expressao
@@ -181,8 +203,8 @@ literal:
     | TK_LIT_FALSE
     | TK_LIT_FLOAT
     | TK_LIT_INT
-    | '-' TK_LIT_FLOAT
-    | '-' TK_LIT_INT
+    /*| '-' TK_LIT_FLOAT
+    | '-' TK_LIT_INT*/
     | TK_LIT_STRING
     | TK_LIT_TRUE    
 ;
