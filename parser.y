@@ -6,6 +6,10 @@
 #include "main.h"
 %}
 
+%union {
+    struct comp_dict_item_t* symbol;
+};
+
 /* Declaração dos tokens da linguagem */
 %token TK_PR_INT
 %token TK_PR_FLOAT
