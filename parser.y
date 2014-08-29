@@ -39,6 +39,16 @@
 %token TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+%left TK_OC_OR
+%left TK_OC_AND
+%nonassoc TK_OC_EQ TK_OC_NE
+%nonassoc '<' '>' TK_OC_LE TK_OC_GE
+%left '+' '-'
+%left '*' '/'
+%left UMINUS
+%right TK_PR_WHILE
+%right TK_PR_ELSE TK_PR_THEN
+
 %%
 /* Regras (e ações) da gramática */
 
@@ -110,20 +120,36 @@ comando:
     | laco
     | return
     | atribuicao
-    | comando ';' comando
+    | sequencia
     | '{' comando '}'
     | /* %empty */
 ;
 
+sequencia:
+   comando ';' comando
+;
+
 condicional:
-    TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando
-    | TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando TK_PR_ELSE comando
+    TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando2
+    | TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando2 TK_PR_ELSE comando2
 ;
 
 laco:
-  while '(' expressao-logica ')' do comando
-  | do comando while '(' expressao-logica ')'
+  while '(' expressao-logica ')' do comando2
+  | do comando2 while '(' expressao-logica ')'
 ;
+
+comando2:
+    decl-local
+    | input
+    | output
+    | condicional
+    | chamada-funcao
+    | laco
+    | return
+    | atribuicao
+    | comando2 ';' comando2
+    | '{' comando2 '}'
 
 input:
     TK_PR_INPUT identificador
@@ -151,11 +177,13 @@ expressao:
     | expressao-logica
 ;
 
+
 expressao-aritmetica:
     expressao '+' expressao
     |expressao '-' expressao
     |expressao '*' expressao
     |expressao '/' expressao
+    |'-' expressao %prec UMINUS
 ;
 
 expressao-logica:
@@ -185,8 +213,6 @@ literal:
     | TK_LIT_FALSE
     | TK_LIT_FLOAT
     | TK_LIT_INT
-    | '-' TK_LIT_FLOAT
-    | '-' TK_LIT_INT
     | TK_LIT_STRING
     | TK_LIT_TRUE    
 ;
