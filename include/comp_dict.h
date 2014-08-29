@@ -9,6 +9,8 @@
 
 typedef struct comp_dict_item_t {
     int line;
+    int type;
+    int value;
 } comp_dict_item_t;
 
 typedef struct comp_dict_node_t {
@@ -31,7 +33,7 @@ int init_dict(comp_dict_t*);
 int free_dict(comp_dict_t*);
 int hash_function(char*);
 comp_dict_item_t* find_symbol(comp_dict_t* cur_table, char* key);
-int add_symbol(comp_dict_t* cur_table, char* key, int line);
+comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line);
 int print_table(comp_dict_t*);
 char* str_entry(char*, char*, int);
 int print_file_table(FILE*, comp_dict_t*);

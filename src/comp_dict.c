@@ -98,7 +98,7 @@ comp_dict_item_t* find_symbol(comp_dict_t* cur_table, char* key){
 }
 
 // Adiciona um item a uma tabela existente
-int add_symbol(comp_dict_t* cur_table, char* key, int line){
+comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line){
     // Aloca estruturas de dados para o novo nodo
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
@@ -126,7 +126,7 @@ int add_symbol(comp_dict_t* cur_table, char* key, int line){
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
 
-    return 0;
+    return cur_table->entries[hash]->item;
 }
 
 // Varre a tabela de símbolos imprimindo o conteúdo
