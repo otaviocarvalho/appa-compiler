@@ -3,6 +3,7 @@
 */
 %{
 #include "parser.h" //arquivo automaticamente gerado pelo bison
+#include "comp_dict.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -23,7 +24,6 @@ UNDERSCORE [_]
 %%
 
 "int"       { return TK_PR_INT; } ;
-
 "float"     { return TK_PR_FLOAT; } ;
 "bool"      { return TK_PR_BOOL; } ;
 "char"      { return TK_PR_CHAR; } ;
@@ -37,8 +37,9 @@ UNDERSCORE [_]
 "output"    { return TK_PR_OUTPUT; } ;
 "return"    { return TK_PR_RETURN; } ;
 
-"true"      { return TK_LIT_TRUE; }
-"false"     { return TK_LIT_FALSE; }
+"true"      { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_TRUE; }
+"false"     { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_FALSE; }
+
 
 "//".* { }
 "/*"    BEGIN(comment);
@@ -57,14 +58,15 @@ UNDERSCORE [_]
 "||"    { return TK_OC_OR; }
 
 ({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* {
-        add_symbol(symbol_table_cur, yytext, cur_line);
+        yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line);
         return TK_IDENTIFICADOR;
 }
 
--?{DIGIT}+              { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_INT; }
--?{DIGIT}+"."{DIGIT}+   { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_FLOAT; }
-\'.\'                   { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_CHAR; }
-\"[^"]*\"               { add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_STRING;}
+-?{DIGIT}+              { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_INT; }
+-?{DIGIT}+"."{DIGIT}+   { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_FLOAT; }
+\'.\'                   { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_CHAR; }
+\"[^"]*\"               { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_STRING;}
+
 " "        {  }
 "\t"       {  }
 \n         { cur_line++; }
