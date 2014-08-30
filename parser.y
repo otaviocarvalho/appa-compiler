@@ -4,6 +4,8 @@
 %{
 #include <stdio.h>
 #include "main.h"
+
+int parser_return;
 %}
 
 %union {
@@ -52,18 +54,32 @@
 /* Regras (e ações) da gramática */
 
 programa:
-    decl-global programa
-    | func programa
-    | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
-    | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
-    | atribuicao { yyerror("Não são permitidas atribuições fora do escopo de função"); }
-    | expressao { yyerror("Não são permitidas expressões fora do escopo de função"); }
-    | /* %empty */
+    decl-global programa {
+        parser_return = IKS_SYNTAX_SUCESSO;
+        return parser_return;
+    }
+    | func programa {
+        parser_return = IKS_SYNTAX_SUCESSO;
+        return parser_return;
+    }
+    | /* %empty */ {
+        parser_return = IKS_SYNTAX_SUCESSO;
+        return parser_return;
+    }
+    | error {
+        yyerrok;
+        yyclearin;
+        parser_return = IKS_SYNTAX_ERRO;
+        return parser_return;
+    }
 ;
 
 decl-global:
     decl-local ';'
     | tipo identificador '[' expressao ']' ';'
+    | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
+    | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
+    | atribuicao { yyerror("Não são permitidas atribuições fora do escopo de função"); }
 ;
 
 decl-local:
