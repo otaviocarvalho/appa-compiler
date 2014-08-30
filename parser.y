@@ -46,7 +46,6 @@
 %left '+' '-'
 %left '*' '/'
 %left UMINUS
-%right TK_PR_WHILE
 %right TK_PR_ELSE TK_PR_THEN
 
 %%
@@ -55,6 +54,10 @@
 programa:
     decl-global programa
     | func programa
+    | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
+    | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
+    | atribuicao { yyerror("Não são permitidas atribuições fora do escopo de função"); }
+    | expressao { yyerror("Não são permitidas expressões fora do escopo de função"); }
     | /* %empty */
 ;
 
@@ -95,7 +98,15 @@ corpo:
 ;
 
 bloco-comando:
-    '{' comando '}'
+    '{' sequencia '}'
+    | '{' '}'
+;
+
+sequencia:
+    comando ';'
+    | comando ';' sequencia
+    | '{' sequencia '}'
+    | ';'
 ;
 
 lista-parametros:
@@ -120,36 +131,22 @@ comando:
     | laco
     | return
     | atribuicao
-    | sequencia
-    | '{' comando '}'
-    | /* %empty */
-;
-
-sequencia:
-   comando ';' comando
+    | '{' sequencia '}'
+    | ';'
 ;
 
 condicional:
-    TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando2
-    | TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando2 TK_PR_ELSE comando2
+    TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando
+    | TK_PR_IF '(' expressao-logica ')' TK_PR_THEN comando TK_PR_ELSE comando
+    | TK_PR_IF '(' expressao-logica ')' comando TK_PR_ELSE comando {
+        yyerror("É obrigatório utilizar o 'then' ao usar o condicional 'if'");
+    }
 ;
 
 laco:
-  while '(' expressao-logica ')' do comando2
-  | do comando2 while '(' expressao-logica ')'
+  while '(' expressao-logica ')' do comando
+  | do comando while '(' expressao-logica ')'
 ;
-
-comando2:
-    decl-local
-    | input
-    | output
-    | condicional
-    | chamada-funcao
-    | laco
-    | return
-    | atribuicao
-    | comando2 ';' comando2
-    | '{' comando2 '}'
 
 input:
     TK_PR_INPUT identificador
@@ -180,10 +177,10 @@ expressao:
 
 expressao-aritmetica:
     expressao '+' expressao
-    |expressao '-' expressao
-    |expressao '*' expressao
-    |expressao '/' expressao
-    |'-' expressao %prec UMINUS
+    | expressao '-' expressao
+    | expressao '*' expressao
+    | expressao '/' expressao
+    | '-' expressao %prec UMINUS
 ;
 
 expressao-logica:
@@ -214,7 +211,7 @@ literal:
     | TK_LIT_FLOAT
     | TK_LIT_INT
     | TK_LIT_STRING
-    | TK_LIT_TRUE    
+    | TK_LIT_TRUE
 ;
 
 do:
