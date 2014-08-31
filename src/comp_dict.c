@@ -40,6 +40,7 @@ int free_dict(comp_dict_t* table){
             comp_dict_node_t* next = current->next;
 
             free(current->key);
+            free(current->item->value);
             free(current->item);
             free(current);
             while (next != NULL){
@@ -47,6 +48,7 @@ int free_dict(comp_dict_t* table){
                 next = current->next;
 
                 free(current->key);
+                free(current->item->value);
                 free(current->item);
                 free(current);
             }
@@ -98,7 +100,7 @@ comp_dict_item_t* find_symbol(comp_dict_t* cur_table, char* key){
 }
 
 // Adiciona um item a uma tabela existente
-comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line){
+comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int type){
     // Aloca estruturas de dados para o novo nodo
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
@@ -106,6 +108,8 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line){
     node->key = strdup(key);
     node->next = NULL;
     node->item->line = line;
+    node->item->type = convert_type_symbol(type);
+    node->item->value = alloc_value_symbol(type, key); // Aloca valor do token de acordo com o tipo
 
     // Calcula o hash
     int hash = hash_function(key);
@@ -117,6 +121,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line){
     else if ( strcmp(key, cur_table->entries[hash]->key) == 0 ){
         cur_table->entries[hash]->item->line = line;
         free(node->key);
+        free(node->item->value);
         free(node->item);
         free(node);
     }
@@ -127,6 +132,83 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line){
     }
 
     return cur_table->entries[hash]->item;
+}
+
+int convert_type_symbol(int type){
+    int type_return = 0;
+    switch (type)
+    {
+        case TK_PR_INT:
+        {
+            type_return = IKS_SIMBOLO_LITERAL_INT;
+            break;
+        }
+        case TK_PR_FLOAT:
+        {
+            type_return = IKS_SIMBOLO_LITERAL_FLOAT;
+            break;
+        }
+        case TK_PR_CHAR:
+        {
+            type_return = IKS_SIMBOLO_LITERAL_CHAR;
+            break;
+        }
+        case TK_PR_STRING:
+        {
+            type_return = IKS_SIMBOLO_LITERAL_STRING;
+            break;
+        }
+        case TK_IDENTIFICADOR:
+        {
+            type_return = IKS_SIMBOLO_IDENTIFICADOR;
+            break;
+        }
+        case TK_PR_BOOL:
+        {
+            type_return = IKS_SIMBOLO_LITERAL_BOOL;
+            break;
+        }
+    }
+
+    return type_return;
+}
+
+// Define o tipo do simbolo a ser incluído na tabela
+void* alloc_value_symbol(int type, char* key){
+    switch (type)
+    {
+        case IKS_SIMBOLO_LITERAL_INT:
+        {
+            int* value = (int*) malloc(sizeof(int));
+            *value = atoi(key);
+            return value;
+            break;
+        }
+        case IKS_SIMBOLO_LITERAL_FLOAT:
+        {
+            float* value = (float*) malloc(sizeof(float));
+            *value = atof(key);
+            return value;
+            break;
+        }
+        case IKS_SIMBOLO_LITERAL_CHAR:
+        {
+            char* value = (char*) malloc(sizeof(char));
+            value = key;
+            return value;
+            break;
+        }
+        case IKS_SIMBOLO_LITERAL_BOOL:
+        case IKS_SIMBOLO_IDENTIFICADOR:
+        case IKS_SIMBOLO_LITERAL_STRING:
+        {
+            char* value = strdup(key);
+            return value;
+            break;
+        }
+    }
+
+    return NULL;
 }
 
 // Varre a tabela de símbolos imprimindo o conteúdo
