@@ -45,8 +45,10 @@ int parser_return;
 %left TK_OC_AND
 %nonassoc TK_OC_EQ TK_OC_NE
 %nonassoc '<' '>' TK_OC_LE TK_OC_GE
+%left '!'
 %left '+' '-'
 %left '*' '/'
+%left '(' ')'
 %left UMINUS
 %right TK_PR_ELSE TK_PR_THEN
 
@@ -188,6 +190,8 @@ expressao:
     | '(' expressao ')'
     | expressao-aritmetica
     | expressao-logica
+    | '!' expressao
+    | '-' expressao %prec UMINUS
 ;
 
 
@@ -196,7 +200,6 @@ expressao-aritmetica:
     | expressao '-' expressao
     | expressao '*' expressao
     | expressao '/' expressao
-    | '-' expressao %prec UMINUS
 ;
 
 expressao-logica:

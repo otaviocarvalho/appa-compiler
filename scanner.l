@@ -62,7 +62,7 @@ UNDERSCORE [_]
         return TK_IDENTIFICADOR;
 }
 
--?{DIGIT}+              { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_INT; }
+{DIGIT}+              { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_INT; }
 -?{DIGIT}+"."{DIGIT}+   { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_FLOAT; }
 \'.\'                   { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_CHAR; }
 \"[^"]*\"               { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line); return TK_LIT_STRING;}
