@@ -8,16 +8,19 @@
 int parser_return;
 %}
 
+%define parse.error verbose
+%define parse.trace
 %union {
     struct comp_dict_item_t* symbol;
+    int var_type;
 };
 
 /* Declaração dos tokens da linguagem */
-%token TK_PR_INT
-%token TK_PR_FLOAT
-%token TK_PR_BOOL
-%token TK_PR_CHAR
-%token TK_PR_STRING
+%token<var_type> TK_PR_INT
+%token<var_type> TK_PR_FLOAT
+%token<var_type> TK_PR_BOOL
+%token<var_type> TK_PR_CHAR
+%token<var_type> TK_PR_STRING
 %token TK_PR_IF
 %token TK_PR_THEN
 %token TK_PR_ELSE
