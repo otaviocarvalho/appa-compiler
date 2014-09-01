@@ -12,15 +12,14 @@ int parser_return;
 %define parse.trace
 %union {
     struct comp_dict_item_t* symbol;
-    int var_type;
 };
 
 /* Declaração dos tokens da linguagem */
-%token<var_type> TK_PR_INT
-%token<var_type> TK_PR_FLOAT
-%token<var_type> TK_PR_BOOL
-%token<var_type> TK_PR_CHAR
-%token<var_type> TK_PR_STRING
+%token TK_PR_INT
+%token TK_PR_FLOAT
+%token TK_PR_BOOL
+%token TK_PR_CHAR
+%token TK_PR_STRING
 %token TK_PR_IF
 %token TK_PR_THEN
 %token TK_PR_ELSE
@@ -35,13 +34,13 @@ int parser_return;
 %token TK_OC_NE
 %token TK_OC_AND
 %token TK_OC_OR
-%token TK_LIT_INT
-%token TK_LIT_FLOAT
-%token TK_LIT_FALSE
-%token TK_LIT_TRUE
-%token TK_LIT_CHAR
-%token TK_LIT_STRING
-%token TK_IDENTIFICADOR
+%token<symbol> TK_LIT_INT
+%token<symbol> TK_LIT_FLOAT
+%token<symbol> TK_LIT_FALSE
+%token<symbol> TK_LIT_TRUE
+%token<symbol> TK_LIT_CHAR
+%token<symbol> TK_LIT_STRING
+%token<symbol> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
 %left TK_OC_OR
