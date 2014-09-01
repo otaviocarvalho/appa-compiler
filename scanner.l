@@ -37,8 +37,14 @@ UNDERSCORE [_]
 "output"    { return TK_PR_OUTPUT; } ;
 "return"    { return TK_PR_RETURN; } ;
 
-"true"      { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); return TK_LIT_TRUE; }
-"false"     { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); return TK_LIT_FALSE; }
+"true"      {
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); 
+    return TK_LIT_TRUE;
+}
+"false"     {
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); 
+    return TK_LIT_FALSE;
+}
 
 
 "//".* { }
@@ -58,14 +64,26 @@ UNDERSCORE [_]
 "||"    { return TK_OC_OR; }
 
 ({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* {
-        yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_IDENTIFICADOR);
-        return TK_IDENTIFICADOR;
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_IDENTIFICADOR);
+    return TK_IDENTIFICADOR;
 }
 
-{DIGIT}+              { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_INT); return TK_LIT_INT; }
-{DIGIT}+"."{DIGIT}+   { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_FLOAT); return TK_LIT_FLOAT; }
-\'.\'                 { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_CHAR); return TK_LIT_CHAR; }
-\"[^"]*\"             { yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_STRING); return TK_LIT_STRING;}
+{DIGIT}+              {
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_INT);
+    return TK_LIT_INT;
+}
+{DIGIT}+"."{DIGIT}+   {
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_FLOAT);
+    return TK_LIT_FLOAT;
+}
+\'.\'                 {
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_CHAR);
+    return TK_LIT_CHAR;
+}
+\"[^"]*\"             {
+    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_STRING);
+    return TK_LIT_STRING;
+}
 
 " "        {  }
 "\t"       {  }

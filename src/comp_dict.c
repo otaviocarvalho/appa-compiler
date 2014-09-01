@@ -109,7 +109,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->next = NULL;
     node->item->line = line;
     node->item->type = convert_type_symbol(type);
-    node->item->value = alloc_value_symbol(type, key); // Aloca valor do token de acordo com o tipo
+    node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
 
     // Calcula o hash
     int hash = hash_function(key);
@@ -194,15 +194,23 @@ void* alloc_value_symbol(int type, char* key){
         case IKS_SIMBOLO_LITERAL_CHAR:
         {
             char* value = (char*) malloc(sizeof(char));
-            value = key;
+            // Remoção das aspas simples
+            memcpy(value, key+1, strlen(key)-2);
             return value;
             break;
         }
         case IKS_SIMBOLO_LITERAL_BOOL:
         case IKS_SIMBOLO_IDENTIFICADOR:
-        case IKS_SIMBOLO_LITERAL_STRING:
         {
             char* value = strdup(key);
+            return value;
+            break;
+        }
+        case IKS_SIMBOLO_LITERAL_STRING:
+        {
+            char* value = (char*) malloc(sizeof(char)*strlen(key));
+            // Remoção das aspas duplas
+            memcpy(value, key+1, strlen(key)-2);
             return value;
             break;
         }
@@ -223,7 +231,7 @@ int print_file_table(FILE* out, comp_dict_t* table) {
             comp_dict_node_t* current = table->entries[i];
 
             do {
-                str_entry(tmp_string, current->key, current->item->line);
+                str_entry(tmp_string, current->key, current->item->line, current->item->type, (void*)current->item->value);
                 fprintf(out, "%s", tmp_string);
                 entry_count++;
                 current = current->next;
@@ -238,7 +246,7 @@ int print_table(comp_dict_t* table){
     return print_file_table(stdout, table);
 }
 
-char* str_entry(char* retbuffer, char* key, int line){
-    sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\n", key, line);
+char* str_entry(char* retbuffer, char* key, int line, int type, void* value){
+    sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tValue: %s;\n\n", key, line, type, (char*)value);
     return retbuffer;
 }

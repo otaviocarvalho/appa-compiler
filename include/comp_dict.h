@@ -37,5 +37,5 @@ comp_dict_item_t* find_symbol(comp_dict_t*, char*);
 comp_dict_item_t* add_symbol(comp_dict_t*, char*, int, int);
 void* alloc_value_symbol(int, char*);
 int print_table(comp_dict_t*);
-char* str_entry(char*, char*, int);
+char* str_entry(char*, char*, int, int, void*);
 int print_file_table(FILE*, comp_dict_t*);
