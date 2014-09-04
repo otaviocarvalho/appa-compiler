@@ -105,14 +105,21 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
 
-    node->key = strdup(key);
+    node->key = malloc(sizeof(char)*SIZE_TABLE_KEY);
+    strcpy(node->key, key);
+    
     node->next = NULL;
     node->item->line = line;
     node->item->type = convert_type_symbol(type);
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
-
+   
+    char buffer[SIZE_TABLE_KEY];
+    snprintf(buffer,SIZE_TABLE_KEY,"%d",node->item->type);
+    strcat(node->key, buffer);
+ 
+    
     // Calcula o hash
-    int hash = hash_function(key);
+    int hash = hash_function(node->key);
     // Inicializa bucket com esse elemento se não encontrar nenhum
     if (cur_table->entries[hash] == NULL) {
         cur_table->entries[hash] = node;
