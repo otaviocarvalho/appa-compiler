@@ -6,12 +6,17 @@
 #include "main.h"
 
 int parser_return;
+int max_id_tabela;
+
+comp_tree_t* arvore_tabela;
+comp_tree_t* tabela_atual;
 %}
 
 %define parse.error verbose
 %define parse.trace
 %union {
     struct comp_dict_item_t* symbol;
+    struct comp_tree_t *node;
 };
 
 /* Declaração dos tokens da linguagem */
@@ -43,6 +48,35 @@ int parser_return;
 %token<symbol> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+/*%type<node> programa*/
+/*%type<node> decl-global*/
+/*%type<node> decl-local*/
+/*%type<node> decl-parametro*/
+/*%type<node> func*/
+/*%type<node> chamada-funcao*/
+/*%type<node> lista-argumentos*/
+/*%type<node> cabecalho*/
+/*%type<node> corpo*/
+/*%type<node> bloco-comando*/
+/*%type<node> sequencia*/
+/*%type<node> lista-parametros*/
+/*%type<node> tipo*/
+/*%type<node> comando*/
+/*%type<node> condicional*/
+/*%type<node> laco*/
+/*%type<node> input*/
+/*%type<node> output*/
+/*%type<node> nome-func*/
+/*%type<node> identificador*/
+/*%type<node> expressao*/
+/*%type<node> expressao-aritmetica*/
+/*%type<node> expressao-logica*/
+/*%type<node> atribuicao*/
+/*%type<node> lista-expressao*/
+/*%type<node> literal*/
+/*%type<node> do*/
+/*%type<node> while*/
+/*%type<node> return*/
 
 %left TK_OC_OR
 %left TK_OC_AND
@@ -59,9 +93,9 @@ int parser_return;
 /* Regras (e ações) da gramática */
 
 programa:{
-	arvore_tabela = inicializa_arvore();
-	tabela_atual = arvore_tabela;
-	max_id_tabela = 1;
+    /*arvore_tabela = (comp_tree_t *) inicializa_arvore();*/
+    /*tabela_atual = arvore_tabela;*/
+    /*max_id_tabela = 1;*/
 }
     decl-global programa {	
         parser_return = IKS_SYNTAX_SUCESSO;
@@ -85,48 +119,46 @@ programa:{
 
 decl-global:
     decl-local ';'
-    | tipo identificador '[' expressao ']' ';'{
-	$1->next_brother = $2;
-	$2->children = $4;
-}
+    | tipo identificador '[' expressao ']' ';' {
+        /*$1->next_brother = $2;*/
+        /*$2->children = $4;*/
+    }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
     | atribuicao { yyerror("Não são permitidas atribuições fora do escopo de função"); }
 ;
 
 decl-local:
-    tipo identificador
-    {
-	$1->next_brother = $2;
-	$$ = $1;
+    tipo identificador {
+        /*$1->next_brother = $2;*/
+        /*$$ = $1;*/
     }
 ;
 
 decl-parametro:
-    tipo identificador
-    {
-	$1->next_brother = $2;
-	$$ = $1;
+    tipo identificador {
+        /*$1->next_brother = $2;*/
+        /*$$ = $1;*/
     }
 ;
 
 func:
     cabecalho corpo
     {
-      $1->next_brother = $2;
-      $$ = $1;
+      /*$1->next_brother = $2;*/
+      /*$$ = $1;*/
     }
 ;
 
 chamada-funcao:
     identificador '(' ')'
     {
-      $$ = $1;
+        /*$$ = $1;*/
     }
     | identificador '(' lista-argumentos ')'
     {
-      $1->next_brother = $3;
-      $$ = $1;
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
     }
 ;
 
@@ -134,14 +166,14 @@ lista-argumentos:
     expressao
     | expressao ',' lista-argumentos
     {
-      $1->next_brother=$3
+        /*$1->next_brother=$3*/
     }
 ;
 
 cabecalho:
     tipo nome-func '(' lista-parametros ')'
     {
-      $1->next_brother=$4
+        /*$1->next_brother=$4*/
     }
     | tipo nome-func '(' ')'
 ;
@@ -153,61 +185,62 @@ corpo:
 bloco-comando:
     '{' sequencia '}'
     {
-      $$ = $2;
+        /*$$ = $2;*/
     }
-    | '{' '}'
+    |
+    '{' '}'
 ;
 
 sequencia:
     comando ';'
-    { 
-      $1->next_brother = $2; 
-      $$ = $1;
+    {
+        /*$1->next_brother = $2; */
+        /*$$ = $1;*/
     }
     | comando ';' sequencia 
-    { 
-      $1->next_brother = $3;
-      $$ = $1;
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
     }
     | '{' sequencia '}'
-    { 
-      $$ = $2
+    {
+        /*$$ = $2*/
     }
-    | ';' 
-    { 
-      $$ = $1;
+    | ';'
+    {
+        /*$$ = $1;*/
     }
 ;
 
 lista-parametros:
     decl-parametro 
-    | decl-parametro ',' lista-parametros 
-    { 
-      $1->next_brother = $3; 
-      $$ = $1;
+    | decl-parametro ',' lista-parametros
+    {
+        /*$1->next_brother = $3; */
+        /*$$ = $1;*/
     }
 ;
 
 tipo:
-    TK_PR_INT 
-    { 
-      $$ = $1;
+    TK_PR_INT
+    {
+        /*$$ = IKS_SIMBOLO_LITERAL_INT;*/
     }
-    | TK_PR_FLOAT 
-    { 
-      $$ = $1;
+    | TK_PR_FLOAT
+    {
+        /*$$ = IKS_SIMBOLO_LITERAL_FLOAT;*/
     }
-    | TK_PR_BOOL 
-    { 
-      $$ = $1;
+    | TK_PR_BOOL
+    {
+        /*$$ = IKS_SIMBOLO_LITERAL_BOOL;*/
     }
-    | TK_PR_CHAR 
-    { 
-      $$ = $1;
+    | TK_PR_CHAR
+    {
+        /*$$ = IKS_SIMBOLO_LITERAL_CHAR;*/
     }
-    | TK_PR_STRING 
-    { 
-      $$ = $1;
+    | TK_PR_STRING
+    {
+        /*$$ = IKS_SIMBOLO_LITERAL_STRING;*/
     }
 ;
 
@@ -220,9 +253,9 @@ comando:
     | laco
     | return
     | atribuicao
-    | '{' sequencia '}' 
-    { 
-      $$->next_brother = $2; 
+    | '{' sequencia '}'
+    {
+        /*$$->next_brother = $2; */
     }
     | ';'
 ;
@@ -242,15 +275,15 @@ laco:
 
 input:
     TK_PR_INPUT identificador{
-     $1->next_brother = $2;
-     $$ = $1;
+        /*$1->next_brother = $2;*/
+        /*$$ = $1;*/
     }
 ;
 
 output:
     TK_PR_OUTPUT lista-expressao{
-     $1->next_brother = $2;
-     $$ = $1;
+        /*$1->next_brother = $2;*/
+        /*$$ = $1;*/
     }
 ;
 
@@ -259,7 +292,9 @@ nome-func:
 ;
 
 identificador:
-    TK_IDENTIFICADOR { $$ = $1; }
+    TK_IDENTIFICADOR {
+        /*$$ = IKS_SIMBOLO_IDENTIFICADOR;*/
+    }
 ;
 
 expressao:
@@ -276,77 +311,81 @@ expressao:
 
 
 expressao-aritmetica:
-    expressao '+' expressao 
-    { $1->next_brother = $3;
-      $$ = $1;
+    expressao '+' expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
     }
-    | expressao '-' expressao 
-    { $1->next_brother = $3; 
-      $$ = $1; 
+    | expressao '-' expressao
+    {
+        /*$1->next_brother = $3; */
+        /*$$ = $1; */
     }
-    | expressao '*' expressao 
-    { $1->next_brother = $3;
-      $$ = $1; 
+    | expressao '*' expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1; */
     }
     | expressao '/' expressao 
-    { $1->next_brother = $3;
-      $$ = $1; 
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1; */
     }
 ;
 
 expressao-logica:
-    expressao TK_OC_EQ expressao 
-    { 
-      $1->next_brother = $3; 
-      $$ = $1; 
-    }
-    | expressao '<' expressao 
-    { 
-      $1->next_brother = $3;
-      $$ = $1;
-    }
-    | expressao TK_OC_LE expressao 
-    { 
-      $1->next_brother = $3;
-      $$ = $1;
-    }
-    | expressao '>' expressao 
+    expressao TK_OC_EQ expressao
     {
-      $1->next_brother = $3;
-      $$ = $1; 
+        /*$1->next_brother = $3; */
+        /*$$ = $1; */
+    }
+    | expressao '<' expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
+    }
+    | expressao TK_OC_LE expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
+    }
+    | expressao '>' expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1; */
     }
     | expressao TK_OC_GE expressao 
-    { 
-      $1->next_brother = $3;
-      $$ = $1; 
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1; */
     }
-    | expressao TK_OC_NE expressao 
-    { 
-      $1->next_brother = $3;
-      $$ = $1; 
+    | expressao TK_OC_NE expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1; */
     }
-    | expressao TK_OC_AND expressao 
-    { 
-      $1->next_brother = $3;
-      $$ = $1;
+    | expressao TK_OC_AND expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
     }
-    | expressao TK_OC_OR expressao 
-    { 
-      $1->next_brother = $3;
-      $$ = $1; 
+    | expressao TK_OC_OR expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$$ = $1; */
     }
 ;
 
 atribuicao:
-    identificador '=' expressao 
-    { 
-      $1->next_brother = $3; 
-      $$ = $1;
+    identificador '=' expressao
+    {
+        /*$1->next_brother = $3; */
+        /*$$ = $1;*/
     }
-    | identificador '[' expressao ']' '=' expressao 
-    { 
-      $1->next_brother = $3;
-      $3->next_brother = $6;
+    | identificador '[' expressao ']' '=' expressao
+    {
+        /*$1->next_brother = $3;*/
+        /*$3->next_brother = $6;*/
     }
 ;
 
@@ -354,11 +393,10 @@ lista-expressao:
     expressao
     | expressao ',' lista-expressao
     {
-      $1->next_brother = $3;
-      $$ = $1;
+        /*$1->next_brother = $3;*/
+        /*$$ = $1;*/
     }
 ;
-
 
 literal:
     TK_LIT_CHAR
@@ -380,8 +418,8 @@ while:
 return:
   TK_PR_RETURN expressao
   {
-    $1->next_brother = $2;
-    $$ = $1;
+        /*$1->next_brother = $2;*/
+        /*$$ = $1;*/
   }
 ;
 

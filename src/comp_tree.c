@@ -5,7 +5,7 @@
 
 int count_nodes = 0;
 
-comp_tree_t *create_node(int type, char* lex, comp_tree_t* node){
+comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
     comp_tree_t* aux;
     comp_tree_t* new_node;
 
