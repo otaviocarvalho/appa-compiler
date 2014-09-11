@@ -43,6 +43,7 @@ int parser_return;
 %token<symbol> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+
 %left TK_OC_OR
 %left TK_OC_AND
 %nonassoc TK_OC_EQ TK_OC_NE
@@ -57,8 +58,12 @@ int parser_return;
 %%
 /* Regras (e ações) da gramática */
 
-programa:
-    decl-global programa {
+programa:{
+	arvore_tabela = inicializa_arvore();
+	tabela_atual = arvore_tabela;
+	max_id_tabela = 1;
+}
+    decl-global programa {	
         parser_return = IKS_SYNTAX_SUCESSO;
         return parser_return;
     }
@@ -80,7 +85,10 @@ programa:
 
 decl-global:
     decl-local ';'
-    | tipo identificador '[' expressao ']' ';'
+    | tipo identificador '[' expressao ']' ';'{
+	$1->next_brother = $2;
+	$2->children = $4;
+}
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
     | atribuicao { yyerror("Não são permitidas atribuições fora do escopo de função"); }
@@ -88,28 +96,53 @@ decl-global:
 
 decl-local:
     tipo identificador
+    {
+	$1->next_brother = $2;
+	$$ = $1;
+    }
 ;
 
 decl-parametro:
     tipo identificador
+    {
+	$1->next_brother = $2;
+	$$ = $1;
+    }
 ;
 
 func:
     cabecalho corpo
+    {
+      $1->next_brother = $2;
+      $$ = $1;
+    }
 ;
 
 chamada-funcao:
     identificador '(' ')'
+    {
+      $$ = $1;
+    }
     | identificador '(' lista-argumentos ')'
+    {
+      $1->next_brother = $3;
+      $$ = $1;
+    }
 ;
 
 lista-argumentos:
     expressao
     | expressao ',' lista-argumentos
+    {
+      $1->next_brother=$3
+    }
 ;
 
 cabecalho:
     tipo nome-func '(' lista-parametros ')'
+    {
+      $1->next_brother=$4
+    }
     | tipo nome-func '(' ')'
 ;
 
@@ -119,27 +152,63 @@ corpo:
 
 bloco-comando:
     '{' sequencia '}'
+    {
+      $$ = $2;
+    }
     | '{' '}'
 ;
 
 sequencia:
     comando ';'
-    | comando ';' sequencia
+    { 
+      $1->next_brother = $2; 
+      $$ = $1;
+    }
+    | comando ';' sequencia 
+    { 
+      $1->next_brother = $3;
+      $$ = $1;
+    }
     | '{' sequencia '}'
-    | ';'
+    { 
+      $$ = $2
+    }
+    | ';' 
+    { 
+      $$ = $1;
+    }
 ;
 
 lista-parametros:
-    decl-parametro
-    | decl-parametro ',' lista-parametros
+    decl-parametro 
+    | decl-parametro ',' lista-parametros 
+    { 
+      $1->next_brother = $3; 
+      $$ = $1;
+    }
 ;
 
 tipo:
-    TK_PR_INT
-    | TK_PR_FLOAT
-    | TK_PR_BOOL
-    | TK_PR_CHAR
-    | TK_PR_STRING
+    TK_PR_INT 
+    { 
+      $$ = $1;
+    }
+    | TK_PR_FLOAT 
+    { 
+      $$ = $1;
+    }
+    | TK_PR_BOOL 
+    { 
+      $$ = $1;
+    }
+    | TK_PR_CHAR 
+    { 
+      $$ = $1;
+    }
+    | TK_PR_STRING 
+    { 
+      $$ = $1;
+    }
 ;
 
 comando:
@@ -151,7 +220,10 @@ comando:
     | laco
     | return
     | atribuicao
-    | '{' sequencia '}'
+    | '{' sequencia '}' 
+    { 
+      $$->next_brother = $2; 
+    }
     | ';'
 ;
 
@@ -169,11 +241,17 @@ laco:
 ;
 
 input:
-    TK_PR_INPUT identificador
+    TK_PR_INPUT identificador{
+     $1->next_brother = $2;
+     $$ = $1;
+    }
 ;
 
 output:
-    TK_PR_OUTPUT lista-expressao
+    TK_PR_OUTPUT lista-expressao{
+     $1->next_brother = $2;
+     $$ = $1;
+    }
 ;
 
 nome-func:
@@ -181,7 +259,7 @@ nome-func:
 ;
 
 identificador:
-    TK_IDENTIFICADOR
+    TK_IDENTIFICADOR { $$ = $1; }
 ;
 
 expressao:
@@ -198,31 +276,87 @@ expressao:
 
 
 expressao-aritmetica:
-    expressao '+' expressao
-    | expressao '-' expressao
-    | expressao '*' expressao
-    | expressao '/' expressao
+    expressao '+' expressao 
+    { $1->next_brother = $3;
+      $$ = $1;
+    }
+    | expressao '-' expressao 
+    { $1->next_brother = $3; 
+      $$ = $1; 
+    }
+    | expressao '*' expressao 
+    { $1->next_brother = $3;
+      $$ = $1; 
+    }
+    | expressao '/' expressao 
+    { $1->next_brother = $3;
+      $$ = $1; 
+    }
 ;
 
 expressao-logica:
-    expressao TK_OC_EQ expressao
-    | expressao '<' expressao
-    | expressao TK_OC_LE expressao
-    | expressao '>' expressao
-    | expressao TK_OC_GE expressao
-    | expressao TK_OC_NE expressao
-    | expressao TK_OC_AND expressao
-    | expressao TK_OC_OR expressao
+    expressao TK_OC_EQ expressao 
+    { 
+      $1->next_brother = $3; 
+      $$ = $1; 
+    }
+    | expressao '<' expressao 
+    { 
+      $1->next_brother = $3;
+      $$ = $1;
+    }
+    | expressao TK_OC_LE expressao 
+    { 
+      $1->next_brother = $3;
+      $$ = $1;
+    }
+    | expressao '>' expressao 
+    {
+      $1->next_brother = $3;
+      $$ = $1; 
+    }
+    | expressao TK_OC_GE expressao 
+    { 
+      $1->next_brother = $3;
+      $$ = $1; 
+    }
+    | expressao TK_OC_NE expressao 
+    { 
+      $1->next_brother = $3;
+      $$ = $1; 
+    }
+    | expressao TK_OC_AND expressao 
+    { 
+      $1->next_brother = $3;
+      $$ = $1;
+    }
+    | expressao TK_OC_OR expressao 
+    { 
+      $1->next_brother = $3;
+      $$ = $1; 
+    }
 ;
 
 atribuicao:
-    identificador '=' expressao
-    | identificador '[' expressao ']' '=' expressao
+    identificador '=' expressao 
+    { 
+      $1->next_brother = $3; 
+      $$ = $1;
+    }
+    | identificador '[' expressao ']' '=' expressao 
+    { 
+      $1->next_brother = $3;
+      $3->next_brother = $6;
+    }
 ;
 
 lista-expressao:
     expressao
     | expressao ',' lista-expressao
+    {
+      $1->next_brother = $3;
+      $$ = $1;
+    }
 ;
 
 
@@ -245,6 +379,10 @@ while:
 
 return:
   TK_PR_RETURN expressao
+  {
+    $1->next_brother = $2;
+    $$ = $1;
+  }
 ;
 
 %%
