@@ -4,12 +4,12 @@
 %{
 #include <stdio.h>
 #include "main.h"
+#include "iks_ast.h"
 
 int parser_return;
 int max_id_tabela;
 
-comp_tree_t* arvore_tabela;
-comp_tree_t* tabela_atual;
+comp_tree_t* arvore_sintatica;
 %}
 
 %define parse.error verbose
@@ -48,9 +48,9 @@ comp_tree_t* tabela_atual;
 %token<symbol> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
-/*%type<node> programa*/
-/*%type<node> decl-global*/
-/*%type<node> decl-local*/
+%type<node> programa
+%type<node> decl-global
+%type<node> decl-local
 /*%type<node> decl-parametro*/
 /*%type<node> func*/
 /*%type<node> chamada-funcao*/
@@ -60,14 +60,14 @@ comp_tree_t* tabela_atual;
 /*%type<node> bloco-comando*/
 /*%type<node> sequencia*/
 /*%type<node> lista-parametros*/
-/*%type<node> tipo*/
+%type<node> tipo
 /*%type<node> comando*/
 /*%type<node> condicional*/
 /*%type<node> laco*/
 /*%type<node> input*/
 /*%type<node> output*/
 /*%type<node> nome-func*/
-/*%type<node> identificador*/
+%type<node> identificador
 /*%type<node> expressao*/
 /*%type<node> expressao-aritmetica*/
 /*%type<node> expressao-logica*/
@@ -92,24 +92,32 @@ comp_tree_t* tabela_atual;
 %%
 /* Regras (e ações) da gramática */
 
-programa:{
-    /*arvore_tabela = (comp_tree_t *) inicializa_arvore();*/
-    /*tabela_atual = arvore_tabela;*/
-    /*max_id_tabela = 1;*/
-}
+start :
+    programa {
+        arvore_sintatica = create_node(IKS_AST_PROGRAMA, "IKS_AST_PROGRAMA", NULL);
+    }
+;
+
+programa:
     decl-global programa {	
+        $1->next_brother = $2;
+        $$ = $1;
         parser_return = IKS_SYNTAX_SUCESSO;
         return parser_return;
     }
     | func programa {
+        /*$1->next_brother = $2;*/
+        /*$$ = $1;*/
         parser_return = IKS_SYNTAX_SUCESSO;
         return parser_return;
     }
     | /* %empty */ {
+        $$ = NULL;
         parser_return = IKS_SYNTAX_SUCESSO;
         return parser_return;
     }
     | error {
+        $$ = NULL;
         yyerrok;
         yyclearin;
         parser_return = IKS_SYNTAX_ERRO;
@@ -118,10 +126,12 @@ programa:{
 ;
 
 decl-global:
-    decl-local ';'
+    decl-local ';' {
+        $$ = $1;
+    }
     | tipo identificador '[' expressao ']' ';' {
-        /*$1->next_brother = $2;*/
-        /*$2->children = $4;*/
+        /*$$ = create_node(IKS_AST_IDENTIFICADOR, "IKS_AST_IDENTIFICADOR", NULL);*/
+        /*$$->next_brother = $4;*/
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -130,8 +140,7 @@ decl-global:
 
 decl-local:
     tipo identificador {
-        /*$1->next_brother = $2;*/
-        /*$$ = $1;*/
+        $$ = create_node(IKS_AST_IDENTIFICADOR, "IKS_AST_IDENTIFICADOR", NULL);
     }
 ;
 
