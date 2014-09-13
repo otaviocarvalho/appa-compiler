@@ -48,7 +48,7 @@ comp_tree_t* arvore_sintatica;
 %token<symbol> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
-/*%type<node> start*/
+%type<node> start
 %type<node> programa
 %type<node> decl-global
 %type<node> decl-local
@@ -92,6 +92,14 @@ comp_tree_t* arvore_sintatica;
 
 %%
 /* Regras (e ações) da gramática */
+start:
+     programa {
+        arvore_sintatica = create_node(IKS_AST_IDENTIFICADOR, "programa", NULL);
+        $$ = arvore_sintatica;
+        /*$$->next_brother = $1;*/
+        /*arvore_sintatica = $1;*/
+     }
+;
 
 programa:
     decl-global programa {
@@ -139,8 +147,8 @@ decl-global:
 
 decl-local:
     tipo identificador {
-        $$ = create_node(IKS_AST_IDENTIFICADOR, "programa", NULL);
         /*$$ = create_node(IKS_AST_IDENTIFICADOR, "identificador", NULL);*/
+        $$ = NULL;
     }
 ;
 
