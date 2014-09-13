@@ -48,6 +48,7 @@ comp_tree_t* arvore_sintatica;
 %token<symbol> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+/*%type<node> start*/
 %type<node> programa
 %type<node> decl-global
 %type<node> decl-local
@@ -92,36 +93,34 @@ comp_tree_t* arvore_sintatica;
 %%
 /* Regras (e ações) da gramática */
 
-start :
-    programa {
-        arvore_sintatica = create_node(IKS_AST_PROGRAMA, "IKS_AST_PROGRAMA", NULL);
-    }
-;
-
 programa:
-    decl-global programa {	
-        $1->next_brother = $2;
+    decl-global programa {
+        /*arvore_sintatica = create_node(IKS_AST_PROGRAMA, "programa", NULL);*/
+        /*arvore_sintatica->next_brother = $1;*/
+        /*$1->next_brother = $2;*/
+
+        /*$1->next_brother = $2;*/
         $$ = $1;
-        parser_return = IKS_SYNTAX_SUCESSO;
-        return parser_return;
+        /*parser_return = IKS_SYNTAX_SUCESSO;*/
+        /*return parser_return;*/
     }
     | func programa {
         /*$1->next_brother = $2;*/
         /*$$ = $1;*/
-        parser_return = IKS_SYNTAX_SUCESSO;
-        return parser_return;
+        /*parser_return = IKS_SYNTAX_SUCESSO;*/
+        /*return parser_return;*/
     }
     | /* %empty */ {
-        $$ = NULL;
-        parser_return = IKS_SYNTAX_SUCESSO;
-        return parser_return;
+        /*$$ = NULL;*/
+        /*parser_return = IKS_SYNTAX_SUCESSO;*/
+        /*return parser_return;*/
     }
     | error {
-        $$ = NULL;
-        yyerrok;
-        yyclearin;
-        parser_return = IKS_SYNTAX_ERRO;
-        return parser_return;
+        /*$$ = NULL;*/
+        /*yyerrok;*/
+        /*yyclearin;*/
+        /*parser_return = IKS_SYNTAX_ERRO;*/
+        /*return parser_return;*/
     }
 ;
 
@@ -140,7 +139,8 @@ decl-global:
 
 decl-local:
     tipo identificador {
-        $$ = create_node(IKS_AST_IDENTIFICADOR, "IKS_AST_IDENTIFICADOR", NULL);
+        $$ = create_node(IKS_AST_IDENTIFICADOR, "programa", NULL);
+        /*$$ = create_node(IKS_AST_IDENTIFICADOR, "identificador", NULL);*/
     }
 ;
 
