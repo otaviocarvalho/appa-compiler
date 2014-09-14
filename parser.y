@@ -3,6 +3,7 @@
 */
 %{
 #include <stdio.h>
+#include <string.h>
 #include "main.h"
 #include "iks_ast.h"
 
@@ -319,7 +320,7 @@ output:
 
 identificador:
     TK_IDENTIFICADOR {
-        $$ = create_node(IKS_AST_IDENTIFICADOR, "xis", NULL);
+        $$ = create_node(IKS_AST_IDENTIFICADOR, $$->lex, NULL);
         /*$$ = IKS_SIMBOLO_IDENTIFICADOR;*/
     }
 ;
