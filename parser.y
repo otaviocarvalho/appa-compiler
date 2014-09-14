@@ -113,8 +113,8 @@ programa:
         /*return parser_return;*/
     }
     | func programa {
-        $$ = $1;
-        /*$1->next_brother = $2;*/
+	$1->next_brother = $2;
+        $$ = $1;        
         /*$$ = $1;*/
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
         /*return parser_return;*/
