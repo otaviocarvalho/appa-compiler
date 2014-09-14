@@ -94,7 +94,7 @@ comp_tree_t* arvore_sintatica;
 /* Regras (e ações) da gramática */
 start:
      programa {
-        arvore_sintatica = create_node(IKS_AST_IDENTIFICADOR, "programa", $1);
+        arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1);
         $$ = arvore_sintatica;
         /*$$->next_brother = $1;*/
         /*arvore_sintatica = $1;*/
@@ -120,7 +120,7 @@ programa:
         /*return parser_return;*/
     }
     | /* %empty */ {
-        /*$$ = NULL;*/
+        $$ = NULL;
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
         /*return parser_return;*/
     }
@@ -147,7 +147,7 @@ decl-global:
 ;
 
 decl-local:
-    tipo identificador {
+    tipo TK_IDENTIFICADOR {
         /*$$ = create_node(IKS_AST_IDENTIFICADOR, "identificador", NULL);*/
         $$ = NULL;
     }
