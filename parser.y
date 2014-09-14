@@ -362,8 +362,10 @@ output:
 
 identificador:
     TK_IDENTIFICADOR {
-        /*$$ = $1;*/
-        $$ = create_node(IKS_AST_IDENTIFICADOR, $$->lex, NULL);
+        
+        //$$ = $1;
+        //$1 = create_node(IKS_AST_IDENTIFICADOR, "teste", NULL);
+        //$$ = create_node(IKS_AST_IDENTIFICADOR, $$->lex, NULL);
         /*$$ = IKS_SIMBOLO_IDENTIFICADOR;*/
     }
 ;
