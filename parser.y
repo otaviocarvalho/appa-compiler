@@ -57,9 +57,9 @@ comp_tree_t* arvore_sintatica;
 /*%type<node> chamada-funcao*/
 /*%type<node> lista-argumentos*/
 %type<node> cabecalho
-/*%type<node> corpo*/
-/*%type<node> bloco-comando*/
-/*%type<node> sequencia*/
+%type<node> corpo
+%type<node> bloco-comando
+%type<node> sequencia
 /*%type<node> lista-parametros*/
 %type<node> tipo
 /*%type<node> comando*/
@@ -163,8 +163,10 @@ decl-parametro:
 func:
     cabecalho corpo
     {
+	
+	$2 = create_node(IKS_AST_FUNCAO,"corpo função", $2);
         $$ = $1;
-      /*$1->next_brother = $2;*/
+      
       /*$$ = $1;*/
     }
 ;
@@ -204,15 +206,21 @@ cabecalho:
 
 corpo:
     bloco-comando
+    {
+      $$ = $1;
+    }
 ;
 
 bloco-comando:
     '{' sequencia '}'
     {
-        /*$$ = $2;*/
+        $$ = $2;
     }
     |
     '{' '}'
+    {
+      $$ = NULL;
+    }
 ;
 
 sequencia:
@@ -232,7 +240,7 @@ sequencia:
     }
     | ';'
     {
-        /*$$ = $1;*/
+        $$ = create_node(IKS_AST_BLOCO, "ponto e vírguala", NULL);
     }
 ;
 
@@ -319,7 +327,7 @@ output:
 
 identificador:
     TK_IDENTIFICADOR {
-        $$ = create_node(IKS_AST_IDENTIFICADOR, "xis", NULL);
+        $$ = create_node(IKS_AST_IDENTIFICADOR, "identificador função", NULL);
         /*$$ = IKS_SIMBOLO_IDENTIFICADOR;*/
     }
 ;
