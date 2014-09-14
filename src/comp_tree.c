@@ -23,6 +23,7 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
     aux = node;
     while (aux != NULL){
         gv_connect(new_node, aux);
+        /*printf("connected %d %d\n", new_node->type, aux->type);*/
         aux = aux->next_brother;
     }
 
@@ -39,3 +40,16 @@ comp_tree_t* create_empty_node(){
 
     return new_node;
 }
+
+/*int main(){*/
+    /*comp_tree_t *node1;*/
+    /*comp_tree_t node2;*/
+
+    /*node2.type = 2;*/
+    /*node1 = create_node(1, "test", &node2);*/
+
+    /*printf("%d\n", node1->type);*/
+    /*printf("%d\n", node2.type);*/
+
+    /*return 0;*/
+/*}*/

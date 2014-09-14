@@ -53,10 +53,10 @@ comp_tree_t* arvore_sintatica;
 %type<node> decl-global
 %type<node> decl-local
 /*%type<node> decl-parametro*/
-/*%type<node> func*/
+%type<node> func
 /*%type<node> chamada-funcao*/
 /*%type<node> lista-argumentos*/
-/*%type<node> cabecalho*/
+%type<node> cabecalho
 /*%type<node> corpo*/
 /*%type<node> bloco-comando*/
 /*%type<node> sequencia*/
@@ -94,7 +94,7 @@ comp_tree_t* arvore_sintatica;
 /* Regras (e ações) da gramática */
 start:
      programa {
-        arvore_sintatica = create_node(IKS_AST_IDENTIFICADOR, "programa", NULL);
+        arvore_sintatica = create_node(IKS_AST_IDENTIFICADOR, "programa", $1);
         $$ = arvore_sintatica;
         /*$$->next_brother = $1;*/
         /*arvore_sintatica = $1;*/
@@ -113,6 +113,7 @@ programa:
         /*return parser_return;*/
     }
     | func programa {
+        $$ = $1;
         /*$1->next_brother = $2;*/
         /*$$ = $1;*/
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
@@ -162,6 +163,7 @@ decl-parametro:
 func:
     cabecalho corpo
     {
+        $$ = $1;
       /*$1->next_brother = $2;*/
       /*$$ = $1;*/
     }
@@ -188,11 +190,16 @@ lista-argumentos:
 ;
 
 cabecalho:
-    tipo nome-func '(' lista-parametros ')'
+    /*tipo nome-func '(' lista-parametros ')'*/
+    tipo identificador '(' lista-parametros ')'
     {
+        $$ = $2;
         /*$1->next_brother=$4*/
     }
-    | tipo nome-func '(' ')'
+    /*| tipo nome-func '(' ')'*/
+    | tipo identificador '(' ')' {
+        $$ = $2;
+    }
 ;
 
 corpo:
@@ -304,12 +311,15 @@ output:
     }
 ;
 
-nome-func:
-    identificador
-;
+/*nome-func:*/
+    /*identificador {*/
+        /*$$ = $1;*/
+    /*}*/
+/*;*/
 
 identificador:
     TK_IDENTIFICADOR {
+        $$ = create_node(IKS_AST_IDENTIFICADOR, "xis", NULL);
         /*$$ = IKS_SIMBOLO_IDENTIFICADOR;*/
     }
 ;
