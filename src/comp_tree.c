@@ -30,36 +30,9 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
 }
 
 void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
-    if (node_a == NULL){
-        /*fprintf(stderr, "node_a\n");*/
-    }
-    else {
-        comp_tree_t* aux = node_a;
-        while (aux != NULL){
-            /*gv_connect(new_node, aux);*/
-            /*fprintf(stderr, "a %s\n", aux->lex);*/
-            aux = aux->next_brother;
-        }
-    }
-
-    if (node_b == NULL){
-        /*fprintf(stderr, "node_b\n");*/
-    }
-    else {
-        comp_tree_t* aux = node_b;
-        while (aux != NULL){
-            /*gv_connect(new_node, aux);*/
-            /*fprintf(stderr, "b %s\n", aux->lex);*/
-            aux = aux->next_brother;
-        }
-    }
-
-    /*fprintf(stderr,"out\n");*/
-
     if (node_a != NULL && node_b != NULL){
         gv_connect(node_a, node_b);
     }
-    /*gv_connect(node_a, node_b);*/
 }
 
 comp_tree_t* create_empty_node(){
