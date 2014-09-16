@@ -333,17 +333,14 @@ laco:
 
 input:
     TK_PR_INPUT TK_IDENTIFICADOR {
-        comp_tree_t* node_aux = create_node(IKS_AST_OUTPUT, "input", NULL);
-        /*node_aux->next_brother = $2;*/
-        $$ = node_aux;
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL);
+        $$ = create_node(IKS_AST_INPUT, NULL, node_identificador);
     }
 ;
 
 output:
-    TK_PR_OUTPUT lista-expressao{
-        comp_tree_t* node_aux = create_node(IKS_AST_OUTPUT, "output", NULL);
-        /*node_aux->next_brother = $2;*/
-        $$ = node_aux;
+    TK_PR_OUTPUT lista-expressao {
+        $$ = create_node(IKS_AST_OUTPUT, NULL, $2);
     }
 ;
 
@@ -470,12 +467,12 @@ atribuicao:
 
 lista-expressao:
     expressao {
-        $$ = NULL;
+        $$ = $1;
     }
     | expressao ',' lista-expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1;*/
+        connect_nodes($1, $3);
+        $$ = $1;
     }
 ;
 
