@@ -372,10 +372,16 @@ expressao:
         $$ = $1;
     }
     | '!' expressao {
-        $$ = $2;
+        comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "!", NULL);
+        connect_nodes(unario, $2);
+        $$ = unario;
+        /*$$ = $2;*/
     }
     | '-' expressao %prec UMINUS {
-        $$ = $2;
+        comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL);
+        connect_nodes(unario, $2);
+        $$ = unario;
+        /*$$ = $2;*/
     }
 ;
 
