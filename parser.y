@@ -101,7 +101,6 @@ start:
 programa:
     decl-global programa {
         $$ = $1;
-        /*$$ = create_node(IKS_AST_IDENTIFICADOR, "test1", NULL);*/
 
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
         /*return parser_return;*/
@@ -110,16 +109,12 @@ programa:
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
         $$ = $1;
 
-        /*$1->next_brother = $2;*/
-        /*$$ = $1;*/
-
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
         /*return parser_return;*/
     }
     | /* %empty */ {
         $$ = NULL;
 
-        // Causam erro na etapa 3
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
         /*return parser_return;*/
     }
@@ -162,15 +157,13 @@ decl-parametro:
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
-        /*$$ = $2;*/
-        /*$1->next_brother=$4;*/
+        // Revisar
+        $4->next_brother = $6;
+        $$ = create_node(IKS_AST_FUNCAO, $2, $4);
     }
-    /*| tipo nome-func '(' ')'*/
     | tipo TK_IDENTIFICADOR '(' ')' corpo
     {
-        /*fprintf(stderr, "%d\n", $$->symbol_name);*/
         $$ = create_node(IKS_AST_FUNCAO, $2, $5);
-        /*$$ = $2;*/
     }
 ;
 
@@ -219,8 +212,6 @@ bloco-comando:
 sequencia:
     comando ';'
     {
-        /*fprintf(stderr, "entrou comando");*/
-        /*$1->next_brother = $2; */
         $$ = $1;
     }
     | comando ';' sequencia 
@@ -233,42 +224,49 @@ sequencia:
     }
     | ';'
     {
-        $$ = create_node(IKS_AST_BLOCO, "ponto e vírguala", NULL);
+        $$ = NULL;
     }
     | '{' '}' {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
     }
 ;
 
+// Revisar
 lista-parametros:
-    decl-parametro 
+    decl-parametro {
+        $$ = $1;
+    }
     | decl-parametro ',' lista-parametros
     {
-        $$ = NULL;
-        /*$1->next_brother = $3; */
-        /*$$ = $1;*/
+        connect_nodes($1, $3);
+        $$ = $1;
     }
 ;
 
 tipo:
     TK_PR_INT
     {
+        $$ = NULL;
         /*$$ = IKS_SIMBOLO_LITERAL_INT;*/
     }
     | TK_PR_FLOAT
     {
+        $$ = NULL;
         /*$$ = IKS_SIMBOLO_LITERAL_FLOAT;*/
     }
     | TK_PR_BOOL
     {
+        $$ = NULL;
         /*$$ = IKS_SIMBOLO_LITERAL_BOOL;*/
     }
     | TK_PR_CHAR
     {
+        $$ = NULL;
         /*$$ = IKS_SIMBOLO_LITERAL_CHAR;*/
     }
     | TK_PR_STRING
     {
+        $$ = NULL;
         /*$$ = IKS_SIMBOLO_LITERAL_STRING;*/
     }
 ;
@@ -327,13 +325,12 @@ condicional:
 ;
 
 laco:
-  while '(' expressao ')' do comando {
-        $3->next_brother = $6;
-        $$ = create_node(IKS_AST_WHILE_DO, NULL, $3);
+  while '(' expressao-logica ')' do comando {
+        $1->next_brother = $6;
+        create_node(IKS_AST_WHILE_DO, NULL, $1);
   }
-  | do comando while '(' expressao ')' {
-    $2->next_brother = $5;
-    $$ = create_node(IKS_AST_DO_WHILE, NULL, $2);
+  | do comando while '(' expressao-logica ')' {
+
   }
 ;
 
@@ -349,14 +346,6 @@ output:
         $$ = create_node(IKS_AST_OUTPUT, NULL, $2);
     }
 ;
-
-/*identificador:*/
-    /*TK_IDENTIFICADOR {*/
-        /*[>fprintf(stderr, "entrou cria identif\n");<]*/
-        /*$$ = create_node(IKS_AST_IDENTIFICADOR, $$->lex, NULL);*/
-        /*[>$$ = NULL;<]*/
-    /*}*/
-/*;*/
 
 expressao:
     TK_IDENTIFICADOR {
