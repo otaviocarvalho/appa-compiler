@@ -322,12 +322,13 @@ condicional:
 ;
 
 laco:
-  while '(' expressao-logica ')' do comando {
-        $1->next_brother = $6;
-        create_node(IKS_AST_WHILE_DO, NULL, $1);
+  while '(' expressao ')' do comando {
+        $3->next_brother = $6;
+        $$ = create_node(IKS_AST_WHILE_DO, NULL, $3);
   }
-  | do comando while '(' expressao-logica ')' {
-
+  | do comando while '(' expressao ')' {
+    $2->next_brother = $5;
+    $$ = create_node(IKS_AST_DO_WHILE, NULL, $2);
   }
 ;
 
