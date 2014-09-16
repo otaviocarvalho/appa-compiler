@@ -56,7 +56,7 @@ comp_tree_t* arvore_sintatica;
 %type<node> decl-local
 %type<node> decl-parametro
 %type<node> func
-/*%type<node> chamada-funcao*/
+%type<node> chamada-funcao
 /*%type<node> lista-argumentos*/
 %type<node> corpo
 %type<node> bloco-comando
@@ -68,16 +68,15 @@ comp_tree_t* arvore_sintatica;
 %type<node> laco
 %type<node> input
 %type<node> output
-/*%type<node> nome-func*/
 %type<node> expressao
-/*%type<node> expressao-aritmetica*/
-/*%type<node> expressao-logica*/
+%type<node> expressao-aritmetica
+%type<node> expressao-logica
 %type<node> atribuicao
 %type<node> lista-expressao
 %type<node> literal
 %type<node> do
 %type<node> while
-/*%type<node> return*/
+%type<node> return
 
 %left TK_OC_OR
 %left TK_OC_AND
@@ -289,7 +288,7 @@ comando:
         $$ = $1;
     }
     | return {
-        $$ = NULL;
+        $$ = $1;
     }
     | atribuicao {
         $$ = $1;
@@ -358,32 +357,31 @@ output:
 
 expressao:
     TK_IDENTIFICADOR {
-        /*$$ = $1;*/
-        $$ = NULL;
+        $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);
     }
     | literal {
         $$ = $1;
     }
     | chamada-funcao {
-        $$ = NULL;
+        $$ = $1;
     }
     | TK_IDENTIFICADOR '[' expressao ']' {
         $$ = NULL;
     }
     | '(' expressao ')' {
-        $$ = NULL;
+        $$ = $2;
     }
     | expressao-aritmetica {
-        $$ = NULL;
+        $$ = $1;
     }
     | expressao-logica {
-        $$ = NULL;
+        $$ = $1;
     }
     | '!' expressao {
-        $$ = NULL;
+        $$ = $2;
     }
     | '-' expressao %prec UMINUS {
-        $$ = NULL;
+        $$ = $2;
     }
 ;
 
@@ -391,66 +389,66 @@ expressao:
 expressao-aritmetica:
     expressao '+' expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1;*/
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1);
     }
     | expressao '-' expressao
     {
-        /*$1->next_brother = $3; */
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1);
     }
     | expressao '*' expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_ARIM_MULTIPLICACAO, NULL, $1);
     }
     | expressao '/' expressao 
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_ARIM_DIVISAO, NULL, $1);
     }
 ;
 
 expressao-logica:
     expressao TK_OC_EQ expressao
     {
-        /*$1->next_brother = $3; */
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_COMP_IGUAL, NULL, $1);
     }
     | expressao '<' expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1;*/
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_COMP_L, NULL, $1);
     }
     | expressao TK_OC_LE expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1;*/
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_COMP_LE, NULL, $1);
     }
     | expressao '>' expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_COMP_G, NULL, $1);
     }
     | expressao TK_OC_GE expressao 
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_COMP_GE, NULL, $1);
     }
     | expressao TK_OC_NE expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_COMP_DIF, NULL, $1);
     }
     | expressao TK_OC_AND expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1;*/
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_E, NULL, $1);
     }
     | expressao TK_OC_OR expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1; */
+        $1->next_brother = $3;
+        $$ = create_node(IKS_AST_LOGICO_OU, NULL, $1);
     }
 ;
 
@@ -515,11 +513,10 @@ while:
 ;
 
 return:
-  TK_PR_RETURN expressao
-  {
-        /*$1->next_brother = $2;*/
-        /*$$ = $1;*/
-  }
+    TK_PR_RETURN expressao
+    {
+        $$ = create_node(IKS_AST_RETURN, NULL, $2);
+    }
 ;
 
 %%
