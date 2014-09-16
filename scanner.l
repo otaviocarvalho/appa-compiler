@@ -65,6 +65,7 @@ UNDERSCORE [_]
 
 ({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_IDENTIFICADOR);
+    yylval.symbol_name = strdup(yytext);
     return TK_IDENTIFICADOR;
 }
 
