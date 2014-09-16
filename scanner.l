@@ -39,10 +39,12 @@ UNDERSCORE [_]
 
 "true"      {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); 
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_TRUE;
 }
 "false"     {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); 
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_FALSE;
 }
 
@@ -71,18 +73,22 @@ UNDERSCORE [_]
 
 {DIGIT}+              {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_INT);
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_INT;
 }
 {DIGIT}+"."{DIGIT}+   {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_FLOAT);
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_FLOAT;
 }
 \'.\'                 {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_CHAR);
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_CHAR;
 }
 \"[^"]*\"             {
     yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_STRING);
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_STRING;
 }
 

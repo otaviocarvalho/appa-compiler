@@ -41,11 +41,11 @@ comp_tree_t* arvore_sintatica;
 %token TK_OC_NE
 %token TK_OC_AND
 %token TK_OC_OR
-%token<symbol> TK_LIT_INT
-%token<symbol> TK_LIT_FLOAT
-%token<symbol> TK_LIT_FALSE
-%token<symbol> TK_LIT_TRUE
-%token<symbol> TK_LIT_CHAR
+%token<symbol_name> TK_LIT_INT
+%token<symbol_name> TK_LIT_FLOAT
+%token<symbol_name> TK_LIT_FALSE
+%token<symbol_name> TK_LIT_TRUE
+%token<symbol_name> TK_LIT_CHAR
 %token<symbol_name> TK_LIT_STRING
 %token<symbol_name> TK_IDENTIFICADOR
 %token TOKEN_ERRO
@@ -57,7 +57,7 @@ comp_tree_t* arvore_sintatica;
 %type<node> decl-parametro
 %type<node> func
 %type<node> chamada-funcao
-/*%type<node> lista-argumentos*/
+%type<node> lista-argumentos
 %type<node> corpo
 %type<node> bloco-comando
 %type<node> sequencia
@@ -138,7 +138,9 @@ decl-global:
         $$ = $1;
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
-        $$ = $4;
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL);
+        node_identificador->next_brother = $4;
+        $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador);
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -175,12 +177,14 @@ func:
 chamada-funcao:
     TK_IDENTIFICADOR '(' ')'
     {
-        /*$$ = $1;*/
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);
+        $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
-        /*$1->next_brother = $3;*/
-        /*$$ = $1;*/
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);
+        node_identificador->next_brother = $3;
+        $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador);
     }
 ;
 
@@ -188,7 +192,8 @@ lista-argumentos:
     expressao
     | expressao ',' lista-argumentos
     {
-        /*$1->next_brother=$3*/
+        connect_nodes($1, $3);
+        $$ = $1;
     }
 ;
 
@@ -270,7 +275,7 @@ tipo:
 
 comando:
     decl-local {
-        $$ = NULL;
+        $$ = $1;
     }
     | input {
         $$ = $1;
@@ -282,7 +287,7 @@ comando:
         $$ = $1;
     }
     | chamada-funcao {
-        $$ = NULL;
+        $$ = $1;
     }
     | laco {
         $$ = $1;
@@ -363,7 +368,9 @@ expressao:
         $$ = $1;
     }
     | TK_IDENTIFICADOR '[' expressao ']' {
-        $$ = NULL;
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);
+        node_identificador->next_brother = $3;
+        $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador);
     }
     | '(' expressao ')' {
         $$ = $2;
@@ -460,8 +467,10 @@ atribuicao:
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
-        /*$1->next_brother = $3;*/
-        /*$3->next_brother = $6;*/
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);
+        comp_tree_t* vetor = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador);
+        $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador);
+        $$->next_brother = $6;
     }
 ;
 
@@ -478,22 +487,22 @@ lista-expressao:
 
 literal:
     TK_LIT_CHAR {
-        $$ = create_node(IKS_AST_LITERAL, $$->lex, NULL);
+        $$ = create_node(IKS_AST_LITERAL, $1, NULL);
     }
     | TK_LIT_FALSE {
-        $$ = create_node(IKS_AST_LITERAL, $$->lex, NULL);
+        $$ = create_node(IKS_AST_LITERAL, $1, NULL);
     }
     | TK_LIT_FLOAT {
-        $$ = create_node(IKS_AST_LITERAL, $$->lex, NULL);
+        $$ = create_node(IKS_AST_LITERAL, $1, NULL);
     }
     | TK_LIT_INT {
-        $$ = create_node(IKS_AST_LITERAL, "10", NULL);
+        $$ = create_node(IKS_AST_LITERAL, $1, NULL);
     }
     | TK_LIT_STRING {
-        $$ = create_node(IKS_AST_LITERAL, $$->lex, NULL);
+        $$ = create_node(IKS_AST_LITERAL, $1, NULL);
     }
     | TK_LIT_TRUE {
-        $$ = create_node(IKS_AST_LITERAL, $$->lex, NULL);
+        $$ = create_node(IKS_AST_LITERAL, $1, NULL);
     }
 ;
 
