@@ -158,8 +158,8 @@ func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
         // Revisar
-        $4->next_brother = $6;
-        $$ = create_node(IKS_AST_FUNCAO, $2, $4);
+        /*$4->next_brother = $6;*/
+        $$ = create_node(IKS_AST_FUNCAO, $2, $6);
     }
     | tipo TK_IDENTIFICADOR '(' ')' corpo
     {
@@ -234,12 +234,14 @@ sequencia:
 // Revisar
 lista-parametros:
     decl-parametro {
-        $$ = $1;
+        /*$$ = $1;*/
+        $$ = NULL;
     }
     | decl-parametro ',' lista-parametros
     {
-        connect_nodes($1, $3);
-        $$ = $1;
+        /*connect_nodes($1, $3);*/
+        /*$$ = $1;*/
+        $$ = NULL;
     }
 ;
 
