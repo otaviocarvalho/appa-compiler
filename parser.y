@@ -235,7 +235,12 @@ sequencia:
     | laco ';' {
       $$ = $1;
     }
-    
+    | condicional {
+        $$ = $1;
+    }
+    | condicional ';' {
+        $$ = $1;
+    }
 ;
 
 // Revisar
@@ -288,9 +293,6 @@ comando:
         $$ = $1;
     }
     | output {
-        $$ = $1;
-    }
-    | condicional {
         $$ = $1;
     }
     | chamada-funcao {
