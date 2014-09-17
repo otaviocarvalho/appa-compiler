@@ -13,8 +13,8 @@ int max_id_tabela;
 comp_tree_t* arvore_sintatica;
 %}
 
-%define parse.error verbose
-%define parse.trace
+//%define parse.error verbose
+//%define parse.trace
 %union {
     char* symbol_name;
     struct comp_dict_item_t* symbol;
@@ -229,6 +229,13 @@ sequencia:
     | '{' '}' {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
     }
+    | laco {
+      $$ = $1;
+    }
+    | laco ';' {
+      $$ = $1;
+    }
+    
 ;
 
 // Revisar
@@ -289,9 +296,9 @@ comando:
     | chamada-funcao {
         $$ = $1;
     }
-    | laco {
+   /* | laco {
         $$ = $1;
-    }
+    }*/
     | return {
         $$ = $1;
     }
@@ -303,6 +310,7 @@ comando:
         $$ = create_node(IKS_AST_BLOCO, NULL, $2);
     }
     | '{' '}' {
+	fprintf(stderr, "Entrou no bloco vazio");
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
     }
     | ';' {
