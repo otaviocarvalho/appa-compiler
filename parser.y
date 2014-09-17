@@ -310,7 +310,6 @@ comando:
         $$ = create_node(IKS_AST_BLOCO, NULL, $2);
     }
     | '{' '}' {
-	fprintf(stderr, "Entrou no bloco vazio");
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
     }
     | ';' {
