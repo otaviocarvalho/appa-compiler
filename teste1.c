@@ -1,5 +1,26 @@
 /* Número primo */
 
+main()
+{
+  int numero;
+  bool prim;
+  
+  //Imprime mensagem para o operador solicitando um valor
+  output "Informe um número: ";
+  
+  //Lê o valor informado pelo operador  
+  input numero;
+  
+  //Faz chamada de função com número recebido
+  prim primo(numero);  
+  
+  //Testa retorno da chamada de função e imprime mensagem na tela
+  if(prim == true)
+    output "É primo";
+  else
+    output "Não é primo";
+}
+
 bool primo (int num) 
 {
   int meio;
@@ -29,23 +50,3 @@ bool primo (int num)
   return eh_primo;
 }
 
-int main()
-{
-  int numero;
-  bool prim;
-  
-  //Imprime mensagem para o operador solicitando um valor
-  output "Informe um número: ";
-  
-  //Lê o valor informado pelo operador  
-  input numero;
-  
-  //Faz chamada de função com número recebido
-  prim primo(numero);  
-  
-  //Testa retorno da chamada de função e imprime mensagem na tela
-  if(prim == true)
-    output "É primo";
-  else
-    output "Não é primo";
-}
