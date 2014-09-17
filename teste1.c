@@ -1,6 +1,6 @@
 /* Número primo */
 
-main()
+int main()
 {
   int numero;
   bool prim;
@@ -12,13 +12,18 @@ main()
   input numero;
   
   //Faz chamada de função com número recebido
-  prim primo(numero);  
+  prim = primo(numero);  
   
   //Testa retorno da chamada de função e imprime mensagem na tela
-  if(prim == true)
-    output "É primo";
+  if(prim == true) then
+  {
+    output "É primo"; 
+  }    
   else
+  {
     output "Não é primo";
+  }
+  return 0;
 }
 
 bool primo (int num) 
@@ -43,7 +48,9 @@ bool primo (int num)
     
     //Teste é valido pois result é do tipo int
     if((result * meio) == numero) then
+    {
       eh_primo = false;  
+    }
     
     meio = meio - 1;
   }

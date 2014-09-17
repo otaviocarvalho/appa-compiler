@@ -1,8 +1,7 @@
 /* MDC de dois números */
 
-main()
+int main()
 {
- 
   int num1;
   int num2;
   int resto;
@@ -30,7 +29,7 @@ main()
   }
   
   //encontra o resto da divisão
-  aux = dividendo / divisor;
+  aux = (dividendo / divisor);
   resto = dividendo - (divisor * aux);
   
   while (resto != 0) do
@@ -44,4 +43,5 @@ main()
   
   output "O MDC dos números informados é: ", divisor; 
   
+  return 0;
 }
