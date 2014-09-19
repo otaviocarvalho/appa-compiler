@@ -26,12 +26,53 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
         aux = aux->next_brother;
     }
 
+    /*print_syntax_tree(new_node);*/
     return new_node;
 }
 
 void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
+    comp_tree_t* aux;
+
+    /*fprintf(stderr, "Connect nodes\n");*/
     if (node_a != NULL && node_b != NULL){
+        // Lógica de conexão da árvore
+        if (node_a->children == NULL){
+            node_a->children = node_b;
+        }
+        else {
+            /*fprintf(stderr, "node_a children not empty\n");*/
+            // Busca o último nodo do próximo nível
+            aux = node_a->children;
+            while (aux->next_brother != NULL){
+                aux = aux->next_brother;
+            }
+
+            aux->next_brother = node_b;
+        }
+
+        // Conexão dos nodos da imagem gerada
         gv_connect(node_a, node_b);
+        /*print_syntax_tree(node_a);*/
+    }
+}
+
+void print_syntax_tree(comp_tree_t* syntax_tree){
+    comp_tree_t* aux_brother;
+    comp_tree_t* aux_children;
+
+    aux_children = syntax_tree;
+    while (aux_children != NULL){
+        fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);
+
+        /*aux_brother = syntax_tree->next_brother;*/
+        aux_brother = aux_children->next_brother;
+        while (aux_brother != NULL){
+            fprintf(stderr, "aux brother %s %d\n", aux_brother->lex, aux_children->type);
+
+            aux_brother = aux_brother->next_brother;
+        }
+
+        aux_children = aux_children->children;
     }
 }
 
@@ -45,16 +86,3 @@ comp_tree_t* create_empty_node(){
 
     return new_node;
 }
-
-/*int main(){*/
-    /*comp_tree_t *node1;*/
-    /*comp_tree_t node2;*/
-
-    /*node2.type = 2;*/
-    /*node1 = create_node(1, "test", &node2);*/
-
-    /*printf("%d\n", node1->type);*/
-    /*printf("%d\n", node2.type);*/
-
-    /*return 0;*/
-/*}*/

@@ -342,7 +342,7 @@ laco:
         $$ = create_node(IKS_AST_WHILE_DO, NULL, $3);
   }
   | do comando while '(' expressao ')' {
-	$2->next_brother = $5;
+        $2->next_brother = $5;
         $$ = create_node(IKS_AST_DO_WHILE, NULL, $2);
 
   }
