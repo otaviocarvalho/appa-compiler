@@ -29,7 +29,7 @@ int main()
   }
   
   //encontra o resto da divisão
-  aux = (dividendo / divisor);
+  aux = dividendo / divisor;
   resto = dividendo - (divisor * aux);
   
   while (resto != 0) do

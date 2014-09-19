@@ -15,7 +15,7 @@ int main()
   prim = primo(numero);  
   
   //Testa retorno da chamada de função e imprime mensagem na tela
-  if(prim == true) then
+  if (prim == true) then
   {
     output "É primo"; 
   }    
@@ -23,7 +23,6 @@ int main()
   {
     output "Não é primo";
   }
-  return 0;
 }
 
 bool primo (int num) 
