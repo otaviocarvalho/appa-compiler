@@ -217,6 +217,7 @@ sequencia:
     | comando ';' sequencia 
     {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$3);
+        $$ = $1;
     }
     | '{' sequencia '}'
     {

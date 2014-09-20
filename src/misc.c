@@ -15,5 +15,5 @@ void main_init (int argc, char **argv){
 
 void main_finalize (void){
     free_table_tree(symbol_table_root);
-    /*free_syntax_tree(arvore_sintatica);*/
+    free_syntax_tree(arvore_sintatica);
 }
