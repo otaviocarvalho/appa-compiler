@@ -1,8 +1,4 @@
 #include "comp_dict.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <search.h>
-#include <string.h>
 
 // Inicia a árvore de tabelas
 comp_dict_t* init_table_tree(comp_dict_t *root){

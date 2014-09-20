@@ -6,7 +6,11 @@ typedef struct comp_tree_t {
     struct comp_tree_t* next_brother;
 } comp_tree_t;
 
+comp_tree_t* arvore_sintatica;
+
 comp_tree_t *create_node(int, char*, comp_tree_t*);
 comp_tree_t* create_empty_node();
+void free_syntax_tree(comp_tree_t*);
+void print_syntax_tree(comp_tree_t*);
 
 
