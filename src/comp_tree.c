@@ -56,6 +56,39 @@ void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
     }
 }
 
+void free_syntax_tree(comp_tree_t* syntax_tree){
+    comp_tree_t* aux_brother;
+    comp_tree_t* aux_children;
+    comp_tree_t* last_children;
+
+    // Raíz vazia
+    if (syntax_tree == NULL)
+        return;
+
+    aux_children = syntax_tree;
+    while (aux_children != NULL){
+        /*fprintf(stdout, "free_syntax_tree %s %d\n", aux_children->lex, aux_children->type);*/
+
+        if (aux_children->children == NULL && aux_children != NULL){
+            if (aux_children == syntax_tree){
+                free(aux_children->lex);
+                free(aux_children);
+                return;
+            }
+            else {
+                free(aux_children->lex);
+                free(aux_children);
+                last_children->children = NULL;
+                aux_children = syntax_tree;
+            }
+        }
+        else {
+            last_children = aux_children;
+            aux_children = aux_children->children;
+        }
+    }
+}
+
 void print_syntax_tree(comp_tree_t* syntax_tree){
     comp_tree_t* aux_brother;
     comp_tree_t* aux_children;
