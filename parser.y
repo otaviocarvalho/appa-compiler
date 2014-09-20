@@ -100,7 +100,7 @@ start:
 
 programa:
     decl-global programa {
-        $$ = $1;
+        $$ = $2;
 
         /*parser_return = IKS_SYNTAX_SUCESSO;*/
         /*return parser_return;*/
@@ -229,12 +229,18 @@ sequencia:
     | '{' '}' {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
     }
-    | laco {
+    /*| laco {
       $$ = $1;
     }
     | laco ';' {
       $$ = $1;
     }
+    | condicional {
+        $$ = $1;
+    }
+    | condicional ';' {
+        $$ = $1;
+    }*/
     
 ;
 
@@ -296,9 +302,9 @@ comando:
     | chamada-funcao {
         $$ = $1;
     }
-   /* | laco {
+    | laco {
         $$ = $1;
-    }*/
+    }
     | return {
         $$ = $1;
     }
@@ -475,9 +481,13 @@ atribuicao:
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);
+        node_identificador->next_brother = $3;
+        
         comp_tree_t* vetor = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador);
-        $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador);
-        $$->next_brother = $6;
+        vetor->next_brother = $6;
+       
+        $$ = create_node(IKS_AST_ATRIBUICAO, NULL, vetor);
+        
     }
 ;
 
