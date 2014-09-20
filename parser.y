@@ -354,7 +354,8 @@ laco:
 input:
     TK_PR_INPUT TK_IDENTIFICADOR {
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL);
-        $$ = create_node(IKS_AST_INPUT, NULL, node_identificador);
+        comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador);
+        $$ = nodo_input;
     }
 ;
 
