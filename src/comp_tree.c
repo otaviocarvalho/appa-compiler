@@ -51,6 +51,8 @@ void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
         }
 
         // Conexão dos nodos da imagem gerada
+        gv_connect(node_a, node_b);
+        /*print_syntax_tree(node_a);*/
     }
 }
 
