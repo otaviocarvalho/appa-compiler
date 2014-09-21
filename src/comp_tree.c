@@ -68,7 +68,7 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
 // 	{
 // 	    free_syntax_tree(aux->next_brother);
 // 	}
-// 	
+//
 // 	if(aux->children != NULL)
 // 	{
 // 	    free_syntax_tree(aux->children);
@@ -77,8 +77,8 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
 // 	  free(aux);
 // 	  return;
 //     }
-  
-  
+
+
   //	Segunda versão tenando ir em profundidade primeiro
   //	Também não foi
   if(syntax_tree != NULL)
@@ -100,19 +100,38 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
       
       
   }
+//   if(syntax_tree != NULL)
+//   {
+//       comp_tree_t* aux = syntax_tree;
+//       if(aux->children != NULL)
+//       {
+// 	  free_syntax_tree(aux->children);
+//       }
+//
+//       if(aux->next_brother != NULL)
+//       {
+// 	  free_syntax_tree(aux->next_brother);
+//       }
+//
+//
+//       free(aux->lex);
+//       free(aux);
+//       return;
+//
+//   }
 //   ################################### Versão do Otávio
 //     comp_tree_t* aux_brother;
 //     comp_tree_t* aux_children;
 //     comp_tree_t* last_children;
-// 
+//
 //     // Raíz vazia
 //     if (syntax_tree == NULL)
 //         return;
-// 
+//
 //     aux_children = syntax_tree;
 //     while (aux_children != NULL){
 //         /*fprintf(stdout, "free_syntax_tree %s %d\n", aux_children->lex, aux_children->type);*/
-// 
+//
 //         if (aux_children->children == NULL && aux_children != NULL){
 //             if (aux_children == syntax_tree){
 //                 free(aux_children->lex);
@@ -141,13 +160,8 @@ void print_syntax_tree(comp_tree_t* syntax_tree){
     while (aux_children != NULL){
         fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);
 
-        /*aux_brother = syntax_tree->next_brother;*/
-        aux_brother = aux_children->next_brother;
-        while (aux_brother != NULL){
-            fprintf(stderr, "aux brother %s %d\n", aux_brother->lex, aux_children->type);
-
-            aux_brother = aux_brother->next_brother;
-        }
+        if (aux_children->next_brother != NULL)
+            print_syntax_tree(aux_children->next_brother);
 
         aux_children = aux_children->children;
     }
