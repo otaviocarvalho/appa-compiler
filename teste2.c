@@ -26,7 +26,7 @@ int main()
   {
     dividendo = num2;
     divisor = num1;
-  }
+  };
   
   //encontra o resto da divisão
   aux = dividendo / divisor;
@@ -39,7 +39,7 @@ int main()
       
     aux = dividendo / divisor;
     resto = dividendo - (divisor * aux);
-  }
+  };
   
   output "O MDC dos números informados é: ", divisor; 
   

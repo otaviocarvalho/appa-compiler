@@ -22,7 +22,7 @@ int main()
   else
   {
     output "Não é primo";
-  }
+  };
 }
 
 bool primo (int num) 
@@ -38,7 +38,7 @@ bool primo (int num)
   if (num < 2) then
   {
     return false;
-  }
+  };
   
   //Testa a divisão para todos os números <= a metade do número informado
   while (meio > 1 && eh_primo == true) do 
@@ -49,10 +49,10 @@ bool primo (int num)
     if((result * meio) == numero) then
     {
       eh_primo = false;  
-    }
+    };
     
     meio = meio - 1;
-  }
+  };
   return eh_primo;
 }
 
