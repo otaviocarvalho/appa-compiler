@@ -210,26 +210,26 @@ bloco-comando:
 ;
 
 sequencia:
-    comando ';'
+    comando
     {
         $$ = $1;
     }
-    | comando ';' sequencia 
+    | comando sequencia 
     {
-        connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$3);
+        connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
         $$ = $1;
     }
-    | '{' sequencia '}'
+/*    | '{' sequencia '}'
     {
         $$ = create_node(IKS_AST_BLOCO, NULL, $2);
-    }
-    | ';'
+    }*/
+/*    | ';'
     {
         $$ = NULL;
-    }
-    | '{' '}' {
+    }*/
+/*    | '{' '}' {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
-    }
+    }*/
     /*| laco {
       $$ = $1;
     }
