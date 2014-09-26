@@ -1,0 +1,137 @@
+digraph G {
+node_0xda0100 [label="Informe o primeiro núme1"]
+node_0xda0130 [label="output"]
+node_0xda0130 -> node_0xda0100
+node_0xda0250 [label="num1"]
+node_0xda0280 [label="input"]
+node_0xda0280 -> node_0xda0250
+node_0xda03b0 [label="Informe o segundo númer1"]
+node_0xda03e0 [label="output"]
+node_0xda03e0 -> node_0xda03b0
+node_0xda0500 [label="num2"]
+node_0xda0530 [label="input"]
+node_0xda0530 -> node_0xda0500
+node_0xda0650 [label="num1"]
+node_0xda0770 [label="num2"]
+node_0xda07a0 [label=">"]
+node_0xda07a0 -> node_0xda0650
+node_0xda07a0 -> node_0xda0770
+node_0xda09b0 [label="num1"]
+node_0xda09e0 [label="dividendo"]
+node_0xda0a10 [label="="]
+node_0xda0a10 -> node_0xda09e0
+node_0xda0a10 -> node_0xda09b0
+node_0xda0c20 [label="num2"]
+node_0xda0c50 [label="divisor"]
+node_0xda0c80 [label="="]
+node_0xda0c80 -> node_0xda0c50
+node_0xda0c80 -> node_0xda0c20
+node_0xda0a10 -> node_0xda0c80
+node_0xda0cb0 [label="block"]
+node_0xda0cb0 -> node_0xda0a10
+node_0xda0ec0 [label="num2"]
+node_0xda0ef0 [label="dividendo"]
+node_0xda0f20 [label="="]
+node_0xda0f20 -> node_0xda0ef0
+node_0xda0f20 -> node_0xda0ec0
+node_0xda1130 [label="num1"]
+node_0xda1160 [label="divisor"]
+node_0xda1190 [label="="]
+node_0xda1190 -> node_0xda1160
+node_0xda1190 -> node_0xda1130
+node_0xda0f20 -> node_0xda1190
+node_0xda11c0 [label="block"]
+node_0xda11c0 -> node_0xda0f20
+node_0xda11f0 [label="ifelse"]
+node_0xda11f0 -> node_0xda07a0
+node_0xda11f0 -> node_0xda0cb0
+node_0xda11f0 -> node_0xda11c0
+node_0xda1400 [label="dividendo"]
+node_0xda1520 [label="divisor"]
+node_0xda1550 [label="/"]
+node_0xda1550 -> node_0xda1400
+node_0xda1550 -> node_0xda1520
+node_0xda1580 [label="aux"]
+node_0xda15b0 [label="="]
+node_0xda15b0 -> node_0xda1580
+node_0xda15b0 -> node_0xda1550
+node_0xda17c0 [label="dividendo"]
+node_0xda18e0 [label="divisor"]
+node_0xda1a00 [label="aux"]
+node_0xda1a30 [label="*"]
+node_0xda1a30 -> node_0xda18e0
+node_0xda1a30 -> node_0xda1a00
+node_0xda1a60 [label="-"]
+node_0xda1a60 -> node_0xda17c0
+node_0xda1a60 -> node_0xda1a30
+node_0xda1a90 [label="resto"]
+node_0xda1ac0 [label="="]
+node_0xda1ac0 -> node_0xda1a90
+node_0xda1ac0 -> node_0xda1a60
+node_0xda1be0 [label="resto"]
+node_0xda1d00 [label="0"]
+node_0xda1d30 [label="!="]
+node_0xda1d30 -> node_0xda1be0
+node_0xda1d30 -> node_0xda1d00
+node_0xda1f40 [label="divisor"]
+node_0xda1f70 [label="dividendo"]
+node_0xda1fa0 [label="="]
+node_0xda1fa0 -> node_0xda1f70
+node_0xda1fa0 -> node_0xda1f40
+node_0xda21b0 [label="resto"]
+node_0xda21e0 [label="divisor"]
+node_0xda2210 [label="="]
+node_0xda2210 -> node_0xda21e0
+node_0xda2210 -> node_0xda21b0
+node_0xda2420 [label="dividendo"]
+node_0xda2540 [label="divisor"]
+node_0xda2570 [label="/"]
+node_0xda2570 -> node_0xda2420
+node_0xda2570 -> node_0xda2540
+node_0xda25a0 [label="aux"]
+node_0xda25d0 [label="="]
+node_0xda25d0 -> node_0xda25a0
+node_0xda25d0 -> node_0xda2570
+node_0xda27e0 [label="dividendo"]
+node_0xda2900 [label="divisor"]
+node_0xda2a20 [label="aux"]
+node_0xda2a50 [label="*"]
+node_0xda2a50 -> node_0xda2900
+node_0xda2a50 -> node_0xda2a20
+node_0xda2a80 [label="-"]
+node_0xda2a80 -> node_0xda27e0
+node_0xda2a80 -> node_0xda2a50
+node_0xda2ab0 [label="resto"]
+node_0xda2ae0 [label="="]
+node_0xda2ae0 -> node_0xda2ab0
+node_0xda2ae0 -> node_0xda2a80
+node_0xda25d0 -> node_0xda2ae0
+node_0xda2210 -> node_0xda25d0
+node_0xda1fa0 -> node_0xda2210
+node_0xda2b10 [label="block"]
+node_0xda2b10 -> node_0xda1fa0
+node_0xda2b40 [label="whiledo"]
+node_0xda2b40 -> node_0xda1d30
+node_0xda2b40 -> node_0xda2b10
+node_0xda2c70 [label="O MDC dos números infor1"]
+node_0xda2d90 [label="divisor"]
+node_0xda2c70 -> node_0xda2d90
+node_0xda2dc0 [label="output"]
+node_0xda2dc0 -> node_0xda2c70
+node_0xda2ee0 [label="0"]
+node_0xda2f10 [label="return"]
+node_0xda2f10 -> node_0xda2ee0
+node_0xda2dc0 -> node_0xda2f10
+node_0xda2b40 -> node_0xda2dc0
+node_0xda1ac0 -> node_0xda2b40
+node_0xda15b0 -> node_0xda1ac0
+node_0xda11f0 -> node_0xda15b0
+node_0xda0530 -> node_0xda11f0
+node_0xda03e0 -> node_0xda0530
+node_0xda0280 -> node_0xda03e0
+node_0xda0130 -> node_0xda0280
+node_0xda2f40 [label="main"]
+node_0xda2f40 -> node_0xda0130
+node_0xda2f70 [label="programa"]
+node_0xda2f70 -> node_0xda2f40
+}

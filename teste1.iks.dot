@@ -1,0 +1,137 @@
+digraph G {
+node_0x1d0bd30 [label="Informe um número: "]
+node_0x1d0bd60 [label="output"]
+node_0x1d0bd60 -> node_0x1d0bd30
+node_0x1d0be80 [label="numero"]
+node_0x1d0beb0 [label="input"]
+node_0x1d0beb0 -> node_0x1d0be80
+node_0x1d0c1b0 [label="numero"]
+node_0x1d0c1e0 [label="primo"]
+node_0x1d0c210 [label="call"]
+node_0x1d0c210 -> node_0x1d0c1e0
+node_0x1d0c210 -> node_0x1d0c1b0
+node_0x1d0c240 [label="prim"]
+node_0x1d0c270 [label="="]
+node_0x1d0c270 -> node_0x1d0c240
+node_0x1d0c270 -> node_0x1d0c210
+node_0x1d0c390 [label="prim"]
+node_0x1d0c4b0 [label="true"]
+node_0x1d0c4e0 [label="=="]
+node_0x1d0c4e0 -> node_0x1d0c390
+node_0x1d0c4e0 -> node_0x1d0c4b0
+node_0x1d0c600 [label="É primo"]
+node_0x1d0c630 [label="output"]
+node_0x1d0c630 -> node_0x1d0c600
+node_0x1d0c660 [label="block"]
+node_0x1d0c660 -> node_0x1d0c630
+node_0x1d0c780 [label="Não é primo"]
+node_0x1d0c7b0 [label="output"]
+node_0x1d0c7b0 -> node_0x1d0c780
+node_0x1d0c7e0 [label="block"]
+node_0x1d0c7e0 -> node_0x1d0c7b0
+node_0x1d0c810 [label="ifelse"]
+node_0x1d0c810 -> node_0x1d0c4e0
+node_0x1d0c810 -> node_0x1d0c660
+node_0x1d0c810 -> node_0x1d0c7e0
+node_0x1d0c270 -> node_0x1d0c810
+node_0x1d0beb0 -> node_0x1d0c270
+node_0x1d0bd60 -> node_0x1d0beb0
+node_0x1d0c840 [label="main"]
+node_0x1d0c840 -> node_0x1d0bd60
+node_0x1d0cf00 [label="num"]
+node_0x1d0d020 [label="2"]
+node_0x1d0d050 [label="/"]
+node_0x1d0d050 -> node_0x1d0cf00
+node_0x1d0d050 -> node_0x1d0d020
+node_0x1d0d080 [label="meio"]
+node_0x1d0d0b0 [label="="]
+node_0x1d0d0b0 -> node_0x1d0d080
+node_0x1d0d0b0 -> node_0x1d0d050
+node_0x1d0d2c0 [label="true"]
+node_0x1d0d2f0 [label="eh_primo"]
+node_0x1d0d320 [label="="]
+node_0x1d0d320 -> node_0x1d0d2f0
+node_0x1d0d320 -> node_0x1d0d2c0
+node_0x1d0d440 [label="num"]
+node_0x1d0d560 [label="2"]
+node_0x1d0d590 [label="<"]
+node_0x1d0d590 -> node_0x1d0d440
+node_0x1d0d590 -> node_0x1d0d560
+node_0x1d0d6b0 [label="false"]
+node_0x1d0d6e0 [label="return"]
+node_0x1d0d6e0 -> node_0x1d0d6b0
+node_0x1d0d710 [label="block"]
+node_0x1d0d710 -> node_0x1d0d6e0
+node_0x1d0d740 [label="ifelse"]
+node_0x1d0d740 -> node_0x1d0d590
+node_0x1d0d740 -> node_0x1d0d710
+node_0x1d0d860 [label="meio"]
+node_0x1d0d980 [label="1"]
+node_0x1d0d9b0 [label=">"]
+node_0x1d0d9b0 -> node_0x1d0d860
+node_0x1d0d9b0 -> node_0x1d0d980
+node_0x1d0dad0 [label="eh_primo"]
+node_0x1d0dbf0 [label="true"]
+node_0x1d0dc20 [label="=="]
+node_0x1d0dc20 -> node_0x1d0dad0
+node_0x1d0dc20 -> node_0x1d0dbf0
+node_0x1d0dc50 [label="&&"]
+node_0x1d0dc50 -> node_0x1d0d9b0
+node_0x1d0dc50 -> node_0x1d0dc20
+node_0x1d0de60 [label="num"]
+node_0x1d0df80 [label="meio"]
+node_0x1d0dfb0 [label="/"]
+node_0x1d0dfb0 -> node_0x1d0de60
+node_0x1d0dfb0 -> node_0x1d0df80
+node_0x1d0dfe0 [label="result"]
+node_0x1d0e010 [label="="]
+node_0x1d0e010 -> node_0x1d0dfe0
+node_0x1d0e010 -> node_0x1d0dfb0
+node_0x1d0e130 [label="result"]
+node_0x1d0e250 [label="meio"]
+node_0x1d0e280 [label="*"]
+node_0x1d0e280 -> node_0x1d0e130
+node_0x1d0e280 -> node_0x1d0e250
+node_0x1d0e3a0 [label="numero"]
+node_0x1d0e3d0 [label="=="]
+node_0x1d0e3d0 -> node_0x1d0e280
+node_0x1d0e3d0 -> node_0x1d0e3a0
+node_0x1d0e5e0 [label="false"]
+node_0x1d0e610 [label="eh_primo"]
+node_0x1d0e640 [label="="]
+node_0x1d0e640 -> node_0x1d0e610
+node_0x1d0e640 -> node_0x1d0e5e0
+node_0x1d0e670 [label="block"]
+node_0x1d0e670 -> node_0x1d0e640
+node_0x1d0e6a0 [label="ifelse"]
+node_0x1d0e6a0 -> node_0x1d0e3d0
+node_0x1d0e6a0 -> node_0x1d0e670
+node_0x1d0e8b0 [label="meio"]
+node_0x1d0e9d0 [label="1"]
+node_0x1d0ea00 [label="-"]
+node_0x1d0ea00 -> node_0x1d0e8b0
+node_0x1d0ea00 -> node_0x1d0e9d0
+node_0x1d0ea30 [label="meio"]
+node_0x1d0ea60 [label="="]
+node_0x1d0ea60 -> node_0x1d0ea30
+node_0x1d0ea60 -> node_0x1d0ea00
+node_0x1d0e6a0 -> node_0x1d0ea60
+node_0x1d0e010 -> node_0x1d0e6a0
+node_0x1d0ea90 [label="block"]
+node_0x1d0ea90 -> node_0x1d0e010
+node_0x1d0eac0 [label="whiledo"]
+node_0x1d0eac0 -> node_0x1d0dc50
+node_0x1d0eac0 -> node_0x1d0ea90
+node_0x1d0ebe0 [label="eh_primo"]
+node_0x1d0ec10 [label="return"]
+node_0x1d0ec10 -> node_0x1d0ebe0
+node_0x1d0eac0 -> node_0x1d0ec10
+node_0x1d0d740 -> node_0x1d0eac0
+node_0x1d0d320 -> node_0x1d0d740
+node_0x1d0d0b0 -> node_0x1d0d320
+node_0x1d0ec40 [label="primo"]
+node_0x1d0ec40 -> node_0x1d0d0b0
+node_0x1d0c840 -> node_0x1d0ec40
+node_0x1d0ec70 [label="programa"]
+node_0x1d0ec70 -> node_0x1d0c840
+}
