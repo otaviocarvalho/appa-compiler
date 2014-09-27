@@ -214,10 +214,24 @@ sequencia:
     {
         $$ = $1;
     }
-    | comando sequencia 
+    | comando ';' sequencia 
     {
-        connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
+        connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$3);
         $$ = $1;
+    }
+    |comando ';'
+    {
+        $$ = $1;
+    }
+    |decl-local {
+        $$ = $1;
+    }
+    |decl-local ';'{
+        $$ = $1;
+    }
+    | decl-local ';' sequencia 
+    {
+        $$ = $3;
     }
 /*    | '{' sequencia '}'
     {
@@ -242,7 +256,6 @@ sequencia:
     | condicional ';' {
         $$ = $1;
     }*/
-    
 ;
 
 // Revisar
@@ -288,10 +301,10 @@ tipo:
 ;
 
 comando:
-    decl-local {
+    /*decl-local {
         $$ = $1;
-    }
-    | input {
+    }*/
+     input {
         $$ = $1;
     }
     | output {
@@ -321,7 +334,7 @@ comando:
     }
     | ';' {
         $$ = NULL;
-    }
+    } 
 ;
 
 condicional:
