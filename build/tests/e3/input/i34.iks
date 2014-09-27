@@ -1,5 +1,5 @@
 /* lógica unária */
 int f()
 {
-	x = !z;
+	x = !z
 }

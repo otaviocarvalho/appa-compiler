@@ -1,5 +1,5 @@
 /* vetor indexado */
 int f()
 {
-	x = vetor[10];
+	x = vetor[10]
 }

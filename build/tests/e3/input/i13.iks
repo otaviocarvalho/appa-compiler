@@ -1,5 +1,5 @@
 /* comando return */
 int f()
 {
-	return 10;
+	return 10
 }

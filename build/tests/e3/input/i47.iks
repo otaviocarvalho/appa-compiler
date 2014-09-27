@@ -31,5 +31,6 @@ int  fibo (int  in) {
 		aux3 = aux1 + aux2;
 	};
 
-	return aux3;
+	return 
+	aux3
 }

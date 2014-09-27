@@ -1,8 +1,8 @@
 /* the insertion sort by ta ga */
-int i;
-int aux;
 int insertionSort (int vetor, int tamanho)
 {
+	int i;
+	int aux;
 	i = 1;
 	while (i < tamanho) do
 	{

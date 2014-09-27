@@ -16,13 +16,6 @@ int  r;
 
 int  euclidan_division (int  vara, int  varb) 
 {
-// 	if (a < 0) then
-// 	{
-// 	  cas1 = true;
-// 	  a = -a;
-// 	};
-// 	return q;
-  
 	a = vara;
 	b = varb;
 
