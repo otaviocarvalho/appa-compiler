@@ -10,7 +10,12 @@
 int parser_return;
 int max_id_tabela;
 
+int cur_line = 1;   // Inicializa o compilador na linha 1
+struct comp_dict_t* symbol_table_root; // Ponteiro para a raiz da tabela de símbolos
+struct comp_dict_t* symbol_table_cur; // Ponteiro para a tabela de símbolos do escopo corrente
+
 comp_tree_t* arvore_sintatica;
+struct comp_stack_dict_t *stack_scope;
 %}
 
 //%define parse.error verbose

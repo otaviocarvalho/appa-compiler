@@ -1,3 +1,6 @@
+#ifndef __COMP_DICT_H
+#define __COMP_DICT_H
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <search.h>
@@ -21,11 +24,18 @@ typedef struct comp_dict_node_t {
 } comp_dict_node_t;
 
 typedef struct comp_dict_t {
+    int id;
     comp_dict_node_t* entries[PRIME];
 } comp_dict_t;
 
+typedef struct comp_stack_dict_t {
+    struct comp_dict_t *dict;
+    struct comp_stack_dict_t* next;
+} comp_stack_dict_t;
+
 // Diretivas externas
 extern char* yytext;
+extern comp_stack_dict_t* stack_scope; // Ponteiro para a pilha de escopos
 
 // Funções
 comp_dict_t* init_table_tree();
@@ -39,3 +49,9 @@ void* alloc_value_symbol(int, char*);
 int print_table(comp_dict_t*);
 char* str_entry(char*, char*, int, int, void*);
 int print_file_table(FILE*, comp_dict_t*);
+
+comp_stack_dict_t* stack_dict_init();
+comp_stack_dict_t* stack_dict_push(comp_stack_dict_t *, comp_dict_t *);
+comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t *);
+void print_stack_dict(comp_stack_dict_t *);
+#endif

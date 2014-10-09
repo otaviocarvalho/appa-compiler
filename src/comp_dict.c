@@ -5,6 +5,9 @@ comp_dict_t* init_table_tree(comp_dict_t *root){
     root = malloc(sizeof(comp_dict_t));
     init_dict(root);
 
+    stack_scope = stack_dict_init();
+    stack_dict_push(stack_scope, root);
+
     return root;
 }
 
@@ -14,6 +17,14 @@ int free_table_tree(comp_dict_t *root){
     free(root);
 
     return 0;
+}
+
+comp_dict_t* create_table(comp_dict_t* cur_table, int id) {
+    comp_dict_t* new_table = (comp_dict_t *) malloc(sizeof(comp_dict_t));
+
+    stack_dict_push(stack_scope, new_table);
+
+    return new_table;
 }
 
 // Função para inicializar um dicionário
@@ -252,4 +263,43 @@ int print_table(comp_dict_t* table){
 char* str_entry(char* retbuffer, char* key, int line, int type, void* value){
     sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tValue: %s;\n\n", key, line, type, (char*)value);
     return retbuffer;
+}
+
+comp_stack_dict_t* stack_dict_init(){
+    return NULL;
+}
+
+comp_stack_dict_t* stack_dict_push(comp_stack_dict_t *p, comp_dict_t *cur_dict){
+
+    comp_stack_dict_t* new = malloc(sizeof(comp_stack_dict_t*));
+    new->dict = cur_dict;
+
+    new->next = p;
+    return new;
+}
+
+comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t *p){
+    comp_stack_dict_t* ptaux;
+
+    if(p == NULL){
+        return NULL;
+    }
+
+    ptaux = p->next;
+
+    free(p);
+    return ptaux;
+}
+
+void print_stack_dict(comp_stack_dict_t *p){
+    comp_stack_dict_t* ptaux = p;
+
+    printf("\nTOP:");
+    while(ptaux != NULL){
+        /*printf("\nINFO: %d", ptaux->info);*/
+        ptaux = ptaux->next;
+    }
+    printf("\n----\n");
+
+    return;
 }
