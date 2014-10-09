@@ -14,7 +14,7 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
     new_node->type = type;
     new_node->id = count_nodes;
     count_nodes++;
-    gv_declare(type, new_node, lex);
+    /*gv_declare(type, new_node, lex);*/
 
     // Connect nodes
     new_node->lex = lex;
@@ -22,7 +22,7 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
 
     aux = node;
     while (aux != NULL){
-        gv_connect(new_node, aux);
+        /*gv_connect(new_node, aux);*/
         aux = aux->next_brother;
     }
 
@@ -51,7 +51,7 @@ void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
         }
 
         // Conexão dos nodos da imagem gerada
-        gv_connect(node_a, node_b);
+        /*gv_connect(node_a, node_b);*/
         /*print_syntax_tree(node_a);*/
     }
 }
