@@ -34,8 +34,10 @@ typedef struct comp_stack_dict_t {
 } comp_stack_dict_t;
 
 // Diretivas externas
-extern char* yytext;
+//extern char* yytext;
 extern comp_stack_dict_t* stack_scope; // Ponteiro para a pilha de escopos
+extern struct comp_dict_t* symbol_table_root; // Ponteiro para a raiz da tabela de símbolos
+extern struct comp_dict_t* symbol_table_cur; // Ponteiro para a tabela de símbolos do escopo corrente
 
 // Funções
 comp_dict_t* init_table_tree();
@@ -50,8 +52,12 @@ int print_table(comp_dict_t*);
 char* str_entry(char*, char*, int, int, void*);
 int print_file_table(FILE*, comp_dict_t*);
 
+//comp_dict_t* create_table(comp_dict_t*, int);
+//void create_table(comp_stack_dict_t*, comp_dict_t*, int);
+//comp_dict_t* create_table(comp_stack_dict_t*, comp_dict_t*, int);
+comp_dict_t* create_table(int);
 comp_stack_dict_t* stack_dict_init();
-comp_stack_dict_t* stack_dict_push(comp_stack_dict_t *, comp_dict_t *);
-comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t *);
-void print_stack_dict(comp_stack_dict_t *);
+comp_stack_dict_t* stack_dict_push(comp_stack_dict_t*, comp_dict_t*);
+comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t*);
+void print_stack_dict(comp_stack_dict_t*);
 #endif

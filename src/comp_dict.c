@@ -1,12 +1,11 @@
 #include "comp_dict.h"
 
 // Inicia a árvore de tabelas
-comp_dict_t* init_table_tree(comp_dict_t *root){
-    root = malloc(sizeof(comp_dict_t));
-    init_dict(root);
-
+comp_dict_t* init_table_tree(){
+    comp_dict_t* root;
     stack_scope = stack_dict_init();
-    stack_dict_push(stack_scope, root);
+
+    root = create_table(0);
 
     return root;
 }
@@ -19,11 +18,23 @@ int free_table_tree(comp_dict_t *root){
     return 0;
 }
 
-comp_dict_t* create_table(comp_dict_t* cur_table, int id) {
+comp_dict_t* create_table(int id) {
+    /*if (stack_scope == NULL){*/
+        /*[>printf("cur table id %d\n", cur_table->id);<]*/
+        /*printf("new table id %d\n", id);*/
+    /*}*/
+    /*else {*/
+        /*printf("new table id nn %d\n", id);*/
+    /*}*/
+
     comp_dict_t* new_table = (comp_dict_t *) malloc(sizeof(comp_dict_t));
+    new_table->id = id;
+    init_dict(new_table);
 
-    stack_dict_push(stack_scope, new_table);
+    stack_scope = stack_dict_push(stack_scope, new_table);
 
+    /*cur_table = new_table;*/
+    symbol_table_cur = new_table;
     return new_table;
 }
 
@@ -269,7 +280,7 @@ comp_stack_dict_t* stack_dict_init(){
     return NULL;
 }
 
-comp_stack_dict_t* stack_dict_push(comp_stack_dict_t *p, comp_dict_t *cur_dict){
+comp_stack_dict_t* stack_dict_push(comp_stack_dict_t* p, comp_dict_t* cur_dict){
 
     comp_stack_dict_t* new = malloc(sizeof(comp_stack_dict_t*));
     new->dict = cur_dict;
@@ -278,7 +289,7 @@ comp_stack_dict_t* stack_dict_push(comp_stack_dict_t *p, comp_dict_t *cur_dict){
     return new;
 }
 
-comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t *p){
+comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t* p){
     comp_stack_dict_t* ptaux;
 
     if(p == NULL){
@@ -291,12 +302,13 @@ comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t *p){
     return ptaux;
 }
 
-void print_stack_dict(comp_stack_dict_t *p){
+void print_stack_dict(comp_stack_dict_t* p){
     comp_stack_dict_t* ptaux = p;
 
     printf("\nTOP:");
     while(ptaux != NULL){
-        /*printf("\nINFO: %d", ptaux->info);*/
+        printf("\nTABLE ID: %d\n", ptaux->dict->id);
+        print_table(ptaux->dict);
         ptaux = ptaux->next;
     }
     printf("\n----\n");

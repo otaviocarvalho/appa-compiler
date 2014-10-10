@@ -1,6 +1,5 @@
 #include "misc.h"
 #include "gv.h"
-#include "comp_dict.h"
 
 int getLineNumber (void){
     return cur_line;
@@ -11,7 +10,6 @@ void yyerror (char const *mensagem){
 }
 
 void main_init (int argc, char **argv){
-    gv_init(NULL);
     symbol_table_root = init_table_tree();
     symbol_table_cur = symbol_table_root;
 }
