@@ -221,13 +221,11 @@ corpo:
 ;
 
 bloco-comando:
-    /*'{' { fprintf(stdout, "1\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); print_stack_dict(stack_scope); } sequencia '}'*/
     '{' { fprintf(stdout, "1\n"); create_table(cur_dict_id++); } sequencia '}' {fprintf(stdout, "-1\n"); destroy_table(cur_dict_id--);}
     {
         $$ = $3;
     }
     |
-    /*'{' { fprintf(stdout, "2\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); print_stack_dict(stack_scope); } '}'*/
     '{' { fprintf(stdout, "2\n"); create_table(cur_dict_id++); } '}' {fprintf(stdout, "-2\n"); destroy_table(cur_dict_id--);}
     {
         $$ = NULL;

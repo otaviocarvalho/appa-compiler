@@ -347,6 +347,8 @@ void print_stack_dict(comp_stack_dict_t* p){
 }
 
 comp_dict_t* destroy_table(int id) {
+    print_stack_dict(stack_scope);
+
     stack_scope = stack_dict_pop(stack_scope);
     symbol_table_cur = stack_scope->dict;
     return symbol_table_cur;
