@@ -3,9 +3,10 @@
 */
 %{
 #include "parser.h" //arquivo automaticamente gerado pelo bison
-#include "comp_dict.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "comp_dict.h"
+#include "comp_tree.h"
 
 extern int cur_line;
 extern struct comp_dict_t* symbol_table_root;
@@ -92,12 +93,12 @@ UNDERSCORE [_]
     return TK_LIT_CHAR;
 }
 \"[^"]*\"             {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_STRING);
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_STRING);*/
     /*yylval.symbol_name = strdup(yytext);*/
 
-    /*char* symbol_string_aux = (char*) malloc(sizeof(char));*/
-    /*memcpy(symbol_string_aux, yytext+1, strlen(yytext)-2);*/
-    /*yylval.symbol_name = symbol_string_aux;*/
+    char* symbol_string_aux = (char*) malloc(sizeof(char));
+    memcpy(symbol_string_aux, yytext+1, strlen(yytext)-2);
+    yylval.symbol_name = symbol_string_aux;
 
     return TK_LIT_STRING;
 }

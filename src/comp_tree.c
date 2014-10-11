@@ -1,17 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "comp_tree.h"
-#include "gv.h"
 
 int count_nodes = 0;
 
-comp_tree_t* create_node(int type, char* lex, comp_tree_t* node){
+comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_t* hash){
     comp_tree_t* aux;
     comp_tree_t* new_node;
 
     // Create new node
     new_node = create_empty_node();
     new_node->type = type;
+    new_node->hash = hash;
     new_node->id = count_nodes;
     count_nodes++;
     /*gv_declare(type, new_node, lex);*/
@@ -74,6 +72,7 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
 // 	    free_syntax_tree(aux->children);
 // 	}
 // 	  free(aux->lex);
+// 	  free(aux->hash);
 // 	  free(aux);
 // 	  return;
 //     }
@@ -95,6 +94,7 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
       /*}*/
 
       /*free(aux->lex);*/
+      /*free(aux->hash);*/
       /*free(aux);*/
       /*return;      */
 
@@ -116,6 +116,7 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
 //
 //
 //       free(aux->lex);
+//       free(aux->hash);
 //       free(aux);
 //       return;
 //
@@ -136,11 +137,13 @@ void free_syntax_tree(comp_tree_t* syntax_tree){
 //         if (aux_children->children == NULL && aux_children != NULL){
 //             if (aux_children == syntax_tree){
 //                 free(aux_children->lex);
+//                 free(aux_children->hash);
 //                 free(aux_children);
 //                 return;
 //             }
 //             else {
 //                 free(aux_children->lex);
+//                 free(aux_children->hash);
 //                 free(aux_children);
 //                 last_children->children = NULL;
 //                 aux_children = syntax_tree;
@@ -173,6 +176,7 @@ comp_tree_t* create_empty_node(){
     new_node->type = -1;
     new_node->id = -1;
     new_node->lex = NULL;
+    new_node->hash = NULL;
     new_node->children = NULL;
     new_node->next_brother = NULL;
 

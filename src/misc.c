@@ -1,5 +1,4 @@
 #include "misc.h"
-#include "gv.h"
 
 int getLineNumber (void){
     return cur_line;
