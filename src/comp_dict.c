@@ -122,7 +122,6 @@ comp_dict_item_t* find_symbol(comp_dict_t* cur_table, char* key){
 // Adiciona um item a uma tabela existente
 comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int type){
     // Aloca estruturas de dados para o novo nodo
-    
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
 
@@ -137,10 +136,10 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     char buffer[SIZE_TABLE_KEY];
     snprintf(buffer,SIZE_TABLE_KEY,"%d",node->item->type);
     strcat(node->key, buffer);
-    
+
     // Calcula o hash
     int hash = hash_function(node->key);
-    
+
     int existe = verifica_se_existe(cur_table, node->key, hash);
     if(existe == JA_EXISTE){
       fprintf(stdout, "JAH EXISTE");
@@ -169,25 +168,24 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
 }
 
 int verifica_se_existe(comp_dict_t *table, char* key, int hash){
-  
-  if ((table->entries[hash] == NULL))
-  {
-    return NAO_EXISTE;
-  }
-  
-    if ((strcmp(key,table->entries[hash]->key) == 0)){
-      return JA_EXISTE;
+    if ((table->entries[hash] == NULL))
+    {
+        return NAO_EXISTE;
     }
-    comp_dict_node_t* current = table->entries[hash];
 
+    if ((strcmp(key,table->entries[hash]->key) == 0)){
+        return JA_EXISTE;
+    }
+
+    comp_dict_node_t* current = table->entries[hash];
     do {
-      if((strcmp(key,current->key) == 0))
-      {
-	return JA_EXISTE;
-      }
-      current = current->next;
+        if((strcmp(key,current->key) == 0))
+        {
+            return JA_EXISTE;
+        }
+    current = current->next;
     } while(current != NULL);
-        
+
     return NAO_EXISTE;
 }
 

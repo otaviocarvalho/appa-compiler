@@ -38,12 +38,12 @@ UNDERSCORE [_]
 "return"    { return TK_PR_RETURN; } ;
 
 "true"      {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); 
-    /*yylval.symbol_name = strdup(yytext);*/
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); */
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_TRUE;
 }
 "false"     {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); 
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_BOOL); */
     /*yylval.symbol_name = strdup(yytext);*/
     return TK_LIT_FALSE;
 }
@@ -66,28 +66,28 @@ UNDERSCORE [_]
 "||"    { return TK_OC_OR; }
 
 ({LCASE}|{UCASE}|{UNDERSCORE})+(({LCASE}|{UCASE}|{UNDERSCORE})|{DIGIT})* {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_IDENTIFICADOR);
-    /*yylval.symbol_name = strdup(yytext);*/
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_IDENTIFICADOR);*/
+    yylval.symbol_name = strdup(yytext);
     return TK_IDENTIFICADOR;
 }
 
 {DIGIT}+              {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_INT);
-    /*yylval.symbol_name = strdup(yytext);*/
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_INT);*/
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_INT;
 }
 {DIGIT}+"."{DIGIT}+   {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_FLOAT);
-    /*yylval.symbol_name = strdup(yytext);*/
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_FLOAT);*/
+    yylval.symbol_name = strdup(yytext);
     return TK_LIT_FLOAT;
 }
 \'.\'                 {
-    yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_CHAR);
+    /*yylval.symbol = add_symbol(symbol_table_cur, yytext, cur_line, TK_PR_CHAR);*/
     /*yylval.symbol_name = strdup(yytext);*/
 
-    /*char* symbol_char_aux = (char*) malloc(sizeof(char));*/
-    /*memcpy(symbol_char_aux, yytext+1, 1);*/
-    /*yylval.symbol_name = symbol_char_aux;*/
+    char* symbol_char_aux = (char*) malloc(sizeof(char));
+    memcpy(symbol_char_aux, yytext+1, 1);
+    yylval.symbol_name = symbol_char_aux;
 
     return TK_LIT_CHAR;
 }

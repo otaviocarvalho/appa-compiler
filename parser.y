@@ -46,13 +46,13 @@ struct comp_stack_dict_t *stack_scope;
 %token TK_OC_NE
 %token TK_OC_AND
 %token TK_OC_OR
-%token<symbol> TK_LIT_INT
-%token<symbol> TK_LIT_FLOAT
-%token<symbol> TK_LIT_FALSE
-%token<symbol> TK_LIT_TRUE
-%token<symbol> TK_LIT_CHAR
-%token<symbol> TK_LIT_STRING
-%token<symbol> TK_IDENTIFICADOR
+%token<symbol_name> TK_LIT_INT
+%token<symbol_name> TK_LIT_FLOAT
+%token<symbol_name> TK_LIT_FALSE
+%token<symbol_name> TK_LIT_TRUE
+%token<symbol_name> TK_LIT_CHAR
+%token<symbol_name> TK_LIT_STRING
+%token<symbol_name> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
 %type<node> start
@@ -140,6 +140,8 @@ decl-global:
         $$ = $1;
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
+        add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         node_identificador->next_brother = $4;
@@ -152,12 +154,16 @@ decl-global:
 
 decl-local:
     tipo TK_IDENTIFICADOR {
+        add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR);
+
         $$ = NULL;
     }
 ;
 
 decl-parametro:
     tipo TK_IDENTIFICADOR {
+        add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR);
+
         $$ = NULL;
     }
 ;
@@ -165,11 +171,15 @@ decl-parametro:
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
+        add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR);
+
         /*$$ = create_node(IKS_AST_FUNCAO, $2, $6);*/
         $$ = create_node(IKS_AST_FUNCAO, NULL, $6);
     }
     | tipo TK_IDENTIFICADOR '(' ')' corpo
     {
+        add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR);
+
         /*$$ = create_node(IKS_AST_FUNCAO, $2, $5);*/
         $$ = create_node(IKS_AST_FUNCAO, NULL, $5);
     }
@@ -178,12 +188,16 @@ func:
 chamada-funcao:
     TK_IDENTIFICADOR '(' ')'
     {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         node_identificador->next_brother = $3;
@@ -361,6 +375,8 @@ laco:
 
 input:
     TK_PR_INPUT TK_IDENTIFICADOR {
+        add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador);
@@ -376,6 +392,8 @@ output:
 
 expressao:
     TK_IDENTIFICADOR {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR);
+
         /*$$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);*/
         $$ = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
     }
@@ -386,6 +404,8 @@ expressao:
         $$ = $1;
     }
     | TK_IDENTIFICADOR '[' expressao ']' {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         node_identificador->next_brother = $3;
@@ -484,6 +504,8 @@ expressao-logica:
 atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         node_identificador->next_brother = $3;
@@ -493,6 +515,8 @@ atribuicao:
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR);
+
         /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL);*/
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, NULL, NULL);
         node_identificador->next_brother = $3;
@@ -517,26 +541,38 @@ lista-expressao:
 
 literal:
     TK_LIT_CHAR {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR);
+
         /*$$ = create_node(IKS_AST_LITERAL, $1, NULL);*/
         $$ = create_node(IKS_AST_LITERAL, NULL, NULL);
     }
     | TK_LIT_FALSE {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL);
+
         /*$$ = create_node(IKS_AST_LITERAL, $1, NULL);*/
         $$ = create_node(IKS_AST_LITERAL, NULL, NULL);
     }
     | TK_LIT_FLOAT {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT);
+
         /*$$ = create_node(IKS_AST_LITERAL, $1, NULL);*/
         $$ = create_node(IKS_AST_LITERAL, NULL, NULL);
     }
     | TK_LIT_INT {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT);
+
         /*$$ = create_node(IKS_AST_LITERAL, $1, NULL);*/
         $$ = create_node(IKS_AST_LITERAL, NULL, NULL);
     }
     | TK_LIT_STRING {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING);
+
         /*$$ = create_node(IKS_AST_LITERAL, $1, NULL);*/
         $$ = create_node(IKS_AST_LITERAL, NULL, NULL);
     }
     | TK_LIT_TRUE {
+        add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL);
+
         /*$$ = create_node(IKS_AST_LITERAL, $1, NULL);*/
         $$ = create_node(IKS_AST_LITERAL, NULL, NULL);
     }
