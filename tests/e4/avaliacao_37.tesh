@@ -6,6 +6,5 @@ $ ./main
 < int f()
 < {
 <   int x;
-<   int x;
+<   float x;
 < }
-

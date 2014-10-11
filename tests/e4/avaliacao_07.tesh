@@ -4,8 +4,8 @@
 $ ./main
 < /* IKS_ERROR_VECTOR */
 < int x[10];
-< int f()
 < {
+<   int f()
 <   x = 1;
 < }
 

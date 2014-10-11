@@ -4,11 +4,11 @@ $ ./tests/scripts/valgrindtest ./main
 < /* IKS_ERROR_STRING_TO_X */
 < string g()
 < {
-<    return "str";
+<   return "212";
 < }
+< 
 < int f()
 < {
-<    int x;
-<    x = 10 + 3.4 * g() + 2.3;
+<   int x;
+<   x = g();
 < }
-

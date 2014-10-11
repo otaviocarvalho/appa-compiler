@@ -8,8 +8,8 @@ $ ./tests/scripts/valgrindtest ./main
 < }
 < 
 < int g()
-< float x;
 < {
+<   float x;
 <   return x + f();
 < }
 

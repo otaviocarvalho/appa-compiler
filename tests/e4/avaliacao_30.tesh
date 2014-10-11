@@ -8,8 +8,8 @@ $ ./main
 <    return 'c';
 < }
 < int f()
-< int x;
 < {
+<    int x;
 <    x = 10 + 3.4 * g() + 2.3;
 < }
 
