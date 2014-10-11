@@ -6,6 +6,7 @@
 #include <search.h>
 #include <string.h>
 #include <main.h>
+#include "definitions.h"
 
 #define SIZE_TABLE_KEY 100
 #define PRIME 211 //211 // 9901
@@ -13,6 +14,7 @@
 
 typedef struct comp_dict_item_t {
     int line;
+    int type_var;
     int type;
     void* value;
 } comp_dict_item_t;
