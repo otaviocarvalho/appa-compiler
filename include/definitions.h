@@ -1,3 +1,4 @@
+#define IKS_TYPE_NOT_DEFINED -1
 #define IKS_INT 0
 #define IKS_FLOAT 1
 #define IKS_CHAR 2
