@@ -209,13 +209,13 @@ corpo:
 
 bloco-comando:
     /*'{' { fprintf(stdout, "1\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); print_stack_dict(stack_scope); } sequencia '}'*/
-    '{' { fprintf(stdout, "1\n"); create_table(cur_dict_id++); } sequencia '}'
+    '{' { fprintf(stdout, "1\n"); create_table(cur_dict_id++); } sequencia '}' {fprintf(stdout, "-1\n"); destroy_table(cur_dict_id--);}
     {
         $$ = $3;
     }
     |
     /*'{' { fprintf(stdout, "2\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); print_stack_dict(stack_scope); } '}'*/
-    '{' { fprintf(stdout, "2\n"); create_table(cur_dict_id++); } '}'
+    '{' { fprintf(stdout, "2\n"); create_table(cur_dict_id++); } '}' {fprintf(stdout, "-2\n"); destroy_table(cur_dict_id--);}
     {
         $$ = NULL;
     }
@@ -245,29 +245,6 @@ sequencia:
     {
         $$ = $3;
     }
-/*    | '{' sequencia '}'
-    {
-        $$ = create_node(IKS_AST_BLOCO, NULL, $2);
-    }*/
-/*    | ';'
-    {
-        $$ = NULL;
-    }*/
-/*    | '{' '}' {
-        $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
-    }*/
-    /*| laco {
-      $$ = $1;
-    }
-    | laco ';' {
-      $$ = $1;
-    }
-    | condicional {
-        $$ = $1;
-    }
-    | condicional ';' {
-        $$ = $1;
-    }*/
 ;
 
 // Revisar
@@ -338,17 +315,20 @@ comando:
         $$ = $1;
     }
     /*| '{' { fprintf(stdout, "3\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); } sequencia '}'*/
-    | '{' { fprintf(stdout, "3\n"); create_table(cur_dict_id++); } sequencia '}'
+    | '{' { fprintf(stdout, "3\n"); create_table(cur_dict_id++); } sequencia '}' {fprintf(stdout, "-3\n"); destroy_table(cur_dict_id--);}
     {
         $$ = create_node(IKS_AST_BLOCO, NULL, $3);
     }
     /*| '{' { fprintf(stdout, "4\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); print_stack_dict(stack_scope); } '}' {*/
-    | '{' { fprintf(stdout, "4\n"); create_table(cur_dict_id++); } '}' {
+    | '{' { fprintf(stdout, "4\n"); create_table(cur_dict_id++); } '}' {fprintf(stdout, "-4\n"); destroy_table(cur_dict_id--);} {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
     }
     | ';' {
         $$ = NULL;
     } 
+    | func{
+      $$ = $1;
+    }
 ;
 
 condicional:

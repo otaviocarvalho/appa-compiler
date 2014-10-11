@@ -62,4 +62,8 @@ comp_stack_dict_t* stack_dict_init();
 comp_stack_dict_t* stack_dict_push(comp_stack_dict_t*, comp_dict_t*);
 comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t*);
 void print_stack_dict(comp_stack_dict_t*);
+
+comp_dict_t* destroy_table(int);
+int verifica_se_existe(comp_dict_t*, char*, int);
+
 #endif
