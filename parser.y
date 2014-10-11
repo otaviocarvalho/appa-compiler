@@ -245,29 +245,6 @@ sequencia:
     {
         $$ = $3;
     }
-/*    | '{' sequencia '}'
-    {
-        $$ = create_node(IKS_AST_BLOCO, NULL, $2);
-    }*/
-/*    | ';'
-    {
-        $$ = NULL;
-    }*/
-/*    | '{' '}' {
-        $$ = create_node(IKS_AST_BLOCO, NULL, NULL);
-    }*/
-    /*| laco {
-      $$ = $1;
-    }
-    | laco ';' {
-      $$ = $1;
-    }
-    | condicional {
-        $$ = $1;
-    }
-    | condicional ';' {
-        $$ = $1;
-    }*/
 ;
 
 // Revisar
@@ -349,6 +326,9 @@ comando:
     | ';' {
         $$ = NULL;
     } 
+    | func{
+      $$ = $1;
+    }
 ;
 
 condicional:
