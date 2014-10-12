@@ -526,15 +526,6 @@ atribuicao:
         node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
-        
-        int tipo = encontra_tipo($1);
-        if(tipo==-1){
-	  fprintf(stdout,"brete\n");
-	  exit(-1);
-	}
-	
-	verifica_tipo($3,tipo);
-
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {

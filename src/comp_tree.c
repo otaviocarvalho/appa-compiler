@@ -11,7 +11,6 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_
     new_node->type = type;
     if(hash != NULL){
         new_node->hash = hash;
-        new_node->hash->operador = type;
     }
     new_node->id = count_nodes;
     count_nodes++;

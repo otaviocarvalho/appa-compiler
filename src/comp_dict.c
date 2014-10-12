@@ -144,14 +144,14 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     // Calcula o hash
     int hash = hash_function(node->key);
 
-    /*if (operador == DECLARACAO_VARIAVEL || operador== DECLARACAO_FUNCAO || operador == DECLARACAO_VETOR_INDEXADO){*/
-        /*node->item->operador = operador;*/
-        /*int existe = verifica_se_existe(cur_table, node->key, hash, type_var, operador);*/
-        /*if(existe == JA_EXISTE){*/
-            /*fprintf(stdout, "JAH EXISTE");*/
-            /*exit(IKS_ERROR_DECLARED);*/
-        /*}*/
-    /*}*/
+    if (operador == DECLARACAO_VARIAVEL || operador== DECLARACAO_FUNCAO || operador == DECLARACAO_VETOR_INDEXADO){
+        node->item->operador = operador;
+        int existe = verifica_se_existe(cur_table, node->key, hash, type_var, operador);
+        if(existe == JA_EXISTE){
+            fprintf(stdout, "JAH EXISTE");
+            exit(IKS_ERROR_DECLARED);
+        }
+    }
 
     if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO || operador == USO_FUNCAO)
     {
@@ -185,7 +185,6 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
 
-    fprintf(stdout, "verifica operador add_symbol %d\n", cur_table->entries[hash]->item->operador);
     return cur_table->entries[hash]->item;
 }
 
@@ -340,7 +339,7 @@ comp_stack_dict_t* stack_dict_init(){
 
 comp_stack_dict_t* stack_dict_push(comp_stack_dict_t* p, comp_dict_t* cur_dict){
 
-    comp_stack_dict_t* new = malloc(sizeof(comp_stack_dict_t*));
+    comp_stack_dict_t* new = malloc(sizeof(comp_stack_dict_t));
     new->dict = cur_dict;
 
     new->next = p;
@@ -375,8 +374,6 @@ void print_stack_dict(comp_stack_dict_t* p){
 }
 
 comp_dict_t* destroy_table(int id) {
-    /*print_stack_dict(stack_scope);*/
-
     stack_scope = stack_dict_pop(stack_scope);
     symbol_table_cur = stack_scope->dict;
     return symbol_table_cur;
