@@ -8,6 +8,7 @@
 #include "iks_ast.h"
 /*#include "comp_dict.h"*/
 #include "comp_tree.h"
+#include "comp_semantic.h"
 #include "definitions.h"
 
 int parser_return;
@@ -397,6 +398,7 @@ input:
 output:
     TK_PR_OUTPUT lista-expressao {
         $$ = create_node(IKS_AST_OUTPUT, NULL, $2, NULL);
+        verifica_output($$);
     }
 ;
 

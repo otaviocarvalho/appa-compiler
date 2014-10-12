@@ -1,12 +1,13 @@
 ! timeout 5
 ! output ignore
 $ ./tests/scripts/valgrindtest ./main
+$ ./main
 < /* IKS_ERROR_UNDECLARED */
 < int f()
-< int x;
 < {
+<   int x;
 < }
-< 
+<
 < int g()
 < {
 <   x = 1;

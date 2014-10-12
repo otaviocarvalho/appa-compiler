@@ -3,8 +3,8 @@
 $ ./tests/scripts/valgrindtest ./main
 < /* IKS_ERROR_UNDECLARED */
 < int f()
-< int x;
 < {
+<   int x;
 <   x = 1;
 <   y = 1;
 < }

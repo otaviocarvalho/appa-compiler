@@ -3,8 +3,8 @@
 $ ./tests/scripts/valgrindtest ./main
 < /* IKS_ERROR_WRONG_TYPE */
 < int f()
-< char c;
 < {
+<   char c;
 <   c = 10.2;
 < }
 

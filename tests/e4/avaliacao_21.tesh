@@ -4,8 +4,8 @@
 $ ./main
 < /* IKS_ERROR_WRONG_TYPE */
 < int f()
-< char c;
 < {
+<   char c;
 <   c = f();
 < }
 
