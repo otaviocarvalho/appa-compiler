@@ -132,7 +132,10 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->item->type = convert_type_symbol(type);
     node->item->type_var = type_var;
 
+      fprintf(stdout, "Operador %d \n ", operador );
+      fprintf(stdout, "Key %s \n ", key );
     node->item->operador = operador;
+    
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
 
     // Calcula o hash
@@ -165,7 +168,8 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     // Atualiza linha se já existe
     else if ( strcmp(key, cur_table->entries[hash]->key) == 0 ){
         cur_table->entries[hash]->item->line = line;
-        free(node->key);
+	
+	free(node->key);
         free(node->item->value);
         free(node->item);
         free(node);

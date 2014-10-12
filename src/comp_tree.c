@@ -195,3 +195,75 @@ void verifica_output(comp_tree_t* node){
         }
     }
 }
+
+void verifica_tipo(comp_tree_t* node,int tipo){
+   
+   int operador = encontra_operador(node->hash->value);
+   
+   fprintf(stdout,"uso var %d s###\n", operador);
+   if(operador == USO_VARIAVEL){
+       fprintf(stdout,"safado\n");
+     int tipo_variavel = encontra_tipo(node->hash->value);
+      if(tipo == tipo_variavel){
+       fprintf(stdout,"pele\n");
+      }
+    }
+}
+
+int encontra_tipo(char* key){
+  
+  int hash = hash_function(key);
+  
+  comp_stack_dict_t* ptaux = stack_scope;
+  
+  while(ptaux != NULL){
+    if ((ptaux->dict->entries[hash] == NULL)){
+	ptaux = ptaux->next;
+        continue;
+    }
+
+    if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+      return ptaux->dict->entries[hash]->item->type_var;	
+    }
+
+   comp_dict_node_t* current = ptaux->dict->entries[hash];
+    do {
+        if (strcmp(key,current->item->value) == 0){
+	 return current->item->type_var;
+    }
+    current = current->next;
+    } while(current != NULL);
+
+    ptaux = ptaux->next;  
+  }
+  return -1;
+}
+
+int encontra_operador(char* key){
+  
+  int hash = hash_function(key);
+  
+  comp_stack_dict_t* ptaux = stack_scope;
+  
+  while(ptaux != NULL){
+    if ((ptaux->dict->entries[hash] == NULL)){
+	ptaux = ptaux->next;
+        continue;
+    }
+
+    if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+      return ptaux->dict->entries[hash]->item->operador;	
+    }
+
+   comp_dict_node_t* current = ptaux->dict->entries[hash];
+    do {
+        if (strcmp(key,current->item->value) == 0){
+	 return current->item->operador;
+    }
+    current = current->next;
+    } while(current != NULL);
+
+    ptaux = ptaux->next;  
+  }
+  return -1;
+}
