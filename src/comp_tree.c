@@ -164,7 +164,7 @@ void print_syntax_tree(comp_tree_t* syntax_tree){
 
     aux_children = syntax_tree;
     while (aux_children != NULL){
-        fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);
+        fprintf(stderr, "aux children %s type-iks %d\n", aux_children->lex, aux_children->type);
 
        if (aux_children->next_brother != NULL)
             print_syntax_tree(aux_children->next_brother);
@@ -288,6 +288,33 @@ void verifica_return(comp_tree_t* node, char* label_function, int type_var_funct
     else {
         /*fprintf(stdout, "não encontrou\n");*/
     }
+}
+
+// Verifica o número e o tipo dos argumentos
+void verifica_argumentos(comp_tree_t* node, char* label_function, int empty){
+    comp_tree_t* node_aux = node;
+    comp_tree_t* node_aux_label = NULL;
+    comp_tree_t* node_aux_type = NULL;
+
+    // Conta o número de parâmetros na declaração da função
+    if (!empty){
+
+    }
+
+    print_stack_dict(stack_scope);
+    fprintf(stdout, "entrou ver argumentos\n");
+    print_syntax_tree(node);
+
+    // Encontra a chamada da função na árvore
+    node_aux_label = find_node_by_label(node_aux, label_function);
+    fprintf(stdout, "node l type %d %s\n", node_aux_label->type, node_aux_label->lex);
+    return;
+
+    // Conta o número de parâmetros da chamada da função
+    if (node_aux_label != NULL){
+
+    }
+
 }
 
 void verifica_tipo(comp_tree_t* node,int tipo){

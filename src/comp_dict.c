@@ -132,8 +132,8 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->item->type = convert_type_symbol(type);
     node->item->type_var = type_var;
 
-    fprintf(stdout, "Operador %d \n ", operador );
-    fprintf(stdout, "Key %s \n ", key );
+    /*fprintf(stdout, "Operador %d \n ", operador );*/
+    /*fprintf(stdout, "Key %s \n ", key );*/
     node->item->operador = operador;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
 
@@ -166,13 +166,13 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     if (cur_table->entries[hash] == NULL) {
         cur_table->entries[hash] = node;
 
-        fprintf(stdout, "insert elem\n");
+        /*fprintf(stdout, "insert elem\n");*/
     }
     // Atualiza linha se já existe
     else if ( strcmp(key, cur_table->entries[hash]->key) == 0 ){
         cur_table->entries[hash]->item->line = line;
 
-        fprintf(stdout, "atualiza elem\n");
+        /*fprintf(stdout, "atualiza elem\n");*/
         free(node->key);
         free(node->item->value);
         free(node->item);
@@ -180,7 +180,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     }
     // Se não existir, adiciona elemento no fim da lista
     else {
-        fprintf(stdout, "outro elem\n");
+        /*fprintf(stdout, "outro elem\n");*/
         node->next = cur_table->entries[hash];
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
@@ -189,17 +189,17 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
 }
 
 int verifica_se_existe(comp_dict_t *table, char* key, int hash, int type_var, int operador){
-    fprintf(stdout, "entrou ver existe\n");
+    /*fprintf(stdout, "entrou ver existe\n");*/
 
     if ((table->entries[hash] == NULL))
     {
         return NAO_EXISTE;
     }
 
-    fprintf(stdout, "operador existe %d\n", table->entries[hash]->item->operador);
+    /*fprintf(stdout, "operador existe %d\n", table->entries[hash]->item->operador);*/
 
     if ((strcmp(key,table->entries[hash]->key) == 0)){
-        fprintf(stdout, "ja exis test\n");
+        /*fprintf(stdout, "ja exis test\n");*/
         return JA_EXISTE;
     }
 

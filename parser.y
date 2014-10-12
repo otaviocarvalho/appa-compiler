@@ -196,6 +196,8 @@ chamada-funcao:
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
+
+        verifica_argumentos($$, $1, 0);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
