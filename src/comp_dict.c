@@ -132,8 +132,8 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->item->type = convert_type_symbol(type);
     node->item->type_var = type_var;
 
-    fprintf(stdout, "Operador %d \n ", operador );
-    fprintf(stdout, "Key %s \n ", key );
+//     /*/*fprintf*/*/(stdout, "Operador %d \n ", operador );
+//     /*fprintf*/(stdout, "Key %s \n ", key );
     node->item->operador = operador;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
 
@@ -148,7 +148,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         node->item->operador = operador;
         int existe = verifica_se_existe(cur_table, node->key, hash, type_var, operador);
         if(existe == JA_EXISTE){
-            fprintf(stdout, "JAH EXISTE");
+//             fprintf(stdout, "JAH EXISTE");
             exit(IKS_ERROR_DECLARED);
         }
     }
@@ -157,7 +157,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     {
         int definido = verifica_uso(hash, operador, node->key);
         if(definido == IDENTIFICADOR_NAO_DECLARADO){
-            fprintf(stdout, "JAH NÃO DECLARADO");
+//             fprintf(stdout, "JAH NÃO DECLARADO");
             exit(IKS_ERROR_UNDECLARED);
         }
     }
@@ -166,13 +166,13 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     if (cur_table->entries[hash] == NULL) {
         cur_table->entries[hash] = node;
 
-        fprintf(stdout, "insert elem\n");
+//         fprintf(stdout, "insert elem\n");
     }
     // Atualiza linha se já existe
     else if ( strcmp(key, cur_table->entries[hash]->key) == 0 ){
         cur_table->entries[hash]->item->line = line;
 
-        fprintf(stdout, "atualiza elem\n");
+//         fprintf(stdout, "atualiza elem\n");
         free(node->key);
         free(node->item->value);
         free(node->item);
@@ -180,7 +180,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     }
     // Se não existir, adiciona elemento no fim da lista
     else {
-        fprintf(stdout, "outro elem\n");
+//         fprintf(stdout, "outro elem\n");
         node->next = cur_table->entries[hash];
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
@@ -189,17 +189,17 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
 }
 
 int verifica_se_existe(comp_dict_t *table, char* key, int hash, int type_var, int operador){
-    fprintf(stdout, "entrou ver existe\n");
+//     fprintf(stdout, "entrou ver existe\n");
 
     if ((table->entries[hash] == NULL))
     {
         return NAO_EXISTE;
     }
 
-    fprintf(stdout, "operador existe %d\n", table->entries[hash]->item->operador);
+//     fprintf(stdout, "operador existe %d\n", table->entries[hash]->item->operador);
 
     if ((strcmp(key,table->entries[hash]->key) == 0)){
-        fprintf(stdout, "ja exis test\n");
+//         fprintf(stdout, "ja exis test\n");
         return JA_EXISTE;
     }
 
@@ -313,7 +313,7 @@ int print_file_table(FILE* out, comp_dict_t* table) {
             do {
                 str_entry(tmp_string, current->key, current->item->line, current->item->type,
                         current->item->type_var, (void*)current->item->value, current->item->operador);
-                fprintf(out, "%s", tmp_string);
+//                 fprintf(out, "%s", tmp_string);
                 entry_count++;
                 current = current->next;
             } while(current != NULL);
@@ -328,8 +328,8 @@ int print_table(comp_dict_t* table){
 }
 
 char* str_entry(char* retbuffer, char* key, int line, int type, int type_var, void* value, int operador){
-    sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tType var: %d;\n\tValue: %s;\n\tOperador: %d;\n\n",
-            key, line, type, type_var, (char*)value, operador);
+//     sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tType var: %d;\n\tValue: %s;\n\tOperador: %d;\n\n",
+//             key, line, type, type_var, (char*)value, operador);
     return retbuffer;
 }
 
@@ -398,20 +398,20 @@ int verifica_uso(int hash, int operador, char* key){
             if ((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
-                    fprintf(stdout,"uso ok\n");
+ //                   fprintf(stdout,"uso ok\n");
                     return IDENTIFICADOR_DECLARADO;
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
-                fprintf(stdout,"erro variavel\n");
+ //               fprintf(stdout,"erro variavel\n");
                 exit(IKS_ERROR_VARIABLE);
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador != USO_VETOR_INDEXADO)){
-                fprintf(stdout,"erro vector 1\n");
-                fprintf(stdout,"erro vector %d %s\n",ptaux->dict->entries[hash]->item->operador, (char*)ptaux->dict->entries[hash]->item->value);
+               fprintf(stdout,"erro vector 1\n");
+  //              fprintf(stdout,"erro vector %d %s\n",ptaux->dict->entries[hash]->item->operador, (char*)ptaux->dict->entries[hash]->item->value);
                 exit(IKS_ERROR_VECTOR);
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
-                fprintf(stdout,"erro function\n");
+  //              fprintf(stdout,"erro function\n");
                 exit(IKS_ERROR_FUNCTION);
             }
         }
@@ -422,11 +422,11 @@ int verifica_uso(int hash, int operador, char* key){
                 if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
                     || (current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
                     || (current->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
-                        fprintf(stdout,"uso ok\n");
+  //                      fprintf(stdout,"uso ok\n");
                         return IDENTIFICADOR_DECLARADO;
                 }
                 if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
-                    fprintf(stdout,"erro variavel\n");
+ //                   fprintf(stdout,"erro variavel\n");
                     exit(IKS_ERROR_VARIABLE);
                 }
                 if ((current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador != USO_VETOR_INDEXADO)){
@@ -434,7 +434,7 @@ int verifica_uso(int hash, int operador, char* key){
                     exit(IKS_ERROR_VECTOR);
                 }
                 if ((current->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
-                    fprintf(stdout,"erro function\n");
+ //                   fprintf(stdout,"erro function\n");
                     exit(IKS_ERROR_FUNCTION);
                 }
             }
@@ -444,6 +444,6 @@ int verifica_uso(int hash, int operador, char* key){
         ptaux = ptaux->next;
     }
 
-    fprintf(stdout,"erro not declared");
+ //   fprintf(stdout,"erro not declared");
     exit(IKS_ERROR_UNDECLARED);
 }

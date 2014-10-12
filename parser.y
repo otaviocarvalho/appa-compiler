@@ -22,8 +22,8 @@ struct comp_stack_dict_t *stack_scope;
 comp_dict_item_t* hash_item;
 %}
 
-/*%define parse.error verbose*/
-/*%define parse.trace*/
+%define parse.error verbose
+%define parse.trace
 %union {
     char* symbol_name;
     int symbol_val;
@@ -521,11 +521,23 @@ atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
+        
+	int tipo = encontra_tipo($1,DECLARACAO_VARIAVEL);
+        if(tipo == IKS_TYPE_NOT_DEFINED){
 
+	  fprintf(stdout,"Operador não definido\n\n");
+
+	  exit(IKS_TYPE_NOT_DEFINED);
+	  }
+	  
+	verifica_atribuicao($3,tipo);
+	  
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
+
+
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {

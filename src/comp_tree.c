@@ -290,39 +290,36 @@ void verifica_return(comp_tree_t* node, char* label_function, int type_var_funct
     }
 }
 
-void verifica_tipo(comp_tree_t* node,int tipo){
+void verifica_atribuicao(comp_tree_t* node,int tipo){
 
     int operador = encontra_operador(node->hash->value);
-
-    fprintf(stdout,"uso var %d s###\n", operador);
     if(operador == USO_VARIAVEL){
-        fprintf(stdout,"safado\n");
-        int tipo_variavel = encontra_tipo(node->hash->value);
-        if(tipo == tipo_variavel){
-            fprintf(stdout,"pele\n");
+        int tipo_variavel = encontra_tipo(node->hash->value,DECLARACAO_VARIAVEL);
+        if(tipo != tipo_variavel){
+            exit(IKS_ERROR_STRING_TO_X);
         }
     }
 }
 
-int encontra_tipo(char* key){
-
+int encontra_tipo(char* key, int operador){
+    
     int hash = hash_function(key);
 
     comp_stack_dict_t* ptaux = stack_scope;
-
+    
     while(ptaux != NULL){
-        if ((ptaux->dict->entries[hash] == NULL)){
-            ptaux = ptaux->next;
+       if ((ptaux->dict->entries[hash] == NULL)){
+	    ptaux = ptaux->next;
             continue;
         }
 
-        if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
-            return ptaux->dict->entries[hash]->item->type_var;
+        if (strcmp(key,ptaux->dict->entries[hash]->key) == 0 && (ptaux->dict->entries[hash]->item->operador == operador)){
+	   return ptaux->dict->entries[hash]->item->type_var;
         }
 
         comp_dict_node_t* current = ptaux->dict->entries[hash];
         do {
-            if (strcmp(key,current->item->value) == 0){
+            if (strcmp(key,current->item->value) == 0 && (current->item->operador == operador)){
                 return current->item->type_var;
             }
             current = current->next;
@@ -330,7 +327,7 @@ int encontra_tipo(char* key){
 
         ptaux = ptaux->next;
     }
-    return -1;
+    return IKS_TYPE_NOT_DEFINED;
 }
 
 int encontra_operador(char* key){
