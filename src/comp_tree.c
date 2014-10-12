@@ -9,7 +9,10 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_
     // Create new node
     new_node = create_empty_node();
     new_node->type = type;
-    new_node->hash = hash;
+    if(hash != NULL){
+      new_node->hash = hash;
+      new_node->hash->operador = type;
+    }
     new_node->id = count_nodes;
     count_nodes++;
     /*gv_declare(type, new_node, lex);*/
@@ -27,6 +30,7 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_
     /*print_syntax_tree(new_node);*/
     return new_node;
 }
+
 
 void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
     comp_tree_t* aux;
