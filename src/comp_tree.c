@@ -199,40 +199,95 @@ void verifica_output(comp_tree_t* node){
 void verifica_input(comp_tree_t* node){
     if (node->children != NULL && node->children->hash != NULL) {
         if (node->children->hash->type != IKS_SIMBOLO_IDENTIFICADOR){
+            /*fprintf(stdout, "erro input\n");*/
             exit(IKS_ERROR_WRONG_PAR_INPUT);
         }
     }
 }
 
-comp_tree_t* find_return(comp_tree_t* syntax_tree){
+comp_tree_t* find_node_by_label(comp_tree_t* node, char* label){
     comp_tree_t* aux_brother;
     comp_tree_t* aux_children;
+    comp_tree_t* aux_search = NULL;
 
-    aux_children = syntax_tree;
-    if (aux_children != NULL){
-
-        if (aux_children->type == IKS_AST_RETURN)
+    aux_children = node;
+    while (aux_children != NULL && aux_search == NULL){
+        /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
+        if (aux_children->lex == label){
+            /*fprintf(stdout, "encontrou func\n");*/
             return aux_children;
+        }
 
         if (aux_children->next_brother != NULL)
-            find_return(aux_children->next_brother);
+            aux_search = find_node_by_label(aux_children->next_brother, label);
 
         aux_children = aux_children->children;
     }
+
+    return aux_search;
 }
 
+comp_tree_t* find_node_by_type(comp_tree_t* node, int type){
+    int flag = -1;
+    comp_tree_t* aux_brother;
+    comp_tree_t* aux_children;
+    comp_tree_t* aux_search = NULL;
+
+    aux_children = node;
+    while (aux_children != NULL && aux_search == NULL){
+        /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
+        if (aux_children->type == type){
+            /*fprintf(stdout, "encontrou type\n");*/
+            /*fprintf(stdout, "%d\n", aux_children->type);*/
+            /*fprintf(stdout, "%d\n", node->type);*/
+            return aux_children;
+        }
+
+        if (aux_children->next_brother != NULL)
+            aux_search = find_node_by_type(aux_children->next_brother, type);
+
+        aux_children = aux_children->children;
+    }
+
+    return aux_search;
+}
 
 // Verifica se o return corresponde com o tipo da função
-void verifica_return(comp_tree_t* node, int type_var_function){
-    /*print_syntax_tree(node);*/
-    // Encontra o return na árvore
-    comp_tree_t* var_return = find_return(node);
-    /*print_syntax_tree(var_return);*/
+void verifica_return(comp_tree_t* node, char* label_function, int type_var_function){
+    int found = -1;
+    comp_tree_t* return_node = NULL;
+    comp_tree_t* node_aux = node;
+    comp_tree_t* node_aux_label = NULL;
+    comp_tree_t* node_aux_type = NULL;
 
-    fprintf(stdout, "var return %d\n", var_return->children->hash->type_var);
-    if (var_return->children->hash->type_var != type_var_function) {
-        printf("test wrong type return\n");
-        exit(IKS_ERROR_WRONG_PAR_RETURN);
+    /*fprintf(stdout, "entrou ver return\n");*/
+    /*print_syntax_tree(node);*/
+
+    // Encontra a função na árvore
+    node_aux_label = find_node_by_label(node_aux, label_function);
+    /*fprintf(stdout, "node l type %d %s\n", node_aux_label->type, node_aux_label->lex);*/
+    // Encontra o return na árvore
+    node_aux_type = find_node_by_type(node_aux_label, IKS_AST_RETURN);
+
+    /*if (node_aux_type != NULL && node_aux_type->children != NULL){*/
+        /*fprintf(stdout, "node next_brother type %d\n", node_aux_type->children->type);*/
+    /*}*/
+    /*return;*/
+
+    /*if (node_aux_type != NULL){*/
+    if (node_aux_type != NULL && node_aux_type->children != NULL){
+        /*fprintf(stdout, "node t type %d\n", node_aux_type->children->type);*/
+        /*fprintf(stdout, "node t type_var %d\n", node_aux_type->children->hash->type_var);*/
+        /*fprintf(stdout, "encontrou\n");*/
+
+        /*fprintf(stdout, "var return %d\n", var_return->children->hash->type_var);*/
+        if (node_aux_type->children->hash->type_var != type_var_function) {
+            /*printf("test wrong type return\n");*/
+            exit(IKS_ERROR_WRONG_PAR_RETURN);
+        }
+    }
+    else {
+        /*fprintf(stdout, "não encontrou\n");*/
     }
 }
 

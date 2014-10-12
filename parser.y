@@ -22,8 +22,8 @@ struct comp_stack_dict_t *stack_scope;
 comp_dict_item_t* hash_item;
 %}
 
-//%define parse.error verbose
-//%define parse.trace
+/*%define parse.error verbose*/
+/*%define parse.trace*/
 %union {
     char* symbol_name;
     int symbol_val;
@@ -106,7 +106,7 @@ start:
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
 
-        print_stack_dict(stack_scope);
+        /*print_stack_dict(stack_scope);*/
      }
 ;
 
@@ -185,7 +185,7 @@ func:
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $5, hash_item);
 
-        verifica_return($$, $1);
+        verifica_return($$, $2, $1);
     }
 ;
 
@@ -379,22 +379,26 @@ laco:
 ;
 
 input:
-    TK_PR_INPUT TK_IDENTIFICADOR {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
+    TK_PR_INPUT lista-expressao {
+        /*hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);*/
 
-        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
-        comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);
-        $$ = nodo_input;
-    }
-    |  TK_PR_INPUT TK_IDENTIFICADOR '[' expressao ']' {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO);
+        /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);*/
+        /*comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);*/
+        /*$$ = nodo_input;*/
 
-        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
-        comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);
-        $$ = nodo_input;
+        $$ = create_node(IKS_AST_INPUT, NULL, $2, NULL);
 
         verifica_input($$);
     }
+    /*|  TK_PR_INPUT TK_IDENTIFICADOR '[' expressao ']' {*/
+        /*hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO);*/
+
+        /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);*/
+        /*comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);*/
+        /*$$ = nodo_input;*/
+
+        /*verifica_input($$);*/
+    /*}*/
 ;
 
 output:

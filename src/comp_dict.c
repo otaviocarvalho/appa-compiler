@@ -144,14 +144,14 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     // Calcula o hash
     int hash = hash_function(node->key);
 
-    if (operador== DECLARACAO_VARIAVEL || operador== DECLARACAO_FUNCAO || operador == DECLARACAO_VETOR_INDEXADO){
-        node->item->operador = operador;
-        int existe = verifica_se_existe(cur_table, node->key, hash, type_var, operador);
-        if(existe == JA_EXISTE){
-            fprintf(stdout, "JAH EXISTE");
-            exit(IKS_ERROR_DECLARED);
-        }
-    }
+    /*if (operador == DECLARACAO_VARIAVEL || operador== DECLARACAO_FUNCAO || operador == DECLARACAO_VETOR_INDEXADO){*/
+        /*node->item->operador = operador;*/
+        /*int existe = verifica_se_existe(cur_table, node->key, hash, type_var, operador);*/
+        /*if(existe == JA_EXISTE){*/
+            /*fprintf(stdout, "JAH EXISTE");*/
+            /*exit(IKS_ERROR_DECLARED);*/
+        /*}*/
+    /*}*/
 
     if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO || operador == USO_FUNCAO)
     {
@@ -165,11 +165,14 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     // Inicializa bucket com esse elemento se não encontrar nenhum
     if (cur_table->entries[hash] == NULL) {
         cur_table->entries[hash] = node;
+
+        fprintf(stdout, "insert elem\n");
     }
     // Atualiza linha se já existe
     else if ( strcmp(key, cur_table->entries[hash]->key) == 0 ){
         cur_table->entries[hash]->item->line = line;
 
+        fprintf(stdout, "atualiza elem\n");
         free(node->key);
         free(node->item->value);
         free(node->item);
@@ -177,26 +180,33 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     }
     // Se não existir, adiciona elemento no fim da lista
     else {
+        fprintf(stdout, "outro elem\n");
         node->next = cur_table->entries[hash];
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
 
+    fprintf(stdout, "verifica operador add_symbol %d\n", cur_table->entries[hash]->item->operador);
     return cur_table->entries[hash]->item;
 }
 
 int verifica_se_existe(comp_dict_t *table, char* key, int hash, int type_var, int operador){
+    fprintf(stdout, "entrou ver existe\n");
+
     if ((table->entries[hash] == NULL))
     {
         return NAO_EXISTE;
     }
 
-    if ((strcmp(key,table->entries[hash]->key) == 0) && (table->entries[hash]->item->type_var == type_var)){
+    fprintf(stdout, "operador existe %d\n", table->entries[hash]->item->operador);
+
+    if ((strcmp(key,table->entries[hash]->key) == 0)){
+        fprintf(stdout, "ja exis test\n");
         return JA_EXISTE;
     }
 
     comp_dict_node_t* current = table->entries[hash];
     do {
-        if((strcmp(key,current->key) == 0) && (table->entries[hash]->item->type_var == type_var)){
+        if((strcmp(key,current->key) == 0)){
             return JA_EXISTE;
         }
         current = current->next;
@@ -365,7 +375,7 @@ void print_stack_dict(comp_stack_dict_t* p){
 }
 
 comp_dict_t* destroy_table(int id) {
-    print_stack_dict(stack_scope);
+    /*print_stack_dict(stack_scope);*/
 
     stack_scope = stack_dict_pop(stack_scope);
     symbol_table_cur = stack_scope->dict;
@@ -382,23 +392,29 @@ int verifica_uso(int hash, int operador, char* key){
             continue;
         }
 
-        if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+        // Tratar segfault
+        /*if (ptaux->dict->entries[hash]->item->value == NULL){*/
+            /*continue;*/
+        /*}*/
+
+        if (ptaux->dict->entries[hash]->item != NULL && strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
             if ((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
-                    fprintf(stdout,"uso ok");
+                    fprintf(stdout,"uso ok\n");
                     return IDENTIFICADOR_DECLARADO;
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
-                fprintf(stdout,"erro variavel");
+                fprintf(stdout,"erro variavel\n");
                 exit(IKS_ERROR_VARIABLE);
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador != USO_VETOR_INDEXADO)){
-                fprintf(stdout,"erro vector");
+                fprintf(stdout,"erro vector 1\n");
+                fprintf(stdout,"erro vector %d %s\n",ptaux->dict->entries[hash]->item->operador, (char*)ptaux->dict->entries[hash]->item->value);
                 exit(IKS_ERROR_VECTOR);
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
-                fprintf(stdout,"erro function");
+                fprintf(stdout,"erro function\n");
                 exit(IKS_ERROR_FUNCTION);
             }
         }
@@ -409,19 +425,19 @@ int verifica_uso(int hash, int operador, char* key){
                 if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
                     || (current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
                     || (current->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
-                        fprintf(stdout,"uso ok");
+                        fprintf(stdout,"uso ok\n");
                         return IDENTIFICADOR_DECLARADO;
                 }
                 if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
-                    fprintf(stdout,"erro variavel");
+                    fprintf(stdout,"erro variavel\n");
                     exit(IKS_ERROR_VARIABLE);
                 }
                 if ((current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador != USO_VETOR_INDEXADO)){
-                    fprintf(stdout,"erro vector");
+                    fprintf(stdout,"erro vector 2\n");
                     exit(IKS_ERROR_VECTOR);
                 }
                 if ((current->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
-                    fprintf(stdout,"erro function");
+                    fprintf(stdout,"erro function\n");
                     exit(IKS_ERROR_FUNCTION);
                 }
             }
