@@ -9,7 +9,10 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_
     // Create new node
     new_node = create_empty_node();
     new_node->type = type;
-    new_node->hash = hash;
+    if(hash != NULL){
+        new_node->hash = hash;
+        new_node->hash->operador = type;
+    }
     new_node->id = count_nodes;
     count_nodes++;
     /*gv_declare(type, new_node, lex);*/
@@ -164,7 +167,7 @@ void print_syntax_tree(comp_tree_t* syntax_tree){
     while (aux_children != NULL){
         fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);
 
-        if (aux_children->next_brother != NULL)
+       if (aux_children->next_brother != NULL)
             print_syntax_tree(aux_children->next_brother);
 
         aux_children = aux_children->children;
@@ -201,11 +204,104 @@ void verifica_input(comp_tree_t* node){
     }
 }
 
+comp_tree_t* find_return(comp_tree_t* syntax_tree){
+    comp_tree_t* aux_brother;
+    comp_tree_t* aux_children;
+
+    aux_children = syntax_tree;
+    if (aux_children != NULL){
+
+        if (aux_children->type == IKS_AST_RETURN)
+            return aux_children;
+
+        if (aux_children->next_brother != NULL)
+            find_return(aux_children->next_brother);
+
+        aux_children = aux_children->children;
+    }
+}
+
+
 // Verifica se o return corresponde com o tipo da função
-void verifica_return(comp_tree_t* node, comp_tree_t* exp){
-    fprintf(stdout, "verif exp return %d\n", exp->hash->type_var);
-    fprintf(stdout, "verif func return %d\n", last_func_call->type_var);
-    /*if (node->hash->type_var != last_func_call->type_var) {*/
-        /*exit(IKS_ERROR_WRONG_PAR_RETURN);*/
-    /*}*/
+void verifica_return(comp_tree_t* node, int type_var_function){
+    /*print_syntax_tree(node);*/
+    // Encontra o return na árvore
+    comp_tree_t* var_return = find_return(node);
+    /*print_syntax_tree(var_return);*/
+
+    fprintf(stdout, "var return %d\n", var_return->children->hash->type_var);
+    if (var_return->children->hash->type_var != type_var_function) {
+        printf("test wrong type return\n");
+        exit(IKS_ERROR_WRONG_PAR_RETURN);
+    }
+}
+
+void verifica_tipo(comp_tree_t* node,int tipo){
+
+    int operador = encontra_operador(node->hash->value);
+
+    fprintf(stdout,"uso var %d s###\n", operador);
+    if(operador == USO_VARIAVEL){
+        fprintf(stdout,"safado\n");
+        int tipo_variavel = encontra_tipo(node->hash->value);
+        if(tipo == tipo_variavel){
+            fprintf(stdout,"pele\n");
+        }
+    }
+}
+
+int encontra_tipo(char* key){
+
+    int hash = hash_function(key);
+
+    comp_stack_dict_t* ptaux = stack_scope;
+
+    while(ptaux != NULL){
+        if ((ptaux->dict->entries[hash] == NULL)){
+            ptaux = ptaux->next;
+            continue;
+        }
+
+        if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+            return ptaux->dict->entries[hash]->item->type_var;
+        }
+
+        comp_dict_node_t* current = ptaux->dict->entries[hash];
+        do {
+            if (strcmp(key,current->item->value) == 0){
+                return current->item->type_var;
+            }
+            current = current->next;
+        } while(current != NULL);
+
+        ptaux = ptaux->next;
+    }
+    return -1;
+}
+
+int encontra_operador(char* key){
+    int hash = hash_function(key);
+    comp_stack_dict_t* ptaux = stack_scope;
+
+    while(ptaux != NULL){
+        if ((ptaux->dict->entries[hash] == NULL)){
+            ptaux = ptaux->next;
+            continue;
+        }
+
+        if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+            return ptaux->dict->entries[hash]->item->operador;
+        }
+
+        comp_dict_node_t* current = ptaux->dict->entries[hash];
+        do {
+            if (strcmp(key,current->item->value) == 0){
+                return current->item->operador;
+            }
+            current = current->next;
+        } while(current != NULL);
+
+        ptaux = ptaux->next;
+    }
+    return -1;
 }
