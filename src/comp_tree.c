@@ -182,3 +182,12 @@ comp_tree_t* create_empty_node(){
 
     return new_node;
 }
+
+void verifica_output(comp_tree_t* node){
+    // Verifica se o filho de output é um literal
+    if (node->children != NULL && node->children->hash != NULL) {
+        if (node->children->hash->type != IKS_SIMBOLO_LITERAL_STRING){
+            exit(IKS_ERROR_WRONG_PAR_OUTPUT);
+        }
+    }
+}

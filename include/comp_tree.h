@@ -20,4 +20,6 @@ comp_tree_t* create_empty_node();
 void free_syntax_tree(comp_tree_t*);
 void print_syntax_tree(comp_tree_t*);
 
+void verifica_output(comp_tree_t* node);
+
 
