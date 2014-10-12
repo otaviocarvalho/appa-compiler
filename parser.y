@@ -6,9 +6,7 @@
 #include <string.h>
 #include "main.h"
 #include "iks_ast.h"
-/*#include "comp_dict.h"*/
 #include "comp_tree.h"
-#include "comp_semantic.h"
 #include "definitions.h"
 
 int parser_return;
