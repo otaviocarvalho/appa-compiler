@@ -8,7 +8,6 @@
 #include "iks_ast.h"
 /*#include "comp_dict.h"*/
 #include "comp_tree.h"
-#include "comp_semantic.h"
 #include "definitions.h"
 
 int parser_return;
@@ -20,6 +19,7 @@ struct comp_dict_t* symbol_table_cur; // Ponteiro para a tabela de símbolos do 
 
 comp_tree_t* arvore_sintatica;
 struct comp_stack_dict_t *stack_scope;
+struct comp_dict_item_t* last_func_call = NULL;
 
 comp_dict_item_t* hash_item;
 %}
@@ -178,12 +178,14 @@ func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1);
+        last_func_call = hash_item; // Guarda o ponteiro para a função corrente
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
     }
     | tipo TK_IDENTIFICADOR '(' ')' corpo
     {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1);
+        last_func_call = hash_item; // Guarda o ponteiro para a função corrente
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $5, hash_item);
     }
@@ -385,12 +387,15 @@ input:
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);
         $$ = nodo_input;
+
+        verifica_input($$);
     }
 ;
 
 output:
     TK_PR_OUTPUT lista-expressao {
         $$ = create_node(IKS_AST_OUTPUT, NULL, $2, NULL);
+
         verifica_output($$);
     }
 ;
@@ -542,32 +547,32 @@ lista-expressao:
 
 literal:
     TK_LIT_CHAR {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_TYPE_NOT_DEFINED);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_CHAR);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
     }
     | TK_LIT_FALSE {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_TYPE_NOT_DEFINED);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
     }
     | TK_LIT_FLOAT {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT, IKS_TYPE_NOT_DEFINED);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT, IKS_FLOAT);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
     }
     | TK_LIT_INT {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_TYPE_NOT_DEFINED);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
     }
     | TK_LIT_STRING {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_TYPE_NOT_DEFINED);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
     }
     | TK_LIT_TRUE {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_TYPE_NOT_DEFINED);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
     }
@@ -586,9 +591,10 @@ while:
 ;
 
 return:
-    TK_PR_RETURN expressao
-    {
-        $$ = create_node(IKS_AST_RETURN, NULL, $2, NULL);
+    TK_PR_RETURN expressao {
+        hash_item = add_symbol(symbol_table_cur, "return", cur_line, TK_PR_RETURN, IKS_TYPE_NOT_DEFINED);
+
+        $$ = create_node(IKS_AST_RETURN, NULL, $2, hash_item);
     }
 ;
 

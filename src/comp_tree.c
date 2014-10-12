@@ -183,11 +183,29 @@ comp_tree_t* create_empty_node(){
     return new_node;
 }
 
+// Verifica se o filho de output é um literal
 void verifica_output(comp_tree_t* node){
-    // Verifica se o filho de output é um literal
     if (node->children != NULL && node->children->hash != NULL) {
         if (node->children->hash->type != IKS_SIMBOLO_LITERAL_STRING){
             exit(IKS_ERROR_WRONG_PAR_OUTPUT);
         }
     }
+}
+
+// Verifica se o filho de input é um identificador
+void verifica_input(comp_tree_t* node){
+    if (node->children != NULL && node->children->hash != NULL) {
+        if (node->children->hash->type != IKS_SIMBOLO_IDENTIFICADOR){
+            exit(IKS_ERROR_WRONG_PAR_INPUT);
+        }
+    }
+}
+
+// Verifica se o return corresponde com o tipo da função
+void verifica_return(comp_tree_t* node, comp_tree_t* exp){
+    fprintf(stdout, "verif exp return %d\n", exp->hash->type_var);
+    fprintf(stdout, "verif func return %d\n", last_func_call->type_var);
+    /*if (node->hash->type_var != last_func_call->type_var) {*/
+        /*exit(IKS_ERROR_WRONG_PAR_RETURN);*/
+    /*}*/
 }
