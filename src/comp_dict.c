@@ -135,7 +135,6 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     fprintf(stdout, "Operador %d \n ", operador );
     fprintf(stdout, "Key %s \n ", key );
     node->item->operador = operador;
-
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
 
     /*char buffer[SIZE_TABLE_KEY];*/
