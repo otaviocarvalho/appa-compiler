@@ -348,18 +348,110 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, int empty){
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
-    int operador = encontra_operador(node->hash->value);
+    
+   // fprintf(stdout, "teste key %s\n", node->hash->key);
+  
+    int operador = encontra_operador(node->hash->key);
+   // fprintf(stdout,"operador %d",operador);
+    //getchar();
+    //print_stack_dict(stack_scope);
+    //getchar();
     if(operador == USO_VARIAVEL){
-        int tipo_variavel = encontra_tipo(node->hash->value,DECLARACAO_VARIAVEL);
-        if(tipo != tipo_variavel){
-            exit(IKS_ERROR_STRING_TO_X);
-        }
+        int tipo_variavel = encontra_tipo(node->hash->key,DECLARACAO_VARIAVEL);
+	if(tipo != tipo_variavel){//variáveis de tipos diferentes
+	  if(tipo == IKS_INT){//Variável de tipo INT lado esquerdo
+	    if(tipo_variavel == IKS_STRING){
+		exit(IKS_ERROR_STRING_TO_X);
+	    }
+	    if(tipo_variavel  == IKS_CHAR){
+		exit(IKS_ERROR_CHAR_TO_X);
+	    }
+	}
+	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+	  if(tipo_variavel == IKS_STRING){
+		exit(IKS_ERROR_STRING_TO_X);
+	    }
+	  if(tipo_variavel == IKS_FLOAT){
+	      exit(IKS_ERROR_WRONG_TYPE);
+	  }
+	}
+	if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
+	  if(tipo_variavel  == IKS_CHAR){
+		exit(IKS_ERROR_CHAR_TO_X);
+	   }
+	}
+      }
+    }
+    if(operador == USO_FUNCAO){
+      int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
+      if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
+	if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
+	    if(tipo_funcao == IKS_STRING){
+		exit(IKS_ERROR_STRING_TO_X);
+	    }
+	    if(tipo_funcao  == IKS_CHAR){
+		exit(IKS_ERROR_CHAR_TO_X);
+	    }
+	}
+	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+	  if(tipo_funcao == IKS_STRING){
+		exit(IKS_ERROR_STRING_TO_X);
+	    }
+	}
+	if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
+	  if(tipo_funcao  == IKS_INT){
+		exit(IKS_ERROR_WRONG_TYPE);
+	    }
+	}
+      }
+    }
+    
+    if(operador == USO_VETOR_INDEXADO){
+      
+    }
+    
+    if(operador == USO_LITERAL){
+  //    fprintf(stdout,"pêlê");
+      int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
+      if(tipo != tipo_literal){ //Retorno de função com tipo diferente
+	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+	  if(tipo_literal == IKS_FLOAT){
+		exit(IKS_ERROR_WRONG_TYPE);
+	    }
+	}
+	if(tipo == IKS_STRING){
+	  if(tipo_literal == IKS_FLOAT){
+		exit(IKS_ERROR_WRONG_TYPE);
+	    }
+	}
+      }
     }
 }
+
+void verifica_tipo_indexador(comp_tree_t* node){
+  
+  int operador = encontra_operador(node->hash->key);
+  
+  if(operador == USO_LITERAL){
+   int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
+      if(tipo_literal != IKS_INT){
+	if(tipo_literal == IKS_STRING){
+		exit(IKS_ERROR_STRING_TO_X);
+	    }
+	}
+	if(tipo_literal == IKS_CHAR){
+		exit(IKS_ERROR_CHAR_TO_X);
+	}
+      }
+    
+  }    
+  
 
 int encontra_tipo(char* key, int operador){
 
     int hash = hash_function(key);
+    
+    fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);
 
     comp_stack_dict_t* ptaux = stack_scope;
 
@@ -368,7 +460,7 @@ int encontra_tipo(char* key, int operador){
 	    ptaux = ptaux->next;
             continue;
         }
-
+	fprintf(stdout, "Vamos ver o key => %s\n\n",ptaux->dict->entries[hash]->key);
         if (strcmp(key,ptaux->dict->entries[hash]->key) == 0 && (ptaux->dict->entries[hash]->item->operador == operador)){
 	   return ptaux->dict->entries[hash]->item->type_var;
         }
@@ -396,13 +488,13 @@ int encontra_operador(char* key){
             continue;
         }
 
-        if (strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+        if (strcmp(key,ptaux->dict->entries[hash]->key) == 0){
             return ptaux->dict->entries[hash]->item->operador;
         }
 
         comp_dict_node_t* current = ptaux->dict->entries[hash];
         do {
-            if (strcmp(key,current->item->value) == 0){
+            if (strcmp(key,current->key) == 0){
                 return current->item->operador;
             }
             current = current->next;

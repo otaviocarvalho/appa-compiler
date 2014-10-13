@@ -18,6 +18,7 @@ typedef struct comp_dict_item_t {
     int type_var;   // IKS_TYPE_NOT_DEFINED / IKS_INT / IKS_FLOAT / IKS_BOOL / IKS_CHAR / IKS_STRING
     int type;       // IKS_SIMBOLO_...
     void* value;
+    char* key;
 } comp_dict_item_t;
 
 typedef struct comp_dict_node_t {

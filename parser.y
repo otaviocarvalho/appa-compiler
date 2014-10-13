@@ -196,7 +196,7 @@ chamada-funcao:
     TK_IDENTIFICADOR '(' ')'
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
-
+        
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
     }
@@ -417,6 +417,7 @@ expressao:
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
     }
     | literal {
+	fprintf(stdout, "Expressao literal");
         $$ = $1;
     }
     | chamada-funcao {
@@ -530,7 +531,7 @@ atribuicao:
 	  fprintf(stdout,"Operador não definido\n\n");
 
 	  exit(IKS_TYPE_NOT_DEFINED);
-	  }
+	  }	 
 	  
 	verifica_atribuicao($3,tipo);
 	  
@@ -538,12 +539,22 @@ atribuicao:
         node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
-
+	fprintf(stdout, "atribuicao");
 
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO);
+        
+        int tipo = encontra_tipo($1,DECLARACAO_VETOR_INDEXADO);
+        if(tipo == IKS_TYPE_NOT_DEFINED){
+
+	  fprintf(stdout,"Operador não definido\n\n");
+
+	  exit(IKS_TYPE_NOT_DEFINED);
+	  }	 
+	verifica_tipo_indexador($3);
+	verifica_atribuicao($6,tipo);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;

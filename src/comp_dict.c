@@ -133,11 +133,13 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->item->type_var = type_var;
     node->item->operador = operador;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
+    node->item->key = strdup(key);
 
     /*char buffer[SIZE_TABLE_KEY];*/
     /*snprintf(buffer,SIZE_TABLE_KEY,"%d",node->item->type);*/
     /*strcat(node->key, buffer);*/
 
+                 //fprintf(stdout, "JAH EXISTE %s\n", key);
     // Calcula o hash
     int hash = hash_function(node->key);
 
@@ -145,7 +147,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         node->item->operador = operador;
         int existe = verifica_se_existe(cur_table, node->key, hash, type_var, operador);
         if(existe == JA_EXISTE){
-//             fprintf(stdout, "JAH EXISTE");
+
             exit(IKS_ERROR_DECLARED);
         }
     }
@@ -161,6 +163,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
 
     // Inicializa bucket com esse elemento se não encontrar nenhum
     if (cur_table->entries[hash] == NULL) {
+      //fprintf(stdout, "Caiu no insere");
         cur_table->entries[hash] = node;
     }
     // Atualiza linha se já existe
@@ -176,6 +179,8 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         node->next = cur_table->entries[hash];
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
+
+    //print_table(cur_table);
 
     print_stack_dict(stack_scope);
     return cur_table->entries[hash]->item;
@@ -301,7 +306,7 @@ int print_file_table(FILE* out, comp_dict_t* table) {
             do {
                 str_entry(tmp_string, current->key, current->item->line, current->item->type,
                         current->item->type_var, (void*)current->item->value, current->item->operador);
-                 fprintf(out, "%s", tmp_string);
+                fprintf(out, "%s", tmp_string);
                 entry_count++;
                 current = current->next;
             } while(current != NULL);

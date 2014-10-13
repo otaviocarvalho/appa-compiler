@@ -32,9 +32,9 @@ void verifica_return(comp_tree_t*, char*, int);
 int encontra_tipo(char*, int);
 void verifica_atribuicao(comp_tree_t*, int);
 int encontra_operador(char*);
+void verifica_tipo_indexador(comp_tree_t* );
 
 comp_list_t* create_list_args(comp_tree_t*, comp_list_t*);
 comp_list_t* list_concat(comp_list_t*, comp_list_t*);
 comp_list_t* list_create(comp_dict_item_t*);
-
 
