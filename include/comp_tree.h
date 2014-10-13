@@ -6,6 +6,7 @@
 #include "iks_ast.h"
 
 typedef struct comp_list_t {
+    comp_dict_item_t* item;
     struct comp_list_t* next;
 } comp_list_t;
 
@@ -33,8 +34,11 @@ int encontra_tipo(char*, int);
 void verifica_atribuicao(comp_tree_t*, int);
 int encontra_operador(char*);
 void verifica_tipo_indexador(comp_tree_t* );
+void verifica_argumentos(comp_tree_t*, char*, comp_list_t*);
+comp_dict_item_t* encontra_item_operador(char*, int);
 
-comp_list_t* create_list_args(comp_tree_t*, comp_list_t*);
+void list_func_connect(comp_tree_t*, comp_list_t*);
 comp_list_t* list_concat(comp_list_t*, comp_list_t*);
 comp_list_t* list_create(comp_dict_item_t*);
+int list_count(comp_list_t*);
 

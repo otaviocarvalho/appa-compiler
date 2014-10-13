@@ -182,7 +182,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
 
     //print_table(cur_table);
 
-    print_stack_dict(stack_scope);
+    /*print_stack_dict(stack_scope);*/
     return cur_table->entries[hash]->item;
 }
 

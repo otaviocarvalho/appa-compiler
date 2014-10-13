@@ -315,42 +315,63 @@ void verifica_return(comp_tree_t* node, char* label_function, int type_var_funct
 }
 
 // Verifica o número e o tipo dos argumentos
-void verifica_argumentos(comp_tree_t* node, char* label_function, int empty){
+void verifica_argumentos(comp_tree_t* node, char* label_function, comp_list_t* list_args){
+    int count_call = 0;
+    int count_decl = 0;
     comp_tree_t* node_aux = node;
     comp_tree_t* node_aux_label = NULL;
     comp_tree_t* node_aux_type = NULL;
 
-    fprintf(stdout, "locurilha %s\n", label_function);
     // Conta o número de parâmetros na declaração da função
-    if (!empty){
-
+    /*fprintf(stdout, "verif argum %s\n", label_function);*/
+    if (list_args != NULL){
+        count_call = list_count(list_args);
+        /*fprintf(stdout, "count args %d\n", count_call);*/
     }
+    /*else {*/
+        /*fprintf(stdout, "list args empty\n");*/
+    /*}*/
 
-    print_stack_dict(stack_scope);
-    fprintf(stdout, "entrou ver argumentos\n");
-    print_syntax_tree(node);
+    /*print_stack_dict(stack_scope);*/
+    /*fprintf(stdout, "entrou ver argumentos\n");*/
+    /*print_syntax_tree(body);*/
+    /*print_syntax_tree(node_aux);*/
+    /*return;*/
 
-    // Encontra a chamada da função na árvore
-    node_aux_label = find_node_by_label_and_operator(node_aux, label_function, encontra_tipo(label_function, USO_FUNCAO));
-    if (node_aux_label != NULL){
-        fprintf(stdout, "node l type %d %s\n", node_aux_label->type, node_aux_label->lex);
+    // Encontra a chamada da função na stack
+    comp_dict_item_t* item_decl = encontra_item_operador(label_function, DECLARACAO_FUNCAO);
+    /*fprintf(stdout, "encontrou %s\n", item_decl->key);*/
+
+    /*node_aux_label = find_node_by_label_and_operator(node_aux, label_function, USO_FUNCAO);*/
+    /*print_syntax_tree(node_aux_label);*/
+    /*return;*/
+
+    if (item_decl != NULL){
+        count_decl = item_decl->count_args;
+        /*fprintf(stdout, "count decl %d\n", count_decl);*/
+
+        if (count_decl == count_call){
+            /*fprintf(stdout, "args equal\n");*/
+            // Verificar tipos dos argumentos
+        }
+        else if (count_decl > count_call){
+            /*fprintf(stdout, "missing args\n");*/
+            exit(IKS_ERROR_MISSING_ARGS);
+        }
+        else {
+            /*fprintf(stdout, "excess args\n");*/
+            exit(IKS_ERROR_EXCESS_ARGS);
+        }
     }
-    else {
-        fprintf(stdout, "nao encontrou\n");
-    }
-    return;
-
-    // Conta o número de parâmetros da chamada da função
-    if (node_aux_label != NULL){
-
-    }
-
+    /*else {*/
+        /*fprintf(stdout, "nao encontrou\n");*/
+    /*}*/
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
-    
+
    // fprintf(stdout, "teste key %s\n", node->hash->key);
-  
+
     int operador = encontra_operador(node->hash->key);
    // fprintf(stdout,"operador %d",operador);
     //getchar();
@@ -405,11 +426,11 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
 	}
       }
     }
-    
+
     if(operador == USO_VETOR_INDEXADO){
-      
+
     }
-    
+
     if(operador == USO_LITERAL){
   //    fprintf(stdout,"pêlê");
       int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
@@ -429,9 +450,9 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
 }
 
 void verifica_tipo_indexador(comp_tree_t* node){
-  
+
   int operador = encontra_operador(node->hash->key);
-  
+
   if(operador == USO_LITERAL){
    int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
       if(tipo_literal != IKS_INT){
@@ -443,15 +464,45 @@ void verifica_tipo_indexador(comp_tree_t* node){
 		exit(IKS_ERROR_CHAR_TO_X);
 	}
       }
-    
-  }    
-  
+
+  }
+
+comp_dict_item_t* encontra_item_operador(char* key, int operador){
+    int hash = hash_function(key);
+
+    /*fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);*/
+
+    comp_stack_dict_t* ptaux = stack_scope;
+
+    while(ptaux != NULL){
+       if ((ptaux->dict->entries[hash] == NULL)){
+            ptaux = ptaux->next;
+            continue;
+        }
+        /*fprintf(stdout, "Vamos ver o key => %s\n\n",ptaux->dict->entries[hash]->key);*/
+        if (strcmp(key,ptaux->dict->entries[hash]->key) == 0 && (ptaux->dict->entries[hash]->item->operador == operador)){
+            return ptaux->dict->entries[hash]->item;
+        }
+
+        comp_dict_node_t* current = ptaux->dict->entries[hash];
+        do {
+            if (strcmp(key,current->item->value) == 0 && (current->item->operador == operador)){
+                return current->item;
+            }
+            current = current->next;
+        } while(current != NULL);
+
+        ptaux = ptaux->next;
+    }
+
+    return NULL;
+}
 
 int encontra_tipo(char* key, int operador){
 
     int hash = hash_function(key);
-    
-    fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);
+
+    /*fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);*/
 
     comp_stack_dict_t* ptaux = stack_scope;
 
@@ -460,7 +511,7 @@ int encontra_tipo(char* key, int operador){
 	    ptaux = ptaux->next;
             continue;
         }
-	fprintf(stdout, "Vamos ver o key => %s\n\n",ptaux->dict->entries[hash]->key);
+	/*fprintf(stdout, "Vamos ver o key => %s\n\n",ptaux->dict->entries[hash]->key);*/
         if (strcmp(key,ptaux->dict->entries[hash]->key) == 0 && (ptaux->dict->entries[hash]->item->operador == operador)){
 	   return ptaux->dict->entries[hash]->item->type_var;
         }
@@ -505,14 +556,38 @@ int encontra_operador(char* key){
     return -1;
 }
 
-comp_list_t* create_list_args(comp_tree_t* tree, comp_list_t* list_args){
-    return NULL;
+int list_count(comp_list_t* list_args){
+    int count = 0;
+    comp_list_t* aux = list_args;
+    while (aux != NULL){
+        count++;
+        aux = aux->next;
+    }
+
+    return count;
+}
+
+void list_func_connect(comp_tree_t* tree, comp_list_t* list_args){
+    if (tree != NULL && list_args != NULL){
+        tree->list_args = list_args;
+    }
 }
 
 comp_list_t* list_concat(comp_list_t* list_a, comp_list_t* list_b){
-    return NULL;
+    comp_list_t* list_aux = list_a;
+    while (list_aux != NULL){
+        if (list_aux->next == NULL){
+            list_a->next = list_b;
+        }
+        list_aux = list_aux->next;
+    }
+
+    return list_a;
 }
 
 comp_list_t* list_create(comp_dict_item_t* item){
-    return NULL;
+    comp_list_t* new_list = malloc(sizeof(comp_list_t));
+    new_list->item = item;
+    new_list->next = NULL;
+    return new_list;
 }

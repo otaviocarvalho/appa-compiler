@@ -68,7 +68,7 @@ comp_dict_item_t* hash_item;
 %type<symbol_list> decl-parametro
 %type<node> func
 %type<node> chamada-funcao
-%type<node> lista-argumentos
+%type<symbol_list> lista-argumentos
 %type<node> corpo
 %type<node> bloco-comando
 %type<node> sequencia
@@ -176,11 +176,14 @@ decl-parametro:
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
-        fprintf(stdout, "func\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
-        create_list_args($$, $4);
+
+        list_func_connect($$, $4);
+        hash_item->count_args = list_count($4);
+        /*verifica_argumentos($$, $2, $4);*/
+        verifica_return($$, $2, $1);
     }
     | tipo TK_IDENTIFICADOR '(' ')' corpo
     {
@@ -188,6 +191,8 @@ func:
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $5, hash_item);
 
+        /*verifica_argumentos($$, $2, NULL);*/
+        hash_item->count_args = 0;
         verifica_return($$, $2, $1);
     }
 ;
@@ -196,26 +201,35 @@ chamada-funcao:
     TK_IDENTIFICADOR '(' ')'
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
-        
+
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
+
+        verifica_argumentos($$, $1, NULL);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        node_identificador->next_brother = $3;
+        /*node_identificador->next_brother = $3;*/
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
+
+        list_func_connect($$, $3);
+        verifica_argumentos($$, $1, $3);
     }
 ;
 
 lista-argumentos:
-    expressao
+    expressao {
+        $$ = list_create($1->hash);
+    }
     | expressao ',' lista-argumentos
     {
-        connect_nodes($1, $3);
-        $$ = $1;
+        fprintf(stdout, "create list multiple nodes\n");
+        /*connect_nodes($1, $3);*/
+        /*$$ = $1;*/
+        $$ = list_concat(list_create($1->hash), $3);
     }
 ;
 
@@ -266,7 +280,6 @@ sequencia:
 
 lista-parametros:
     decl-parametro {
-        fprintf(stdout, "lista parametros\n");
         /*$$ = list_create($1);*/
         $$ = $1;
     }
@@ -417,7 +430,6 @@ expressao:
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
     }
     | literal {
-	fprintf(stdout, "Expressao literal");
         $$ = $1;
     }
     | chamada-funcao {

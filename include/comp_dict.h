@@ -19,6 +19,7 @@ typedef struct comp_dict_item_t {
     int type;       // IKS_SIMBOLO_...
     void* value;
     char* key;
+    int count_args;
 } comp_dict_item_t;
 
 typedef struct comp_dict_node_t {
