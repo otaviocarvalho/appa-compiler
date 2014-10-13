@@ -27,3 +27,4 @@ void verifica_return(comp_tree_t*, char*, int);
 int encontra_tipo(char*, int);
 void verifica_atribuicao(comp_tree_t*, int);
 int encontra_operador(char*);
+void verifica_tipo_indexador(comp_tree_t* );
