@@ -179,6 +179,7 @@ comp_tree_t* create_empty_node(){
     new_node->id = -1;
     new_node->lex = NULL;
     new_node->hash = NULL;
+    new_node->list_args = NULL;
     new_node->children = NULL;
     new_node->next_brother = NULL;
 
@@ -213,6 +214,29 @@ comp_tree_t* find_node_by_label(comp_tree_t* node, char* label){
     while (aux_children != NULL && aux_search == NULL){
         /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
         if (aux_children->lex == label){
+            /*fprintf(stdout, "encontrou func\n");*/
+            return aux_children;
+        }
+
+        if (aux_children->next_brother != NULL)
+            aux_search = find_node_by_label(aux_children->next_brother, label);
+
+        aux_children = aux_children->children;
+    }
+
+    return aux_search;
+}
+
+comp_tree_t* find_node_by_label_and_operator(comp_tree_t* node, char* label, int operador){
+    comp_tree_t* aux_brother;
+    comp_tree_t* aux_children;
+    comp_tree_t* aux_search = NULL;
+
+    fprintf(stdout, "operador type %d\n", operador);
+    aux_children = node;
+    while (aux_children != NULL && aux_search == NULL){
+        /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
+        if (aux_children->lex == label && aux_children->hash && aux_children->hash->operador == operador){
             /*fprintf(stdout, "encontrou func\n");*/
             return aux_children;
         }
@@ -296,6 +320,7 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, int empty){
     comp_tree_t* node_aux_label = NULL;
     comp_tree_t* node_aux_type = NULL;
 
+    fprintf(stdout, "locurilha %s\n", label_function);
     // Conta o número de parâmetros na declaração da função
     if (!empty){
 
@@ -306,8 +331,13 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, int empty){
     print_syntax_tree(node);
 
     // Encontra a chamada da função na árvore
-    node_aux_label = find_node_by_label(node_aux, label_function);
-    fprintf(stdout, "node l type %d %s\n", node_aux_label->type, node_aux_label->lex);
+    node_aux_label = find_node_by_label_and_operator(node_aux, label_function, encontra_tipo(label_function, USO_FUNCAO));
+    if (node_aux_label != NULL){
+        fprintf(stdout, "node l type %d %s\n", node_aux_label->type, node_aux_label->lex);
+    }
+    else {
+        fprintf(stdout, "nao encontrou\n");
+    }
     return;
 
     // Conta o número de parâmetros da chamada da função
@@ -432,13 +462,13 @@ void verifica_tipo_indexador(comp_tree_t* node){
   
 
 int encontra_tipo(char* key, int operador){
-    
+
     int hash = hash_function(key);
     
     fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);
 
     comp_stack_dict_t* ptaux = stack_scope;
-    
+
     while(ptaux != NULL){
        if ((ptaux->dict->entries[hash] == NULL)){
 	    ptaux = ptaux->next;
@@ -487,4 +517,16 @@ int encontra_operador(char* key){
         ptaux = ptaux->next;
     }
     return -1;
+}
+
+comp_list_t* create_list_args(comp_tree_t* tree, comp_list_t* list_args){
+    return NULL;
+}
+
+comp_list_t* list_concat(comp_list_t* list_a, comp_list_t* list_b){
+    return NULL;
+}
+
+comp_list_t* list_create(comp_dict_item_t* item){
+    return NULL;
 }

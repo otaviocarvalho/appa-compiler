@@ -179,9 +179,10 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         node->next = cur_table->entries[hash];
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
-    
+
     //print_table(cur_table);
 
+    print_stack_dict(stack_scope);
     return cur_table->entries[hash]->item;
 }
 
@@ -305,7 +306,7 @@ int print_file_table(FILE* out, comp_dict_t* table) {
             do {
                 str_entry(tmp_string, current->key, current->item->line, current->item->type,
                         current->item->type_var, (void*)current->item->value, current->item->operador);
-			fprintf(out, "%s", tmp_string);
+                fprintf(out, "%s", tmp_string);
                 entry_count++;
                 current = current->next;
             } while(current != NULL);
