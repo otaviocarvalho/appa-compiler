@@ -194,8 +194,12 @@ chamada-funcao:
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
         
+        /*fprintf(stdout, "key %s", hash_item->key);
+        getchar();*/
+        
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
+        //////VERIFICAÇÂO NOME
+        $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, $1, node_identificador, hash_item);
 
         verifica_argumentos($$, $1, 0);
     }
@@ -417,7 +421,6 @@ expressao:
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
     }
     | literal {
-	fprintf(stdout, "Expressao literal");
         $$ = $1;
     }
     | chamada-funcao {
@@ -532,6 +535,8 @@ atribuicao:
 
 	  exit(IKS_TYPE_NOT_DEFINED);
 	  }	 
+	  print_stack_dict(stack_scope);
+	  getchar();
 	  
 	verifica_atribuicao($3,tipo);
 	  

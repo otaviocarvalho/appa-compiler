@@ -318,14 +318,27 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, int empty){
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
-    
-   // fprintf(stdout, "teste key %s\n", node->hash->key);
-  
+    if(node==NULL){
+      fprintf(stdout,"node NULL");
+      getchar();
+    }
+    if(node->hash==NULL){
+      fprintf(stdout,"node hash NULL");
+      getchar();
+    }
+    if(node->hash->key==NULL){
+      fprintf(stdout,"node hash key NULL");
+      getchar();
+    }
+      getchar();
+   fprintf(stdout, "teste key %s\n", node->hash->key);
+  getchar();
     int operador = encontra_operador(node->hash->key);
-   // fprintf(stdout,"operador %d",operador);
+   fprintf(stdout,"operador %d",operador);
+   fprintf(stdout,"type var %d",node->hash->type_var);
     //getchar();
     //print_stack_dict(stack_scope);
-    //getchar();
+    getchar();
     if(operador == USO_VARIAVEL){
         int tipo_variavel = encontra_tipo(node->hash->key,DECLARACAO_VARIAVEL);
 	if(tipo != tipo_variavel){//variáveis de tipos diferentes
@@ -353,6 +366,7 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
       }
     }
     if(operador == USO_FUNCAO){
+      fprintf(stdout,"pêlê");
       int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
       if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
 	if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
