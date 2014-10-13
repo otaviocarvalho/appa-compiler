@@ -5,11 +5,16 @@
 #include "comp_dict.h"
 #include "iks_ast.h"
 
+typedef struct comp_list_t {
+    struct comp_list_t* next;
+} comp_list_t;
+
 typedef struct comp_tree_t {
     int id;
     int type;
     char* lex;
     comp_dict_item_t* hash;
+    comp_list_t* list_args;
     struct comp_tree_t* children;
     struct comp_tree_t* next_brother;
 } comp_tree_t;
@@ -27,3 +32,9 @@ void verifica_return(comp_tree_t*, char*, int);
 int encontra_tipo(char*, int);
 void verifica_atribuicao(comp_tree_t*, int);
 int encontra_operador(char*);
+
+comp_list_t* create_list_args(comp_tree_t*, comp_list_t*);
+comp_list_t* list_concat(comp_list_t*, comp_list_t*);
+comp_list_t* list_create(comp_dict_item_t*);
+
+

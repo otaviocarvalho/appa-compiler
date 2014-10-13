@@ -177,6 +177,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
 
+    print_stack_dict(stack_scope);
     return cur_table->entries[hash]->item;
 }
 
@@ -300,7 +301,7 @@ int print_file_table(FILE* out, comp_dict_t* table) {
             do {
                 str_entry(tmp_string, current->key, current->item->line, current->item->type,
                         current->item->type_var, (void*)current->item->value, current->item->operador);
-//                 fprintf(out, "%s", tmp_string);
+                 fprintf(out, "%s", tmp_string);
                 entry_count++;
                 current = current->next;
             } while(current != NULL);
@@ -315,8 +316,8 @@ int print_table(comp_dict_t* table){
 }
 
 char* str_entry(char* retbuffer, char* key, int line, int type, int type_var, void* value, int operador){
-//     sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tType var: %d;\n\tValue: %s;\n\tOperador: %d;\n\n",
-//             key, line, type, type_var, (char*)value, operador);
+     sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tType var: %d;\n\tValue: %s;\n\tOperador: %d;\n\n",
+             key, line, type, type_var, (char*)value, operador);
     return retbuffer;
 }
 

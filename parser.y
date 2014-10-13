@@ -28,7 +28,8 @@ comp_dict_item_t* hash_item;
     char* symbol_name;
     int symbol_val;
     struct comp_dict_item_t* symbol;
-    struct comp_tree_t *node;
+    struct comp_tree_t* node;
+    struct comp_list_t* symbol_list;
 };
 
 /* Declaração dos tokens da linguagem */
@@ -64,14 +65,14 @@ comp_dict_item_t* hash_item;
 %type<node> programa
 %type<node> decl-global
 %type<node> decl-local
-%type<node> decl-parametro
+%type<symbol_list> decl-parametro
 %type<node> func
 %type<node> chamada-funcao
 %type<node> lista-argumentos
 %type<node> corpo
 %type<node> bloco-comando
 %type<node> sequencia
-%type<node> lista-parametros
+%type<symbol_list> lista-parametros
 %type<symbol_val> tipo
 %type<node> comando
 %type<node> condicional
@@ -168,16 +169,18 @@ decl-parametro:
     tipo TK_IDENTIFICADOR {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
 
-        $$ = NULL;
+        $$ = list_create(hash_item);
     }
 ;
 
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
+        fprintf(stdout, "func\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
+        create_list_args($$, $4);
     }
     | tipo TK_IDENTIFICADOR '(' ')' corpo
     {
@@ -196,8 +199,6 @@ chamada-funcao:
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
-
-        verifica_argumentos($$, $1, 0);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
@@ -263,17 +264,16 @@ sequencia:
     }
 ;
 
-// Revisar
 lista-parametros:
     decl-parametro {
-        /*$$ = $1;*/
-        $$ = NULL;
+        fprintf(stdout, "lista parametros\n");
+        /*$$ = list_create($1);*/
+        $$ = $1;
     }
     | decl-parametro ',' lista-parametros
     {
-        /*connect_nodes($1, $3);*/
-        /*$$ = $1;*/
-        $$ = NULL;
+        $$ = list_concat($1, $3);
+        /*$$ = NULL;*/
     }
 ;
 
@@ -346,7 +346,7 @@ comando:
     }
     | ';' {
         $$ = NULL;
-    } 
+    }
     | func{
       $$ = $1;
     }
