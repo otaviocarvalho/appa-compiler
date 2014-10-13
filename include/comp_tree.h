@@ -1,4 +1,3 @@
-//#include "comp_dict.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "gv.h"
@@ -37,7 +36,7 @@ void verifica_tipo_indexador(comp_tree_t* );
 void verifica_argumentos(comp_tree_t*, char*, comp_list_t*);
 comp_dict_item_t* encontra_item_operador(char*, int);
 
-void list_func_connect(comp_tree_t*, comp_list_t*);
+void list_func_connect(comp_tree_t*, comp_list_t*, comp_dict_item_t*);
 comp_list_t* list_concat(comp_list_t*, comp_list_t*);
 comp_list_t* list_create(comp_dict_item_t*);
 int list_count(comp_list_t*);

@@ -316,56 +316,45 @@ void verifica_return(comp_tree_t* node, char* label_function, int type_var_funct
 
 // Verifica o número e o tipo dos argumentos
 void verifica_argumentos(comp_tree_t* node, char* label_function, comp_list_t* list_args){
+    int i;
     int count_call = 0;
     int count_decl = 0;
-    comp_tree_t* node_aux = node;
-    comp_tree_t* node_aux_label = NULL;
-    comp_tree_t* node_aux_type = NULL;
+    /*comp_tree_t* node_aux = node;*/
+    comp_list_t* aux_call = NULL;
+    comp_list_t* aux_decl = NULL;
 
     // Conta o número de parâmetros na declaração da função
-    /*fprintf(stdout, "verif argum %s\n", label_function);*/
     if (list_args != NULL){
         count_call = list_count(list_args);
-        /*fprintf(stdout, "count args %d\n", count_call);*/
     }
-    /*else {*/
-        /*fprintf(stdout, "list args empty\n");*/
-    /*}*/
-
-    /*print_stack_dict(stack_scope);*/
-    /*fprintf(stdout, "entrou ver argumentos\n");*/
-    /*print_syntax_tree(body);*/
-    /*print_syntax_tree(node_aux);*/
-    /*return;*/
 
     // Encontra a chamada da função na stack
     comp_dict_item_t* item_decl = encontra_item_operador(label_function, DECLARACAO_FUNCAO);
-    /*fprintf(stdout, "encontrou %s\n", item_decl->key);*/
-
-    /*node_aux_label = find_node_by_label_and_operator(node_aux, label_function, USO_FUNCAO);*/
-    /*print_syntax_tree(node_aux_label);*/
-    /*return;*/
 
     if (item_decl != NULL){
         count_decl = item_decl->count_args;
-        /*fprintf(stdout, "count decl %d\n", count_decl);*/
 
         if (count_decl == count_call){
-            /*fprintf(stdout, "args equal\n");*/
             // Verificar tipos dos argumentos
+            aux_call = list_args;
+            aux_decl = item_decl->list_args;
+            for (i = 0; i < count_decl; i++){
+                if (aux_call != NULL && aux_decl != NULL){
+                    if (aux_call->item->type_var != aux_decl->item->type_var){
+                        exit(IKS_ERROR_WRONG_TYPE_ARGS);
+                    }
+                    aux_call = aux_call->next;
+                    aux_decl = aux_decl->next;
+                }
+            }
         }
         else if (count_decl > count_call){
-            /*fprintf(stdout, "missing args\n");*/
             exit(IKS_ERROR_MISSING_ARGS);
         }
         else {
-            /*fprintf(stdout, "excess args\n");*/
             exit(IKS_ERROR_EXCESS_ARGS);
         }
     }
-    /*else {*/
-        /*fprintf(stdout, "nao encontrou\n");*/
-    /*}*/
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
@@ -582,9 +571,12 @@ int list_count(comp_list_t* list_args){
     return count;
 }
 
-void list_func_connect(comp_tree_t* tree, comp_list_t* list_args){
+void list_func_connect(comp_tree_t* tree, comp_list_t* list_args, comp_dict_item_t* hash){
     if (tree != NULL && list_args != NULL){
         tree->list_args = list_args;
+        hash->list_args = list_args;
+        hash->count_args = list_count(list_args);
+        /*fprintf(stdout, "call count args %d\n", hash->count_args);*/
     }
 }
 

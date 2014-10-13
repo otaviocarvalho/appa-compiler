@@ -180,9 +180,8 @@ func:
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
 
-        list_func_connect($$, $4);
-        hash_item->count_args = list_count($4);
         /*verifica_argumentos($$, $2, $4);*/
+        list_func_connect($$, $4, hash_item);
         verifica_return($$, $2, $1);
     }
     | tipo TK_IDENTIFICADOR '(' ')' corpo
@@ -208,6 +207,7 @@ chamada-funcao:
         //////VERIFICAÇÂO NOME
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, $1, node_identificador, hash_item);
 
+        hash_item->count_args = 0;
         verifica_argumentos($$, $1, 0);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
@@ -218,7 +218,7 @@ chamada-funcao:
         /*node_identificador->next_brother = $3;*/
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
 
-        list_func_connect($$, $3);
+        list_func_connect($$, $3, hash_item);
         verifica_argumentos($$, $1, $3);
     }
 ;
