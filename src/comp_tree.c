@@ -407,7 +407,6 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
       }
     }
     if(operador == USO_FUNCAO){
-      fprintf(stdout,"pêlê");
       int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
       if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
 	if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
@@ -436,7 +435,6 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
     }
 
     if(operador == USO_LITERAL){
-  //    fprintf(stdout,"pêlê");
       int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
       if(tipo != tipo_literal){ //Retorno de função com tipo diferente
 	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo

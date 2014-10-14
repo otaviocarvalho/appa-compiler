@@ -152,11 +152,12 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         }
     }
 
-    if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO || operador == USO_FUNCAO)
+    /*if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO|| operador == USO_FUNCAO)*/
+    if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO)
     {
         int definido = verifica_uso(hash, operador, node->key);
         if(definido == IDENTIFICADOR_NAO_DECLARADO){
-//             fprintf(stdout, "JAH NÃO DECLARADO");
+             fprintf(stdout, "JAH NÃO DECLARADO");
             exit(IKS_ERROR_UNDECLARED);
         }
     }
@@ -180,9 +181,6 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         cur_table->entries[hash] = node; // Elemento recém criado vira o primeiro da lista
     }
 
-    //print_table(cur_table);
-
-    /*print_stack_dict(stack_scope);*/
     return cur_table->entries[hash]->item;
 }
 
@@ -409,6 +407,7 @@ int verifica_uso(int hash, int operador, char* key){
             }
         }
 
+        fprintf(stdout, "ver erro recur 3\n");
         comp_dict_node_t* current = ptaux->dict->entries[hash];
         do {
             if (strcmp(key,current->item->value) == 0){

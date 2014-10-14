@@ -24,6 +24,7 @@ comp_dict_item_t* hash_item;
 
 %define parse.error verbose
 %define parse.trace
+
 %union {
     char* symbol_name;
     int symbol_val;
@@ -106,8 +107,6 @@ start:
      programa {
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
-
-        /*print_stack_dict(stack_scope);*/
      }
 ;
 
@@ -133,8 +132,8 @@ programa:
     }
     | error {
         $$ = NULL;
-        yyerrok;
-        yyclearin;
+        /*yyerrok;*/
+        /*yyclearin;*/
 
         /*parser_return = IKS_SYNTAX_ERRO;*/
         /*return parser_return;*/
@@ -180,7 +179,6 @@ func:
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
 
-        /*verifica_argumentos($$, $2, $4);*/
         list_func_connect($$, $4, hash_item);
         verifica_return($$, $2, $1);
     }
@@ -190,7 +188,6 @@ func:
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $5, hash_item);
 
-        /*verifica_argumentos($$, $2, NULL);*/
         hash_item->count_args = 0;
         verifica_return($$, $2, $1);
     }
@@ -200,11 +197,8 @@ chamada-funcao:
     TK_IDENTIFICADOR '(' ')'
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
-        /*fprintf(stdout, "key %s", hash_item->key);
-        getchar();*/
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        //////VERIFICAÇÂO NOME
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, $1, node_identificador, hash_item);
 
         hash_item->count_args = 0;
@@ -215,7 +209,6 @@ chamada-funcao:
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        /*node_identificador->next_brother = $3;*/
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
 
         list_func_connect($$, $3, hash_item);
@@ -229,9 +222,6 @@ lista-argumentos:
     }
     | expressao ',' lista-argumentos
     {
-        fprintf(stdout, "create list multiple nodes\n");
-        /*connect_nodes($1, $3);*/
-        /*$$ = $1;*/
         $$ = list_concat(list_create($1->hash), $3);
     }
 ;
@@ -239,17 +229,17 @@ lista-argumentos:
 corpo:
     bloco-comando
     {
-      $$ = $1;
+        $$ = $1;
     }
 ;
 
 bloco-comando:
-    '{' { fprintf(stdout, "1\n"); create_table(cur_dict_id++); } sequencia '}' {fprintf(stdout, "-1\n"); destroy_table(cur_dict_id--);}
+    '{' { create_table(cur_dict_id++); } sequencia '}' { destroy_table(cur_dict_id--); }
     {
         $$ = $3;
     }
     |
-    '{' { fprintf(stdout, "2\n"); create_table(cur_dict_id++); } '}' {fprintf(stdout, "-2\n"); destroy_table(cur_dict_id--);}
+    '{' { create_table(cur_dict_id++); } '}' { destroy_table(cur_dict_id--); }
     {
         $$ = NULL;
     }
@@ -297,32 +287,22 @@ tipo:
     TK_PR_INT
     {
         $$ = IKS_INT;
-        /*$$ = NULL;*/
-        /*$$ = IKS_SIMBOLO_LITERAL_INT;*/
     }
     | TK_PR_FLOAT
     {
         $$ = IKS_FLOAT;
-        /*$$ = NULL;*/
-        /*$$ = IKS_SIMBOLO_LITERAL_FLOAT;*/
     }
     | TK_PR_BOOL
     {
         $$ = IKS_BOOL;
-        /*$$ = NULL;*/
-        /*$$ = IKS_SIMBOLO_LITERAL_BOOL;*/
     }
     | TK_PR_CHAR
     {
         $$ = IKS_CHAR;
-        /*$$ = NULL;*/
-        /*$$ = IKS_SIMBOLO_LITERAL_CHAR;*/
     }
     | TK_PR_STRING
     {
         $$ = IKS_STRING;
-        /*$$ = NULL;*/
-        /*$$ = IKS_SIMBOLO_LITERAL_STRING;*/
     }
 ;
 
@@ -351,20 +331,18 @@ comando:
     | atribuicao {
         $$ = $1;
     }
-    /*| '{' { fprintf(stdout, "3\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); } sequencia '}'*/
-    | '{' { fprintf(stdout, "3\n"); create_table(cur_dict_id++); } sequencia '}' {fprintf(stdout, "-3\n"); destroy_table(cur_dict_id--);}
+    | '{' { create_table(cur_dict_id++); } sequencia '}' { destroy_table(cur_dict_id--); }
     {
         $$ = create_node(IKS_AST_BLOCO, NULL, $3, NULL);
     }
-    /*| '{' { fprintf(stdout, "4\n"); create_table(stack_scope, symbol_table_cur, cur_dict_id++); print_stack_dict(stack_scope); } '}' {*/
-    | '{' { fprintf(stdout, "4\n"); create_table(cur_dict_id++); } '}' {fprintf(stdout, "-4\n"); destroy_table(cur_dict_id--);} {
+    | '{' { create_table(cur_dict_id++); } '}' { destroy_table(cur_dict_id--); } {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL, NULL);
     }
     | ';' {
         $$ = NULL;
     }
     | func{
-      $$ = $1;
+        $$ = $1;
     }
 ;
 
@@ -539,39 +517,32 @@ atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
-        
-	int tipo = encontra_tipo($1,DECLARACAO_VARIAVEL);
+
+        int tipo = encontra_tipo($1,DECLARACAO_VARIAVEL);
         if(tipo == IKS_TYPE_NOT_DEFINED){
+            fprintf(stdout,"Operador não definido\n\n");
+            exit(IKS_TYPE_NOT_DEFINED);
+        }
 
-	  fprintf(stdout,"Operador não definido\n\n");
+        verifica_atribuicao($3,tipo);
 
-	  exit(IKS_TYPE_NOT_DEFINED);
-	  }	 
-	  print_stack_dict(stack_scope);
-	  getchar();
-	  
-	verifica_atribuicao($3,tipo);
-	  
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
-	fprintf(stdout, "atribuicao");
-
+        $$ = NULL;
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO);
-        
+
         int tipo = encontra_tipo($1,DECLARACAO_VETOR_INDEXADO);
         if(tipo == IKS_TYPE_NOT_DEFINED){
-
-	  fprintf(stdout,"Operador não definido\n\n");
-
-	  exit(IKS_TYPE_NOT_DEFINED);
-	  }	 
-	verifica_tipo_indexador($3);
-	verifica_atribuicao($6,tipo);
+            fprintf(stdout,"Operador não definido\n\n");
+            exit(IKS_TYPE_NOT_DEFINED);
+        }
+        verifica_tipo_indexador($3);
+        verifica_atribuicao($6,tipo);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
@@ -628,15 +599,15 @@ literal:
 ;
 
 do:
-  TK_PR_DO {
-    $$ = NULL;
-  }
+    TK_PR_DO {
+        $$ = NULL;
+    }
 ;
 
 while:
-  TK_PR_WHILE {
-    $$ = NULL;
-  }
+    TK_PR_WHILE {
+        $$ = NULL;
+    }
 ;
 
 return:
