@@ -105,6 +105,7 @@ comp_dict_item_t* hash_item;
 /* Regras (e ações) da gramática */
 start:
      programa {
+        fprintf(stdout, "programa\n");
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
      }
@@ -175,6 +176,7 @@ decl-parametro:
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
     {
+        fprintf(stdout, "declaracao funcao corpo\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
@@ -182,14 +184,18 @@ func:
         list_func_connect($$, $4, hash_item);
         verifica_return($$, $2, $1);
     }
-    | tipo TK_IDENTIFICADOR '(' ')' corpo
+    | tipo TK_IDENTIFICADOR '(' ')' '{' { create_table(cur_dict_id++); } sequencia '}' { destroy_table(cur_dict_id--); }
     {
+        fprintf(stdout, "declaracao funcao\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
-        $$ = create_node(IKS_AST_FUNCAO, $2, $5, hash_item);
+        $$ = create_node(IKS_AST_FUNCAO, $2, $7, hash_item);
 
         hash_item->count_args = 0;
         verifica_return($$, $2, $1);
+
+        print_stack_dict(stack_scope);
+        print_syntax_tree($7);
     }
 ;
 
@@ -203,6 +209,8 @@ chamada-funcao:
 
         hash_item->count_args = 0;
         verifica_argumentos($$, $1, 0);
+
+        fprintf(stdout, "chamada funcao\n");
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
@@ -307,10 +315,7 @@ tipo:
 ;
 
 comando:
-    /*decl-local {
-        $$ = $1;
-    }*/
-     input {
+    input {
         $$ = $1;
     }
     | output {
@@ -516,6 +521,7 @@ expressao-logica:
 atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
+        fprintf(stdout, "entrou atribuicao\n");
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
 
         int tipo = encontra_tipo($1,DECLARACAO_VARIAVEL);
@@ -530,7 +536,6 @@ atribuicao:
         node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
-        $$ = NULL;
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {

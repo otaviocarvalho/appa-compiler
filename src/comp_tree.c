@@ -26,21 +26,18 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_
         aux = aux->next_brother;
     }
 
-    /*print_syntax_tree(new_node);*/
     return new_node;
 }
 
 void connect_nodes(comp_tree_t* node_a, comp_tree_t* node_b){
     comp_tree_t* aux;
 
-    /*fprintf(stderr, "Connect nodes\n");*/
     if (node_a != NULL && node_b != NULL){
         // Lógica de conexão da árvore
         if (node_a->children == NULL){
             node_a->children = node_b;
         }
         else {
-            /*fprintf(stderr, "node_a children not empty\n");*/
             // Busca o último nodo do próximo nível
             aux = node_a->children;
             while (aux->next_brother != NULL){
@@ -164,7 +161,6 @@ void print_syntax_tree(comp_tree_t* syntax_tree){
 
     aux_children = syntax_tree;
     while (aux_children != NULL){
-        fprintf(stderr, "aux children %s type-iks %d\n", aux_children->lex, aux_children->type);
 
        if (aux_children->next_brother != NULL)
             print_syntax_tree(aux_children->next_brother);
@@ -199,7 +195,6 @@ void verifica_output(comp_tree_t* node){
 void verifica_input(comp_tree_t* node){
     if (node->children != NULL && node->children->hash != NULL) {
         if (node->children->hash->type != IKS_SIMBOLO_IDENTIFICADOR){
-            /*fprintf(stdout, "erro input\n");*/
             exit(IKS_ERROR_WRONG_PAR_INPUT);
         }
     }
@@ -212,9 +207,7 @@ comp_tree_t* find_node_by_label(comp_tree_t* node, char* label){
 
     aux_children = node;
     while (aux_children != NULL && aux_search == NULL){
-        /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
         if (aux_children->lex == label){
-            /*fprintf(stdout, "encontrou func\n");*/
             return aux_children;
         }
 
@@ -232,12 +225,9 @@ comp_tree_t* find_node_by_label_and_operator(comp_tree_t* node, char* label, int
     comp_tree_t* aux_children;
     comp_tree_t* aux_search = NULL;
 
-    fprintf(stdout, "operador type %d\n", operador);
     aux_children = node;
     while (aux_children != NULL && aux_search == NULL){
-        /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
         if (aux_children->lex == label && aux_children->hash && aux_children->hash->operador == operador){
-            /*fprintf(stdout, "encontrou func\n");*/
             return aux_children;
         }
 
@@ -258,11 +248,7 @@ comp_tree_t* find_node_by_type(comp_tree_t* node, int type){
 
     aux_children = node;
     while (aux_children != NULL && aux_search == NULL){
-        /*fprintf(stderr, "aux children %s %d\n", aux_children->lex, aux_children->type);*/
         if (aux_children->type == type){
-            /*fprintf(stdout, "encontrou type\n");*/
-            /*fprintf(stdout, "%d\n", aux_children->type);*/
-            /*fprintf(stdout, "%d\n", node->type);*/
             return aux_children;
         }
 
@@ -283,34 +269,15 @@ void verifica_return(comp_tree_t* node, char* label_function, int type_var_funct
     comp_tree_t* node_aux_label = NULL;
     comp_tree_t* node_aux_type = NULL;
 
-    /*fprintf(stdout, "entrou ver return\n");*/
-    /*print_syntax_tree(node);*/
-
     // Encontra a função na árvore
     node_aux_label = find_node_by_label(node_aux, label_function);
-    /*fprintf(stdout, "node l type %d %s\n", node_aux_label->type, node_aux_label->lex);*/
     // Encontra o return na árvore
     node_aux_type = find_node_by_type(node_aux_label, IKS_AST_RETURN);
 
-    /*if (node_aux_type != NULL && node_aux_type->children != NULL){*/
-        /*fprintf(stdout, "node next_brother type %d\n", node_aux_type->children->type);*/
-    /*}*/
-    /*return;*/
-
-    /*if (node_aux_type != NULL){*/
     if (node_aux_type != NULL && node_aux_type->children != NULL){
-        /*fprintf(stdout, "node t type %d\n", node_aux_type->children->type);*/
-        /*fprintf(stdout, "node t type_var %d\n", node_aux_type->children->hash->type_var);*/
-        /*fprintf(stdout, "encontrou\n");*/
-
-        /*fprintf(stdout, "var return %d\n", var_return->children->hash->type_var);*/
         if (node_aux_type->children->hash->type_var != type_var_function) {
-            /*printf("test wrong type return\n");*/
             exit(IKS_ERROR_WRONG_PAR_RETURN);
         }
-    }
-    else {
-        /*fprintf(stdout, "não encontrou\n");*/
     }
 }
 
@@ -358,121 +325,103 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, comp_list_t* l
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
-    /*if(node==NULL){*/
-      /*fprintf(stdout,"node NULL");*/
-      /*getchar();*/
-    /*}*/
-    /*if(node->hash==NULL){*/
-      /*fprintf(stdout,"node hash NULL");*/
-      /*getchar();*/
-    /*}*/
-    /*if(node->hash->key==NULL){*/
-      /*fprintf(stdout,"node hash key NULL");*/
-      /*getchar();*/
-    /*}*/
-      /*getchar();*/
-    /*fprintf(stdout, "teste key %s\n", node->hash->key);*/
-    /*getchar();*/
     int operador = encontra_operador(node->hash->key);
-    /*fprintf(stdout,"operador %d",operador);*/
-    /*fprintf(stdout,"type var %d",node->hash->type_var);*/
-    /*//getchar();*/
-    /*//print_stack_dict(stack_scope);*/
-    /*getchar();*/
 
     if(operador == USO_VARIAVEL){
+
         int tipo_variavel = encontra_tipo(node->hash->key,DECLARACAO_VARIAVEL);
-	if(tipo != tipo_variavel){//variáveis de tipos diferentes
-	  if(tipo == IKS_INT){//Variável de tipo INT lado esquerdo
-	    if(tipo_variavel == IKS_STRING){
-		exit(IKS_ERROR_STRING_TO_X);
-	    }
-	    if(tipo_variavel  == IKS_CHAR){
-		exit(IKS_ERROR_CHAR_TO_X);
-	    }
-	}
-	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
-	  if(tipo_variavel == IKS_STRING){
-		exit(IKS_ERROR_STRING_TO_X);
-	    }
-	  if(tipo_variavel == IKS_FLOAT){
-	      exit(IKS_ERROR_WRONG_TYPE);
-	  }
-	}
-	if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
-	  if(tipo_variavel  == IKS_CHAR){
-		exit(IKS_ERROR_CHAR_TO_X);
-	   }
-	}
-      }
+        if(tipo != tipo_variavel){//variáveis de tipos diferentes
+            if(tipo == IKS_INT){//Variável de tipo INT lado esquerdo
+                if(tipo_variavel == IKS_STRING){
+                    exit(IKS_ERROR_STRING_TO_X);
+                }
+                if(tipo_variavel  == IKS_CHAR){
+                    exit(IKS_ERROR_CHAR_TO_X);
+                }
+            }
+
+            if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                if(tipo_variavel == IKS_STRING){
+                    exit(IKS_ERROR_STRING_TO_X);
+                }
+                if(tipo_variavel == IKS_FLOAT){
+                    exit(IKS_ERROR_WRONG_TYPE);
+                }
+            }
+            if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
+                if(tipo_variavel  == IKS_CHAR){
+                    exit(IKS_ERROR_CHAR_TO_X);
+                }
+            }
+        }
     }
+
     if(operador == USO_FUNCAO){
-      int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
-      if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
-	if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
-	    if(tipo_funcao == IKS_STRING){
-		exit(IKS_ERROR_STRING_TO_X);
-	    }
-	    if(tipo_funcao  == IKS_CHAR){
-		exit(IKS_ERROR_CHAR_TO_X);
-	    }
-	}
-	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
-	  if(tipo_funcao == IKS_STRING){
-		exit(IKS_ERROR_STRING_TO_X);
-	    }
-	}
-	if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
-	  if(tipo_funcao  == IKS_INT){
-		exit(IKS_ERROR_WRONG_TYPE);
-	    }
-	}
-      }
+        int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
+        if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
+            if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
+                if(tipo_funcao == IKS_STRING){
+                    exit(IKS_ERROR_STRING_TO_X);
+                }
+                if(tipo_funcao  == IKS_CHAR){
+                    exit(IKS_ERROR_CHAR_TO_X);
+                }
+            }
+
+            if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                if(tipo_funcao == IKS_STRING){
+                    exit(IKS_ERROR_STRING_TO_X);
+                }
+            }
+
+            if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
+                if(tipo_funcao  == IKS_INT){
+                    exit(IKS_ERROR_WRONG_TYPE);
+                }
+            }
+        }
     }
 
     if(operador == USO_VETOR_INDEXADO){
-
     }
 
     if(operador == USO_LITERAL){
-      int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
-      if(tipo != tipo_literal){ //Retorno de função com tipo diferente
-	if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
-	  if(tipo_literal == IKS_FLOAT){
-		exit(IKS_ERROR_WRONG_TYPE);
-	    }
-	}
-	if(tipo == IKS_STRING){
-	  if(tipo_literal == IKS_FLOAT){
-		exit(IKS_ERROR_WRONG_TYPE);
-	    }
-	}
-      }
+        int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
+        if(tipo != tipo_literal){ //Retorno de função com tipo diferente
+            if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                if(tipo_literal == IKS_FLOAT){
+                    exit(IKS_ERROR_WRONG_TYPE);
+                }
+            }
+            if(tipo == IKS_STRING){
+                if(tipo_literal == IKS_FLOAT){
+                    exit(IKS_ERROR_WRONG_TYPE);
+                }
+            }
+        }
     }
 }
 
 void verifica_tipo_indexador(comp_tree_t* node){
+    int operador = encontra_operador(node->hash->key);
 
-  int operador = encontra_operador(node->hash->key);
+    if(operador == USO_LITERAL){
+        int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
+        if(tipo_literal != IKS_INT){
+            if(tipo_literal == IKS_STRING){
+                exit(IKS_ERROR_STRING_TO_X);
+            }
+        }
 
-  if(operador == USO_LITERAL){
-   int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
-      if(tipo_literal != IKS_INT){
-	if(tipo_literal == IKS_STRING){
-		exit(IKS_ERROR_STRING_TO_X);
-	    }
-	}
-	if(tipo_literal == IKS_CHAR){
-		exit(IKS_ERROR_CHAR_TO_X);
-	}
-      }
+        if(tipo_literal == IKS_CHAR){
+            exit(IKS_ERROR_CHAR_TO_X);
+        }
+    }
 
-  }
+}
 
 comp_dict_item_t* encontra_item_operador(char* key, int operador){
     int hash = hash_function(key);
-
-    /*fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);*/
 
     comp_stack_dict_t* ptaux = stack_scope;
 
@@ -481,7 +430,7 @@ comp_dict_item_t* encontra_item_operador(char* key, int operador){
             ptaux = ptaux->next;
             continue;
         }
-        /*fprintf(stdout, "Vamos ver o key => %s\n\n",ptaux->dict->entries[hash]->key);*/
+
         if (strcmp(key,ptaux->dict->entries[hash]->key) == 0 && (ptaux->dict->entries[hash]->item->operador == operador)){
             return ptaux->dict->entries[hash]->item;
         }
@@ -501,21 +450,18 @@ comp_dict_item_t* encontra_item_operador(char* key, int operador){
 }
 
 int encontra_tipo(char* key, int operador){
-
     int hash = hash_function(key);
-
-    /*fprintf(stdout, "Vamos ver o key2 => %s\n\n",key);*/
 
     comp_stack_dict_t* ptaux = stack_scope;
 
     while(ptaux != NULL){
        if ((ptaux->dict->entries[hash] == NULL)){
-	    ptaux = ptaux->next;
+            ptaux = ptaux->next;
             continue;
         }
-	/*fprintf(stdout, "Vamos ver o key => %s\n\n",ptaux->dict->entries[hash]->key);*/
+
         if (strcmp(key,ptaux->dict->entries[hash]->key) == 0 && (ptaux->dict->entries[hash]->item->operador == operador)){
-	   return ptaux->dict->entries[hash]->item->type_var;
+            return ptaux->dict->entries[hash]->item->type_var;
         }
 
         comp_dict_node_t* current = ptaux->dict->entries[hash];
@@ -574,7 +520,6 @@ void list_func_connect(comp_tree_t* tree, comp_list_t* list_args, comp_dict_item
         tree->list_args = list_args;
         hash->list_args = list_args;
         hash->count_args = list_count(list_args);
-        /*fprintf(stdout, "call count args %d\n", hash->count_args);*/
     }
 }
 
