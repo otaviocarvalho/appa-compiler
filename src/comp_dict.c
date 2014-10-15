@@ -137,8 +137,8 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         }
     }
 
-    if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO|| operador == USO_FUNCAO)
-    /*if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO)*/
+    /*if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO|| operador == USO_FUNCAO)*/
+    if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO)
     {
         int definido = verifica_uso(hash, operador, node->key);
         if(definido == IDENTIFICADOR_NAO_DECLARADO){

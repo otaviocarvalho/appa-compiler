@@ -161,8 +161,9 @@ void print_syntax_tree(comp_tree_t* syntax_tree){
 
     aux_children = syntax_tree;
     while (aux_children != NULL){
+        fprintf(stderr, "aux children %s type-iks %d\n", aux_children->lex, aux_children->type);
 
-       if (aux_children->next_brother != NULL)
+        if (aux_children->next_brother != NULL)
             print_syntax_tree(aux_children->next_brother);
 
         aux_children = aux_children->children;

@@ -108,6 +108,7 @@ start:
         fprintf(stdout, "programa\n");
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
+        /*print_syntax_tree($$);*/
      }
 ;
 
@@ -174,28 +175,28 @@ decl-parametro:
 ;
 
 func:
-    tipo TK_IDENTIFICADOR '(' lista-parametros ')' corpo
+    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { destroy_table(cur_dict_id--); }
     {
         fprintf(stdout, "declaracao funcao corpo\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
-        $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
+        $$ = create_node(IKS_AST_FUNCAO, $2, $7, hash_item);
 
         list_func_connect($$, $4, hash_item);
         verifica_return($$, $2, $1);
     }
-    | tipo TK_IDENTIFICADOR '(' ')' '{' { create_table(cur_dict_id++); } sequencia '}' { destroy_table(cur_dict_id--); }
+    | tipo TK_IDENTIFICADOR '(' ')' { create_table(cur_dict_id++); } corpo { destroy_table(cur_dict_id--); }
     {
-        fprintf(stdout, "declaracao funcao\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
-        $$ = create_node(IKS_AST_FUNCAO, $2, $7, hash_item);
+        $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
 
         hash_item->count_args = 0;
         verifica_return($$, $2, $1);
 
         print_stack_dict(stack_scope);
-        print_syntax_tree($7);
+        print_syntax_tree($6);
+        fprintf(stdout, "declaracao funcao\n");
     }
 ;
 
@@ -242,12 +243,12 @@ corpo:
 ;
 
 bloco-comando:
-    '{' { create_table(cur_dict_id++); } sequencia '}' { destroy_table(cur_dict_id--); }
+    '{' sequencia '}'
     {
-        $$ = $3;
+        $$ = $2;
     }
     |
-    '{' { create_table(cur_dict_id++); } '}' { destroy_table(cur_dict_id--); }
+    '{' '}'
     {
         $$ = NULL;
     }
