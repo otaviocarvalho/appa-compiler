@@ -17,6 +17,8 @@ typedef struct comp_tree_t {
     comp_list_t* list_args;
     struct comp_tree_t* children;
     struct comp_tree_t* next_brother;
+    int tipo_coersao;
+    int valor_coersao;
 } comp_tree_t;
 
 comp_tree_t* arvore_sintatica;
@@ -41,3 +43,4 @@ void list_func_connect(comp_tree_t*, comp_list_t*, comp_dict_item_t*);
 comp_list_t* list_concat(comp_list_t*, comp_list_t*);
 comp_list_t* list_create(comp_dict_item_t*);
 int list_count(comp_list_t*);
+int verifica_coersao_arvore(comp_tree_t*);
