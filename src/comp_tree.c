@@ -181,6 +181,8 @@ comp_tree_t* create_empty_node(){
     new_node->list_args = NULL;
     new_node->children = NULL;
     new_node->next_brother = NULL;
+    new_node->tipo_coersao = -1;
+    new_node->valor_coersao = -1;
 
     return new_node;
 }
@@ -235,7 +237,7 @@ comp_tree_t* find_node_by_label_and_type(comp_tree_t* node, char* label, int typ
         }
 
         if (aux_children->next_brother != NULL)
-            aux_search = find_node_by_label(aux_children->next_brother, label);
+            aux_search = find_node_by_label_and_type(aux_children->next_brother, label, type);
 
         aux_children = aux_children->children;
     }
@@ -255,7 +257,7 @@ comp_tree_t* find_node_by_label_and_operator(comp_tree_t* node, char* label, int
         }
 
         if (aux_children->next_brother != NULL)
-            aux_search = find_node_by_label(aux_children->next_brother, label);
+            aux_search = find_node_by_label_and_operator(aux_children->next_brother, label, operador);
 
         aux_children = aux_children->children;
     }
@@ -298,8 +300,38 @@ void verifica_return(comp_tree_t* node, char* label_function, int type_var_funct
     node_aux_type = find_node_by_type(node_aux_label, IKS_AST_RETURN);
 
     if (node_aux_type != NULL && node_aux_type->children != NULL){
-        if (node_aux_type->children->hash->type_var != type_var_function) {
-            exit(IKS_ERROR_WRONG_PAR_RETURN);
+        fprintf(stdout, "%s %d %d\n", node_aux_type->children->lex, node_aux_type->children->type, node_aux_type->children->tipo_coersao);
+        // Verifica se é um operador de expressão
+        if (node_aux_type->children->hash != NULL){
+            if (node_aux_type->children->hash->type_var != type_var_function) {
+                fprintf(stdout, "verifica return wrong par 1\n");
+                // Verifica possibilidades de coersão no return
+                if (node_aux_type->children->hash->type_var == IKS_FLOAT && type_var_function == IKS_INT){
+                    node_aux_type->children->tipo_coersao = IKS_INT;
+                    node_aux_type->tipo_coersao = IKS_INT;
+                }
+                else {
+                    exit(IKS_ERROR_WRONG_PAR_RETURN);
+                }
+            }
+        }
+        else {
+            /*fprintf(stdout, "verifica return wrong par 2 %s %d\n", node_aux_type->children->children->next_brother->lex, node_aux_type->children->type);*/
+            fprintf(stdout, "node type var %d\n", node_aux_type->children->tipo_coersao);
+            fprintf(stdout, "node type func var %d\n", type_var_function);
+            if (node_aux_type->children->tipo_coersao != type_var_function){
+                // Verifica possibilidades de coersão no return
+                if (node_aux_type->children->tipo_coersao != -1){
+                    // Retorna a coersão para inteiro ao tentar coersionar, para float, o retorno de uma função do tipo int
+                    if (type_var_function == IKS_INT && node_aux_type->children->tipo_coersao == IKS_FLOAT){
+                        node_aux_type->children->tipo_coersao == IKS_INT;
+                    }
+                    else {
+                        fprintf(stdout, "ver return error wrong par return\n");
+                        exit(IKS_ERROR_WRONG_PAR_RETURN);
+                    }
+                }
+            }
         }
     }
 }
@@ -365,14 +397,13 @@ void verifica_funcao(comp_tree_t* node, char* label_function){
 
 
 void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq, comp_tree_t* node_filho_dir){
-
   int tipo1;
   int tipo2;
 
     fprintf(stdout, "node pai lex %s type %d\n", node_pai->lex, node_pai->type);
     fprintf(stdout, "node filho esq lex %s type %d\n", node_filho_esq->lex, node_filho_esq->type);
     fprintf(stdout, "node filho dir lex %s type %d\n", node_filho_dir->lex, node_filho_dir->type);
-    getchar();
+    /*getchar();*/
 
   if(node_filho_esq->hash != NULL){
       switch(node_filho_esq->hash->operador){
@@ -392,6 +423,18 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
           tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_VETOR_INDEXADO);
           break;
         }
+        case DECLARACAO_VARIAVEL:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,DECLARACAO_VARIAVEL);
+          break;
+        }
+        case DECLARACAO_VETOR_INDEXADO:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,DECLARACAO_VETOR_INDEXADO);
+          break;
+        }
+        case DECLARACAO_FUNCAO:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,DECLARACAO_FUNCAO);
+          break;
+        }
       }
   }
   else{
@@ -399,7 +442,6 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
   }
 
   if(node_filho_dir->hash != NULL){
-
     switch(node_filho_dir->hash->operador){
         case USO_LITERAL:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_LITERAL);
@@ -417,10 +459,20 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
           tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_VETOR_INDEXADO);
           break;
         }
+        case DECLARACAO_VARIAVEL:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,DECLARACAO_VARIAVEL);
+          break;
+        }
+        case DECLARACAO_VETOR_INDEXADO:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,DECLARACAO_VETOR_INDEXADO);
+          break;
+        }
+        case DECLARACAO_FUNCAO:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,DECLARACAO_FUNCAO);
+          break;
+        }
     }
-
   }
-
   else{
     tipo2 = node_filho_dir->tipo_coersao;
   }
@@ -429,7 +481,6 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
   if(tipo1 == tipo2){
     node_pai->tipo_coersao = tipo1;
   }
-
   if((tipo1 == IKS_FLOAT && tipo2 == IKS_INT) ||
     (tipo1 == IKS_INT && tipo2 == IKS_FLOAT)){
     node_pai->tipo_coersao = IKS_FLOAT;
@@ -453,9 +504,6 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
-
-
-
     int operador;
     if(node->hash != NULL){
         operador = encontra_operador(node->hash->key);

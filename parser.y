@@ -20,7 +20,7 @@ comp_tree_t* arvore_sintatica;
 struct comp_stack_dict_t *stack_scope;
 
 comp_dict_item_t* hash_item;
-comp_dict_item_t* hash_item_func;
+comp_dict_item_t* hash_item_func = NULL;
 %}
 
 //%define parse.error verbose
@@ -192,7 +192,8 @@ func:
     | tipo TK_IDENTIFICADOR '(' ')' {
                                         hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
                                         create_table(cur_dict_id++);
-                                    } corpo { destroy_table(cur_dict_id--); }
+                                    } corpo { destroy_table(cur_dict_id--); 
+                                    }
     {
         fprintf(stdout, "declaracao funcao\n");
 
@@ -355,7 +356,7 @@ comando:
     | ';' {
         $$ = NULL;
     }
-    | func{
+    | func {
         $$ = $1;
     }
 ;
@@ -421,6 +422,7 @@ output:
 
 expressao:
     TK_IDENTIFICADOR {
+        fprintf(stdout, "entrou identif variavel\n");
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
     }
@@ -464,27 +466,29 @@ expressao:
 expressao-aritmetica:
     expressao '+' expressao
     {
+        fprintf(stdout, "coersao soma\n");
+        fprintf(stdout, "%d %s + %s\n", $1->hash->operador, $1->lex, $3->lex);
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
-	verifica_coersao_arvore($$, $1, $3);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '-' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
-	verifica_coersao_arvore($$, $1, $3);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '*' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_MULTIPLICACAO, NULL, $1, NULL);
-	verifica_coersao_arvore($$, $1, $3);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '/' expressao 
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_DIVISAO, NULL, $1, NULL);
-	verifica_coersao_arvore($$, $1, $3);
+        verifica_coersao_arvore($$, $1, $3);
     }
 ;
 
@@ -543,10 +547,7 @@ atribuicao:
             exit(IKS_TYPE_NOT_DEFINED);
         }
 
-        
-
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, $3, hash_item);
-        //node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
@@ -560,7 +561,7 @@ atribuicao:
             fprintf(stdout,"Operador não definido\n\n");
             exit(IKS_TYPE_NOT_DEFINED);
         }
-                
+
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
 
@@ -634,6 +635,8 @@ return:
         hash_item = add_symbol(symbol_table_cur, "return", cur_line, TK_PR_RETURN, IKS_TYPE_NOT_DEFINED, USO_LITERAL);
 
         $$ = create_node(IKS_AST_RETURN, NULL, $2, hash_item);
+        fprintf(stdout, "verifica return\n");
+        /*print_stack_dict(stack_scope);*/
     }
 ;
 
