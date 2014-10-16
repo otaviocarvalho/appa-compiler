@@ -537,8 +537,27 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
         }
     }
     else{
-        fprintf(stdout, "Vamos ver o sinal da expressão => %d\n", node->tipo_coersao);
-        getchar();
+        //fprintf(stdout, "Vamos ver o sinal da expressão => %d\n", node->tipo_coersao);
+        //getchar();
+
+        //Verificar esse if
+        //Não sei se tá certo
+        if(tipo != node->tipo_coersao){
+                if(tipo == IKS_INT || tipo == IKS_BOOL || tipo == IKS_FLOAT){
+                    if(node->tipo_coersao == IKS_STRING){
+                        exit(IKS_ERROR_STRING_TO_X);
+                    }
+                    if(node->tipo_coersao  == IKS_CHAR){
+                        exit(IKS_ERROR_CHAR_TO_X);
+                    }
+                }
+
+                if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                    if(node->tipo_coersao == IKS_STRING){
+                        exit(IKS_ERROR_STRING_TO_X);
+                    }
+                }
+            }
     }
 }
 
