@@ -221,6 +221,26 @@ comp_tree_t* find_node_by_label(comp_tree_t* node, char* label){
     return aux_search;
 }
 
+comp_tree_t* find_node_by_label_and_type(comp_tree_t* node, char* label, int type){
+    comp_tree_t* aux_brother;
+    comp_tree_t* aux_children;
+    comp_tree_t* aux_search = NULL;
+
+    aux_children = node;
+    while (aux_children != NULL && aux_search == NULL){
+        if (aux_children->lex == label && aux_children->type == type){
+            return aux_children;
+        }
+
+        if (aux_children->next_brother != NULL)
+            aux_search = find_node_by_label(aux_children->next_brother, label);
+
+        aux_children = aux_children->children;
+    }
+
+    return aux_search;
+}
+
 comp_tree_t* find_node_by_label_and_operator(comp_tree_t* node, char* label, int operador){
     comp_tree_t* aux_brother;
     comp_tree_t* aux_children;
@@ -323,6 +343,29 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, comp_list_t* l
             exit(IKS_ERROR_EXCESS_ARGS);
         }
     }
+}
+
+
+void verifica_funcao(comp_tree_t* node, char* label_function){
+    comp_tree_t* node_aux_funcao;
+
+    if (node == NULL)
+        return;
+
+    // Encontra o return na árvore
+    node_aux_funcao = find_node_by_label_and_type(node, label_function, IKS_AST_FUNCAO);
+    fprintf(stdout, "verifica funcao %s %d\n", node_aux_funcao->lex, node_aux_funcao->type);
+
+    if (node_aux_funcao != NULL){
+        if (node->hash->type_var != node_aux_funcao->hash->type_var){
+            fprintf(stdout, "verifica funcao error wrong type\n");
+            exit(IKS_ERROR_WRONG_TYPE);
+        }
+    }
+    else {
+        exit(IKS_ERROR_UNDECLARED);
+    }
+
 }
 
 
