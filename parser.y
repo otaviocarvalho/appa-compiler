@@ -197,6 +197,7 @@ func:
         print_stack_dict(stack_scope);
         print_syntax_tree($6);
         fprintf(stdout, "declaracao funcao\n");
+        verifica_funcao($$, $2);
     }
 ;
 
