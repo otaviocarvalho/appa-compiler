@@ -20,6 +20,7 @@ comp_tree_t* arvore_sintatica;
 struct comp_stack_dict_t *stack_scope;
 
 comp_dict_item_t* hash_item;
+comp_dict_item_t* hash_item_func;
 %}
 
 %define parse.error verbose
@@ -185,19 +186,20 @@ func:
         list_func_connect($$, $4, hash_item);
         verifica_return($$, $2, $1);
     }
-    | tipo TK_IDENTIFICADOR '(' ')' { create_table(cur_dict_id++); } corpo { destroy_table(cur_dict_id--); }
+    | tipo TK_IDENTIFICADOR '(' ')' {
+                                        hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
+                                        create_table(cur_dict_id++);
+                                    } corpo { destroy_table(cur_dict_id--); }
     {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
+        fprintf(stdout, "declaracao funcao\n");
 
-        $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item);
+        $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item_func);
 
-        hash_item->count_args = 0;
+        hash_item_func->count_args = 0;
         verifica_return($$, $2, $1);
 
-        print_stack_dict(stack_scope);
-        print_syntax_tree($6);
-        fprintf(stdout, "declaracao funcao\n");
-        verifica_funcao($$, $2);
+        /*print_stack_dict(stack_scope);*/
+        /*print_syntax_tree($6);*/
     }
 ;
 
@@ -212,6 +214,8 @@ chamada-funcao:
         hash_item->count_args = 0;
         verifica_argumentos($$, $1, 0);
 
+        print_stack_dict(stack_scope);
+        verifica_funcao($$, $1);
         fprintf(stdout, "chamada funcao\n");
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'

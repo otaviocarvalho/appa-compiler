@@ -163,9 +163,11 @@ void print_syntax_tree(comp_tree_t* syntax_tree){
     while (aux_children != NULL){
         fprintf(stderr, "aux children %s type-iks %d\n", aux_children->lex, aux_children->type);
 
-        if (aux_children->next_brother != NULL)
+        if (aux_children->next_brother != NULL){
             print_syntax_tree(aux_children->next_brother);
+        }
 
+        fprintf(stdout, "print children\n");
         aux_children = aux_children->children;
     }
 }
@@ -346,23 +348,16 @@ void verifica_argumentos(comp_tree_t* node, char* label_function, comp_list_t* l
 }
 
 void verifica_funcao(comp_tree_t* node, char* label_function){
-    comp_tree_t* node_aux_funcao;
+    comp_dict_item_t* item_aux = NULL;
 
     if (node == NULL)
         return;
 
-    // Encontra o return na árvore
-    node_aux_funcao = find_node_by_label_and_type(node, label_function, IKS_AST_FUNCAO);
-    fprintf(stdout, "verifica funcao %s %d\n", node_aux_funcao->lex, node_aux_funcao->type);
+    item_aux = encontra_item_operador(label_function, DECLARACAO_FUNCAO);
+    fprintf(stdout, "verifica funcao %s %d\n", item_aux->key, item_aux->type_var);
 
-    if (node_aux_funcao != NULL){
-        if (node->hash->type_var != node_aux_funcao->hash->type_var){
-            fprintf(stdout, "verifica funcao error wrong type\n");
-            exit(IKS_ERROR_WRONG_TYPE);
-        }
-    }
-    else {
-        exit(IKS_ERROR_UNDECLARED);
+    if (item_aux != NULL){
+        node->hash->type_var = item_aux->type_var;
     }
 
 }
@@ -401,6 +396,7 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
 
     if(operador == USO_FUNCAO){
         int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
+        fprintf(stdout, "verifica tipo declaracao funcao %d %d\n", tipo_funcao, tipo);
         if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
             if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
                 if(tipo_funcao == IKS_STRING){
@@ -417,11 +413,13 @@ void verifica_atribuicao(comp_tree_t* node,int tipo){
                 }
             }
 
-            if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
-                if(tipo_funcao  == IKS_INT){
-                    exit(IKS_ERROR_WRONG_TYPE);
-                }
-            }
+            /*if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo*/
+                /*if(tipo_funcao  == IKS_INT){*/
+                    /*exit(IKS_ERROR_WRONG_TYPE);*/
+                /*}*/
+            /*}*/
+
+            exit(IKS_ERROR_WRONG_TYPE);
         }
     }
 

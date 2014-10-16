@@ -137,8 +137,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         }
     }
 
-    /*if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO|| operador == USO_FUNCAO)*/
-    if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO)
+    if(operador == USO_VARIAVEL || operador == USO_VETOR_INDEXADO|| operador == USO_FUNCAO)
     {
         int definido = verifica_uso(hash, operador, node->key);
         if(definido == IDENTIFICADOR_NAO_DECLARADO){
@@ -373,7 +372,6 @@ int verifica_uso(int hash, int operador, char* key){
             if ((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
-                /*|| (ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)){*/
                     fprintf(stdout,"uso ok\n");
                     return IDENTIFICADOR_DECLARADO;
             }
@@ -387,7 +385,6 @@ int verifica_uso(int hash, int operador, char* key){
                 exit(IKS_ERROR_VECTOR);
             }
             if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
-            /*if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO)){*/
                 fprintf(stdout,"erro function\n");
                 exit(IKS_ERROR_FUNCTION);
             }
