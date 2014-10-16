@@ -23,8 +23,8 @@ comp_dict_item_t* hash_item;
 comp_dict_item_t* hash_item_func;
 %}
 
-%define parse.error verbose
-%define parse.trace
+//%define parse.error verbose
+//%define parse.trace
 
 %union {
     char* symbol_name;
@@ -466,21 +466,25 @@ expressao-aritmetica:
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
+	verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '-' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
+	verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '*' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_MULTIPLICACAO, NULL, $1, NULL);
+	verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '/' expressao 
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_DIVISAO, NULL, $1, NULL);
+	verifica_coersao_arvore($$, $1, $3);
     }
 ;
 

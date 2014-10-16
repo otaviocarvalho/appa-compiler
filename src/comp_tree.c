@@ -364,233 +364,181 @@ void verifica_funcao(comp_tree_t* node, char* label_function){
 }
 
 
-int verifica_coersao_arvore(comp_tree_t* node){
-  fprintf(stdout, "%d %s\n", node->type, node->lex);
-  fprintf(stdout, "| %d %s\n", node->children->type, node->children->lex);
-  fprintf(stdout, "| %d %s\n", node->children->next_brother->type, node->children->next_brother->lex);
-  fprintf(stdout, "|| %d %s\n", node->children->children->type, node->children->children->lex);
-  fprintf(stdout, "|| %d %s\n", node->children->children->next_brother->type, node->children->children->next_brother->lex);
-  //fprintf(stdout, "||| %d %s\n", node->children->children->children->type, node->children->children->children->lex);
-  fprintf(stdout, "||| %d %s\n", node->children->children->children->type, node->children->children->children->lex);
-  fprintf(stdout, "||| %d %s\n", node->children->children->children->next_brother->type, node->children->children->children->next_brother->lex);
-  getchar();
-  
-  if(node->children != NULL) {
-    getchar();
-    fprintf(stdout, "filho  %s",node->lex);
-    getchar();
-    
-    node->tipo_coersao = verifica_coersao_arvore(node->children);
-  }
-  
-  fprintf(stdout, "sem filho");
-    getchar();
-//   if(node->next_brother != NULL){
-//     getchar();
-//     fprintf(stdout,"irmao %s\n\n",node->next_brother->lex);
-//     getchar();
-//     return verifica_coersao_arvore(node->next_brother);
-//   }
-  
-  
+void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq, comp_tree_t* node_filho_dir){
+
   int tipo1;
   int tipo2;
-  
-  
-  switch(node->hash->operador){
-    case USO_LITERAL:{
-      tipo1 = encontra_tipo(node->hash->key,USO_LITERAL);
-      break;
-    }
-    case USO_FUNCAO:{
-      tipo1 = encontra_tipo(node->hash->key,USO_FUNCAO);
-      break;
-    }
-    case USO_VARIAVEL:{
-      tipo1 = encontra_tipo(node->hash->key,USO_VARIAVEL);
-      break;
-    }
-    case USO_VETOR_INDEXADO:{
-      tipo1 = encontra_tipo(node->hash->key,USO_VETOR_INDEXADO);
-      break;
-    }
-  }
-  
-  if(node->next_brother->hash == NULL)
-  {
-      node->next_brother->tipo_coersao = node->hash->type_var;
-      return;
-  }
-   fprintf(stdout,"Tipo 1 -> %d key -> %s\n\n",tipo1,node->hash->key);
-   getchar();
-  
-   fprintf(stdout,"Tipo 1 -> %d key -> %s\n\n",node->next_brother->type,node->next_brother->lex);
-   getchar();
-      
-   switch(node->next_brother->hash->operador){
-    case USO_LITERAL:{
-      tipo2 = encontra_tipo(node->next_brother->hash->key,USO_LITERAL);
-      break;
-    }
-    case USO_FUNCAO:{
-      tipo2 = encontra_tipo(node->next_brother->hash->key,USO_FUNCAO);
-      break;
-    }
-    case USO_VARIAVEL:{
-      tipo2 = encontra_tipo(node->next_brother->hash->key,USO_VARIAVEL);
-      break;
-    }
-    case USO_VETOR_INDEXADO:{
-      tipo2 = encontra_tipo(node->next_brother->hash->key,USO_VETOR_INDEXADO);
-      break;
-    }
-  }
- 
-  fprintf(stdout,"Tipo 2 -> %d key -> %s\n\n",tipo2,node->next_brother->hash->key);
-  getchar();
-  
-  if(tipo1 == tipo2){
-    fprintf(stdout, "x");
+
+    fprintf(stdout, "node pai lex %s type %d\n", node_pai->lex, node_pai->type);
+    fprintf(stdout, "node filho esq lex %s type %d\n", node_filho_esq->lex, node_filho_esq->type);
+    fprintf(stdout, "node filho dir lex %s type %d\n", node_filho_dir->lex, node_filho_dir->type);
     getchar();
-    return node->hash->type_var;
+
+  if(node_filho_esq->hash != NULL){
+      switch(node_filho_esq->hash->operador){
+        case USO_LITERAL:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_LITERAL);
+          break;
+        }
+        case USO_FUNCAO:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_FUNCAO);
+          break;
+        }
+        case USO_VARIAVEL:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_VARIAVEL);
+          break;
+        }
+        case USO_VETOR_INDEXADO:{
+          tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_VETOR_INDEXADO);
+          break;
+        }
+      }
   }
-  
-  if((tipo1 == IKS_FLOAT && tipo2 == IKS_INT) || 
-    (tipo1 == IKS_INT && tipo2 == IKS_FLOAT)){    
-    return IKS_FLOAT;
+  else{
+    tipo1 = node_pai->tipo_coersao;
+  }
+
+  if(node_filho_dir->hash != NULL){
+
+    switch(node_filho_dir->hash->operador){
+        case USO_LITERAL:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_LITERAL);
+          break;
+        }
+        case USO_FUNCAO:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_FUNCAO);
+          break;
+        }
+        case USO_VARIAVEL:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_VARIAVEL);
+          break;
+        }
+        case USO_VETOR_INDEXADO:{
+          tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_VETOR_INDEXADO);
+          break;
+        }
+    }
+
+  }
+
+  else{
+    tipo2 = node_filho_dir->tipo_coersao;
+  }
+
+
+  if(tipo1 == tipo2){
+    node_pai->tipo_coersao = tipo1;
+  }
+
+  if((tipo1 == IKS_FLOAT && tipo2 == IKS_INT) ||
+    (tipo1 == IKS_INT && tipo2 == IKS_FLOAT)){
+    node_pai->tipo_coersao = IKS_FLOAT;
   }
   if((tipo1 == IKS_BOOL && tipo2 == IKS_INT) ||
     (tipo1 == IKS_INT && tipo2 == IKS_BOOL)) {
-    return IKS_INT;
+    node_pai->tipo_coersao = IKS_INT;
   }
   if((tipo1 == IKS_BOOL && tipo2 == IKS_FLOAT) ||
     (tipo1 == IKS_FLOAT && tipo2 == IKS_BOOL)) {
-    return IKS_FLOAT;
+    node_pai->tipo_coersao = IKS_FLOAT;
   }
   if(((tipo1 == IKS_FLOAT || tipo1 == IKS_INT || tipo1 == IKS_BOOL) && (tipo2 == IKS_STRING))||
     (((tipo2 == IKS_FLOAT || tipo2 == IKS_INT || tipo2 == IKS_BOOL) && (tipo1 == IKS_STRING)))){
-     exit(IKS_ERROR_STRING_TO_X); 
+     exit(IKS_ERROR_STRING_TO_X);
     }
   if(((tipo1 == IKS_FLOAT || tipo1 == IKS_INT || tipo1 == IKS_BOOL) && (tipo2 == IKS_CHAR))||
     (((tipo2 == IKS_FLOAT || tipo2 == IKS_INT || tipo2 == IKS_BOOL) && (tipo1 == IKS_CHAR)))){
-     exit(IKS_ERROR_CHAR_TO_X); 
+     exit(IKS_ERROR_CHAR_TO_X);
     }
-  
-  
-  
-  exit(-1);
-  
 }
 
 void verifica_atribuicao(comp_tree_t* node,int tipo){
-  
-  int operador = -1;
-  
-  if(node->type == IKS_AST_ARIM_SOMA || node->type == IKS_AST_ARIM_SUBTRACAO || node->type == IKS_AST_ARIM_MULTIPLICACAO || node->type == IKS_AST_ARIM_DIVISAO){
-    int tipo_arvore = verifica_coersao_arvore(node);
-    if(tipo == IKS_INT){
-      if(tipo_arvore == IKS_STRING){
-	exit(IKS_ERROR_STRING_TO_X);
-      }
-      if(tipo_arvore == IKS_CHAR){
-	exit(IKS_ERROR_CHAR_TO_X);
-      }
-    }
-    if(tipo == IKS_FLOAT){
-     if(tipo_arvore == IKS_STRING){
-	exit(IKS_ERROR_STRING_TO_X);
-     }
-     if(tipo_arvore == IKS_CHAR){
-	exit(IKS_ERROR_CHAR_TO_X);
-     }
-    }
-    if(tipo == IKS_BOOL){
-      if(tipo_arvore == IKS_STRING){
-	exit(IKS_ERROR_STRING_TO_X); 
-      }
-      if(tipo_arvore == IKS_CHAR){
-	exit(IKS_ERROR_CHAR_TO_X);
-      }
-    }
-  }
-  else{
-    operador = encontra_operador(node->hash->key);
-  }
-    if(operador == USO_VARIAVEL){
 
-        int tipo_variavel = encontra_tipo(node->hash->key,DECLARACAO_VARIAVEL);
-        if(tipo != tipo_variavel){//variáveis de tipos diferentes
-            if(tipo == IKS_INT){//Variável de tipo INT lado esquerdo
-                if(tipo_variavel == IKS_STRING){
-                    exit(IKS_ERROR_STRING_TO_X);
-                }
-                if(tipo_variavel  == IKS_CHAR){
-                    exit(IKS_ERROR_CHAR_TO_X);
-                }
-            }
 
-            if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
-                if(tipo_variavel == IKS_STRING){
-                    exit(IKS_ERROR_STRING_TO_X);
+
+    int operador;
+    if(node->hash != NULL){
+        operador = encontra_operador(node->hash->key);
+        if(operador == USO_VARIAVEL){
+
+            int tipo_variavel = encontra_tipo(node->hash->key,DECLARACAO_VARIAVEL);
+            if(tipo != tipo_variavel){//variáveis de tipos diferentes
+                if(tipo == IKS_INT){//Variável de tipo INT lado esquerdo
+                    if(tipo_variavel == IKS_STRING){
+                        exit(IKS_ERROR_STRING_TO_X);
+                    }
+                    if(tipo_variavel  == IKS_CHAR){
+                        exit(IKS_ERROR_CHAR_TO_X);
+                    }
                 }
-                if(tipo_variavel == IKS_FLOAT){
-                    exit(IKS_ERROR_WRONG_TYPE);
+
+                if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                    if(tipo_variavel == IKS_STRING){
+                        exit(IKS_ERROR_STRING_TO_X);
+                    }
+                    if(tipo_variavel == IKS_FLOAT){
+                        exit(IKS_ERROR_WRONG_TYPE);
+                    }
                 }
-            }
-            if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
-                if(tipo_variavel  == IKS_CHAR){
-                    exit(IKS_ERROR_CHAR_TO_X);
+                if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo
+                    if(tipo_variavel  == IKS_CHAR){
+                        exit(IKS_ERROR_CHAR_TO_X);
+                    }
                 }
             }
         }
-    }
 
-    if(operador == USO_FUNCAO){
-        int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
-        fprintf(stdout, "verifica tipo declaracao funcao %d %d\n", tipo_funcao, tipo);
-        if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
-            if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
-                if(tipo_funcao == IKS_STRING){
-                    exit(IKS_ERROR_STRING_TO_X);
+        if(operador == USO_FUNCAO){
+            int tipo_funcao = encontra_tipo(node->hash->key,DECLARACAO_FUNCAO);
+            fprintf(stdout, "verifica tipo declaracao funcao %d %d\n", tipo_funcao, tipo);
+            if(tipo != tipo_funcao){ //Retorno de função com tipo diferente
+                if(tipo == IKS_INT){ //Variável de tipo INT lado esquerdo
+                    if(tipo_funcao == IKS_STRING){
+                        exit(IKS_ERROR_STRING_TO_X);
+                    }
+                    if(tipo_funcao  == IKS_CHAR){
+                        exit(IKS_ERROR_CHAR_TO_X);
+                    }
                 }
-                if(tipo_funcao  == IKS_CHAR){
-                    exit(IKS_ERROR_CHAR_TO_X);
-                }
-            }
 
-            if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
-                if(tipo_funcao == IKS_STRING){
-                    exit(IKS_ERROR_STRING_TO_X);
+                if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                    if(tipo_funcao == IKS_STRING){
+                        exit(IKS_ERROR_STRING_TO_X);
+                    }
                 }
-            }
 
-            /*if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo*/
-                /*if(tipo_funcao  == IKS_INT){*/
-                    /*exit(IKS_ERROR_WRONG_TYPE);*/
+                /*if(tipo == IKS_STRING){//Variável tipo STRING lado esquerdo*/
+                    /*if(tipo_funcao  == IKS_INT){*/
+                        /*exit(IKS_ERROR_WRONG_TYPE);*/
+                    /*}*/
                 /*}*/
-            /*}*/
 
-            exit(IKS_ERROR_WRONG_TYPE);
-        }
-    }
-
-    if(operador == USO_VETOR_INDEXADO){
-    }
-
-    if(operador == USO_LITERAL){
-        int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
-        if(tipo != tipo_literal){ //Retorno de função com tipo diferente
-            if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
-                if(tipo_literal == IKS_FLOAT){
-                    exit(IKS_ERROR_WRONG_TYPE);
-                }
-            }
-            if(tipo == IKS_STRING){
-                if(tipo_literal == IKS_FLOAT){
-                    exit(IKS_ERROR_WRONG_TYPE);
-                }
+                exit(IKS_ERROR_WRONG_TYPE);
             }
         }
+
+        if(operador == USO_VETOR_INDEXADO){
+        }
+
+        if(operador == USO_LITERAL){
+            int tipo_literal = encontra_tipo(node->hash->key,USO_LITERAL);
+            if(tipo != tipo_literal){ //Retorno de função com tipo diferente
+                if(tipo == IKS_CHAR){//Variável tipo CHAR lado esquerdo
+                    if(tipo_literal == IKS_FLOAT){
+                        exit(IKS_ERROR_WRONG_TYPE);
+                    }
+                }
+                if(tipo == IKS_STRING){
+                    if(tipo_literal == IKS_FLOAT){
+                        exit(IKS_ERROR_WRONG_TYPE);
+                    }
+                }
+            }
+        }
+    }
+    else{
+        fprintf(stdout, "Vamos ver o sinal da expressão => %d\n", node->tipo_coersao);
+        getchar();
     }
 }
 

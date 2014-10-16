@@ -43,4 +43,4 @@ void list_func_connect(comp_tree_t*, comp_list_t*, comp_dict_item_t*);
 comp_list_t* list_concat(comp_list_t*, comp_list_t*);
 comp_list_t* list_create(comp_dict_item_t*);
 int list_count(comp_list_t*);
-int verifica_coersao_arvore(comp_tree_t*);
+void verifica_coersao_arvore(comp_tree_t*, comp_tree_t*, comp_tree_t*);
