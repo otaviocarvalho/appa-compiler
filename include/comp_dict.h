@@ -25,6 +25,7 @@ typedef struct comp_dict_item_t {
 
 typedef struct comp_dict_node_t {
     char* key;
+    int tipo_coersao;
     comp_dict_item_t* item;
     struct comp_dict_node_t *next;
 } comp_dict_node_t;

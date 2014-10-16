@@ -101,6 +101,9 @@ comp_dict_item_t* hash_item;
 %left UMINUS
 %right TK_PR_ELSE TK_PR_THEN
 
+
+
+
 %%
 /* Regras (e ações) da gramática */
 start:
@@ -531,12 +534,13 @@ atribuicao:
             exit(IKS_TYPE_NOT_DEFINED);
         }
 
-        verifica_atribuicao($3,tipo);
+        
 
-        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        node_identificador->next_brother = $3;
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, $3, hash_item);
+        //node_identificador->next_brother = $3;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
+        verifica_atribuicao($3,tipo);
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
@@ -547,9 +551,7 @@ atribuicao:
             fprintf(stdout,"Operador não definido\n\n");
             exit(IKS_TYPE_NOT_DEFINED);
         }
-        verifica_tipo_indexador($3);
-        verifica_atribuicao($6,tipo);
-
+                
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
 
@@ -557,6 +559,8 @@ atribuicao:
         vetor->next_brother = $6;
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, vetor, NULL);
+        verifica_tipo_indexador($3);
+        verifica_atribuicao($6,tipo);
     }
 ;
 
