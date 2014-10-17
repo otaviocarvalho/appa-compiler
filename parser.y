@@ -109,40 +109,24 @@ comp_dict_item_t* hash_item_func = NULL;
 /* Regras (e ações) da gramática */
 start:
      programa {
-        fprintf(stdout, "programa\n");
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
-        /*print_syntax_tree($$);*/
      }
 ;
 
 programa:
     decl-global programa {
         $$ = $2;
-
-        /*parser_return = IKS_SYNTAX_SUCESSO;*/
-        /*return parser_return;*/
     }
     | func programa {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
         $$ = $1;
-
-        /*parser_return = IKS_SYNTAX_SUCESSO;*/
-        /*return parser_return;*/
     }
     | /* %empty */ {
         $$ = NULL;
-
-        /*parser_return = IKS_SYNTAX_SUCESSO;*/
-        /*return parser_return;*/
     }
     | error {
         $$ = NULL;
-        /*yyerrok;*/
-        /*yyclearin;*/
-
-        /*parser_return = IKS_SYNTAX_ERRO;*/
-        /*return parser_return;*/
     }
 ;
 
@@ -181,7 +165,6 @@ decl-parametro:
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { destroy_table(cur_dict_id--); }
     {
-        fprintf(stdout, "declaracao funcao corpo\n");
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $7, hash_item);
@@ -195,15 +178,11 @@ func:
                                     } corpo { destroy_table(cur_dict_id--); 
                                     }
     {
-        fprintf(stdout, "declaracao funcao\n");
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $6, hash_item_func);
 
         hash_item_func->count_args = 0;
         verifica_return($$, $2, $1);
-
-        /*print_stack_dict(stack_scope);*/
-        /*print_syntax_tree($6);*/
     }
 ;
 
@@ -220,7 +199,6 @@ chamada-funcao:
 
         print_stack_dict(stack_scope);
         verifica_funcao($$, $1);
-        fprintf(stdout, "chamada funcao\n");
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
@@ -291,13 +269,11 @@ sequencia:
 
 lista-parametros:
     decl-parametro {
-        /*$$ = list_create($1);*/
         $$ = $1;
     }
     | decl-parametro ',' lista-parametros
     {
         $$ = list_concat($1, $3);
-        /*$$ = NULL;*/
     }
 ;
 
@@ -391,25 +367,10 @@ laco:
 
 input:
     TK_PR_INPUT lista-expressao {
-        /*hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);*/
-
-        /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);*/
-        /*comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);*/
-        /*$$ = nodo_input;*/
-
         $$ = create_node(IKS_AST_INPUT, NULL, $2, NULL);
 
         verifica_input($$);
     }
-    /*|  TK_PR_INPUT TK_IDENTIFICADOR '[' expressao ']' {*/
-        /*hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO);*/
-
-        /*comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);*/
-        /*comp_tree_t* nodo_input = create_node(IKS_AST_INPUT, NULL, node_identificador, NULL);*/
-        /*$$ = nodo_input;*/
-
-        /*verifica_input($$);*/
-    /*}*/
 ;
 
 output:
@@ -422,7 +383,6 @@ output:
 
 expressao:
     TK_IDENTIFICADOR {
-        fprintf(stdout, "entrou identif variavel\n");
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
     }
@@ -452,13 +412,11 @@ expressao:
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "!", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
-        /*$$ = $2;*/
     }
     | '-' expressao %prec UMINUS {
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
-        /*$$ = $2;*/
     }
 ;
 
@@ -466,8 +424,6 @@ expressao:
 expressao-aritmetica:
     expressao '+' expressao
     {
-        fprintf(stdout, "coersao soma\n");
-        fprintf(stdout, "%d %s + %s\n", $1->hash->operador, $1->lex, $3->lex);
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
@@ -497,53 +453,59 @@ expressao-logica:
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_IGUAL, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '<' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_L, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao TK_OC_LE expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_LE, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao '>' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_G, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao TK_OC_GE expressao 
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_GE, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao TK_OC_NE expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_DIF, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao TK_OC_AND expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_E, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
     | expressao TK_OC_OR expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_OU, NULL, $1, NULL);
+        verifica_coersao_arvore($$, $1, $3);
     }
 ;
 
 atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
-        fprintf(stdout, "entrou atribuicao\n");
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
 
         int tipo = encontra_tipo($1,DECLARACAO_VARIAVEL);
         if(tipo == IKS_TYPE_NOT_DEFINED){
-            fprintf(stdout,"Operador não definido\n\n");
             exit(IKS_TYPE_NOT_DEFINED);
         }
 
@@ -558,7 +520,6 @@ atribuicao:
 
         int tipo = encontra_tipo($1,DECLARACAO_VETOR_INDEXADO);
         if(tipo == IKS_TYPE_NOT_DEFINED){
-            fprintf(stdout,"Operador não definido\n\n");
             exit(IKS_TYPE_NOT_DEFINED);
         }
 
@@ -635,8 +596,6 @@ return:
         hash_item = add_symbol(symbol_table_cur, "return", cur_line, TK_PR_RETURN, IKS_TYPE_NOT_DEFINED, USO_LITERAL);
 
         $$ = create_node(IKS_AST_RETURN, NULL, $2, hash_item);
-        fprintf(stdout, "verifica return\n");
-        /*print_stack_dict(stack_scope);*/
     }
 ;
 
