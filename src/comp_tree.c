@@ -468,7 +468,10 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
 
   if(tipo1 == tipo2){
     node_pai->tipo_coersao = tipo1;
+    node_filho_esq->tipo_coersao = tipo1;
+    node_filho_dir->tipo_coersao = tipo1;
   }
+  
   if(tipo1 == IKS_FLOAT && tipo2 == IKS_INT){
     node_pai->tipo_coersao = IKS_FLOAT;
     node_filho_dir->tipo_coersao = IKS_FLOAT;
