@@ -19,6 +19,7 @@ typedef struct comp_tree_t {
     struct comp_tree_t* next_brother;
     int tipo_coersao;
     int valor_coersao;
+    struct comp_list_tac_t* tac;
 } comp_tree_t;
 
 comp_tree_t* arvore_sintatica;

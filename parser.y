@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "main.h"
+#include "tac.h"
 #include "iks_ast.h"
 #include "comp_tree.h"
 #include "definitions.h"
-
 
 int parser_return;
 int cur_dict_id = 1; // Inicializa o id dos dicionários
@@ -103,26 +103,33 @@ comp_dict_item_t* hash_item_func = NULL;
 %left UMINUS
 %right TK_PR_ELSE TK_PR_THEN
 
-
-
-
 %%
 /* Regras (e ações) da gramática */
 start:
      programa {
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
-        print_tac(NULL);
+        print_tac($1->tac);
      }
 ;
 
 programa:
     decl-global programa {
         $$ = $2;
+
+        if ($2 != NULL)
+            $$->tac = conecta_tacs($1->tac, $2->tac);
+        else
+            $$->tac = conecta_tacs($1->tac, NULL);
     }
     | func programa {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
         $$ = $1;
+
+        if ($2 != NULL)
+            $$->tac = conecta_tacs($1->tac, $2->tac);
+        else
+            $$->tac = conecta_tacs($1->tac, NULL);
     }
     | /* %empty */ {
         $$ = NULL;
@@ -153,6 +160,8 @@ decl-local:
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
 
         $$ = NULL;
+
+        $$->tac = criar_tac();
     }
 ;
 
@@ -185,6 +194,10 @@ func:
 
         hash_item_func->count_args = 0;
         verifica_return($$, $2, $1);
+
+
+        /*$$->tac = criar_tac_funcao($1, $3->tac);*/
+        $$->tac = criar_tac_funcao($2, NULL);
     }
 ;
 
