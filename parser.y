@@ -149,6 +149,7 @@ decl-global:
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         node_identificador->next_brother = $4;
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
+        
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -159,9 +160,10 @@ decl-local:
     tipo TK_IDENTIFICADOR {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
 
-        $$ = NULL;
-
-        $$->tac = criar_tac();
+        comp_tree_t* teste;
+        teste = (comp_tree_t*)malloc(sizeof(comp_tree_t));
+        teste->tac = (comp_list_tac_t*)criar_tac();
+               
     }
 ;
 
@@ -196,8 +198,9 @@ func:
         verifica_return($$, $2, $1);
 
 
-        /*$$->tac = criar_tac_funcao($1, $3->tac);*/
-        $$->tac = criar_tac_funcao($2, NULL);
+        $$->tac = (comp_list_tac_t*)criar_tac_funcao($2, NULL);
+        fprintf(stdout,"treta barato");
+	getchar();
     }
 ;
 

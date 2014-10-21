@@ -34,22 +34,33 @@ void conecta_tacs_irmaos(comp_list_tac_t* last){
 }
 
 comp_list_tac_t* criar_tac(){
-    comp_list_tac_t* new_tac = malloc(sizeof(comp_list_tac_t));
+    
+    comp_list_tac_t* new_tac = (comp_list_tac_t*)malloc(sizeof(comp_list_tac_t));
     new_tac->v1[0] = '\0';
     new_tac->v2[0] = '\0';
     new_tac->v3[0] = '\0';
     new_tac->tac_next = NULL;
     new_tac->tac_prev = NULL;
-
+    
     return new_tac;
 }
 
 comp_list_tac_t* criar_tac_funcao(char *id, comp_list_tac_t* tac_func) {
+  fprintf(stdout,"treta a");
+	getchar();
     comp_list_tac_t* tac_rotulo = montar_tac(TAC_LABEL, id, NULL, NULL);
-    tac_func->tac_prev = tac_rotulo;
-    conecta_tacs_irmaos(tac_func);
-
-    return tac_func;
+    fprintf(stdout,"treta b");
+	getchar();
+    if(tac_func !=NULL){
+      fprintf(stdout,"treta if");
+	getchar();
+      tac_func->tac_prev = tac_rotulo;
+      conecta_tacs_irmaos(tac_func);
+      return tac_func;
+    }
+    fprintf(stdout,"treta ret");
+	getchar();
+    return tac_rotulo;
 }
 
 comp_list_tac_t* conecta_tacs(comp_list_tac_t* tac1, comp_list_tac_t* tac2){
