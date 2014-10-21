@@ -1,13 +1,4 @@
 ! timeout 5
 ! output ignore
-! expect return 0
-$ ./main
-< /* IKS_SUCCESS */
-< int f()
-< {
-<   int x;
-<   {
-<     string x;
-<     x = "212";
-<   };
-< }
+! expect return 7
+$ ./main tests/e4/input/s38.iks
