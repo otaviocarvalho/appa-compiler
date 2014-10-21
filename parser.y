@@ -9,6 +9,7 @@
 #include "comp_tree.h"
 #include "definitions.h"
 
+
 int parser_return;
 int cur_dict_id = 1; // Inicializa o id dos dicionários
 
@@ -111,6 +112,7 @@ start:
      programa {
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
+        print_tac(NULL);
      }
 ;
 
