@@ -409,11 +409,16 @@ expressao:
     TK_IDENTIFICADOR {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
+
+        $$->tac = criar_tac();
     }
     | literal {
         $$ = $1;
     }
     | chamada-funcao {
+        comp_tree_t *node_aux = create_empty_node();
+        node_aux->tac = criar_tac();
+
         $$ = $1;
     }
     | TK_IDENTIFICADOR '[' expressao ']' {
@@ -422,25 +427,40 @@ expressao:
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
+
+        $$->tac = criar_tac();
     }
     | '(' expressao ')' {
+        comp_tree_t *node_aux = create_empty_node();
+        node_aux->tac = criar_tac();
+
         $$ = $2;
     }
     | expressao-aritmetica {
+        comp_tree_t *node_aux = create_empty_node();
+        node_aux->tac = criar_tac();
+
         $$ = $1;
     }
     | expressao-logica {
+        comp_tree_t *node_aux = create_empty_node();
+        node_aux->tac = criar_tac();
+
         $$ = $1;
     }
     | '!' expressao {
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "!", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
+
+        unario->tac = criar_tac();
     }
     | '-' expressao %prec UMINUS {
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
+
+        unario->tac = criar_tac();
     }
 ;
 
@@ -451,24 +471,32 @@ expressao-aritmetica:
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao '-' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao '*' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_MULTIPLICACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao '/' expressao 
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_DIVISAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
 ;
 
@@ -478,48 +506,64 @@ expressao-logica:
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_IGUAL, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao '<' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_L, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao TK_OC_LE expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_LE, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao '>' expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_G, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao TK_OC_GE expressao 
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_GE, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao TK_OC_NE expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_COMP_DIF, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao TK_OC_AND expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_E, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
     | expressao TK_OC_OR expressao
     {
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_LOGICO_OU, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
+
+        $$->tac = criar_tac();
     }
 ;
 
@@ -538,9 +582,9 @@ atribuicao:
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
 
-        comp_list_tac_t* tac_test = criar_tac();
-        /*$$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc);*/
-        $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, tac_test, hash_item->desloc);
+        $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc);
+        /*comp_list_tac_t* tac_test = criar_tac();*/
+        /*$$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, tac_test, hash_item->desloc);*/
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
@@ -560,6 +604,8 @@ atribuicao:
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, vetor, NULL);
         verifica_tipo_indexador($3);
         verifica_atribuicao($6,tipo);
+
+        $$->tac = criar_tac();
     }
 ;
 
@@ -579,31 +625,37 @@ literal:
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_CHAR, USO_LITERAL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_FALSE {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_FLOAT {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT, IKS_FLOAT, USO_LITERAL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_INT {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_STRING {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING, USO_LITERAL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_TRUE {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
 ;
 
