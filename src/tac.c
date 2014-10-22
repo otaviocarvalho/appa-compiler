@@ -126,9 +126,9 @@ comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_l
 comp_list_tac_t *criar_tac_literal(int tipo, char* valor)
 {
 	comp_list_tac_t *new_tac = criar_tac();
-	
+
 	new_tac = montar_tac(tipo, valor, NULL, NULL);
-	
+
 	conecta_tacs_irmaos(new_tac);
 	return new_tac;
 }
@@ -167,4 +167,7 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
 
     conecta_tacs_irmaos(tac_atr);
     return tac_atr;
+
 }
+
+
