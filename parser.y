@@ -121,6 +121,8 @@ programa:
             $$->tac = conecta_tacs($1->tac, $2->tac);
         else
             $$->tac = conecta_tacs($1->tac, NULL);
+
+        fprintf(stdout, "conecta_tacs global\n");
     }
     | func programa {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
@@ -130,6 +132,7 @@ programa:
             $$->tac = conecta_tacs($1->tac, $2->tac);
         else
             $$->tac = conecta_tacs($1->tac, NULL);
+        fprintf(stdout, "conecta_tacs func\n");
     }
     | /* %empty */ {
         $$ = NULL;
@@ -149,7 +152,6 @@ decl-global:
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         node_identificador->next_brother = $4;
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
-        
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -160,10 +162,10 @@ decl-local:
     tipo TK_IDENTIFICADOR {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
 
-        comp_tree_t* teste;
-        teste = (comp_tree_t*)malloc(sizeof(comp_tree_t));
-        teste->tac = (comp_list_tac_t*)criar_tac();
-               
+        comp_tree_t* node_aux = create_empty_node();
+        node_aux->tac = (comp_list_tac_t*) criar_tac();
+
+        $$ = node_aux;
     }
 ;
 
@@ -184,6 +186,8 @@ func:
 
         list_func_connect($$, $4, hash_item);
         verifica_return($$, $2, $1);
+
+        $$->tac = (comp_list_tac_t*) criar_tac_funcao($2, $7->tac);
     }
     | tipo TK_IDENTIFICADOR '(' ')' {
                                         hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
@@ -197,10 +201,7 @@ func:
         hash_item_func->count_args = 0;
         verifica_return($$, $2, $1);
 
-
-        $$->tac = (comp_list_tac_t*)criar_tac_funcao($2, NULL);
-        fprintf(stdout,"treta barato");
-	getchar();
+        $$->tac = (comp_list_tac_t*) criar_tac_funcao($2, $6->tac);
     }
 ;
 
@@ -243,7 +244,8 @@ lista-argumentos:
 corpo:
     bloco-comando
     {
-        $$ = $1;
+
+        /*$$ = $1;*/
     }
 ;
 
@@ -255,7 +257,11 @@ bloco-comando:
     |
     '{' '}'
     {
-        $$ = NULL;
+        comp_tree_t *node_aux = create_empty_node();
+        node_aux->tac = criar_tac();
+        $$ = node_aux;
+
+        /*$$ = NULL;*/
     }
 ;
 
@@ -531,6 +537,10 @@ atribuicao:
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
+
+        comp_list_tac_t* tac_test = criar_tac();
+        /*$$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc);*/
+        $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, tac_test, hash_item->desloc);
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {

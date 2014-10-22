@@ -12,12 +12,17 @@ typedef struct comp_list_tac_t {
 
 void print_tac(comp_list_tac_t*);
 void print_tac_item(comp_list_tac_t*);
-comp_list_tac_t* cria_tac_vazio();
 void conecta_tacs_irmaos(comp_list_tac_t*);
 comp_list_tac_t* conecta_tacs(comp_list_tac_t*, comp_list_tac_t*);
 char* criar_label();
 char* criar_registrador();
 
+comp_list_tac_t* criar_tac();
 comp_list_tac_t* montar_tac(int, char*, char*, char*);
+<<<<<<< HEAD
 comp_list_tac_t *criar_tac_expressao(int, comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *criar_tac_literal(int, char*);
+=======
+comp_list_tac_t* criar_tac_funcao(char*, comp_list_tac_t*);
+comp_list_tac_t* criar_tac_atribuicao(char*, comp_list_tac_t*, int);
+>>>>>>> 6a6b5c174e82695ad870c974f6065ae3f2962fb5

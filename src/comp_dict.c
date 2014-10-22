@@ -22,6 +22,7 @@ int free_table_tree(comp_dict_t *root){
 comp_dict_t* create_table(int id) {
     comp_dict_t* new_table = (comp_dict_t *) malloc(sizeof(comp_dict_t));
     new_table->id = id;
+    new_table->desloc = 0;
     init_dict(new_table);
 
     stack_scope = stack_dict_push(stack_scope, new_table);
@@ -121,6 +122,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->next = NULL;
     node->item->line = line;
     node->item->type = convert_type_symbol(type);
+    node->item->desloc = 0;
     node->item->type_var = type_var;
     node->item->operador = operador;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
@@ -407,6 +409,6 @@ int verifica_uso(int hash, int operador, char* key){
 
         ptaux = ptaux->next;
     }
-    
+
     exit(IKS_ERROR_UNDECLARED);
 }
