@@ -90,7 +90,7 @@ comp_list_tac_t *montar_tac(int tipo, char* valor1, char* valor2, char* valor3)
     comp_list_tac_t* new_tac = criar_tac();
     if (new_tac == NULL)
     {
-        printf("erro na função montar_tac\n");
+        printf("Erro na função montar_tac\n\n");
         exit(-1);
     }
 
@@ -103,6 +103,34 @@ comp_list_tac_t *montar_tac(int tipo, char* valor1, char* valor2, char* valor3)
         strcpy(new_tac->v3, valor3);
 
     return new_tac;
+}
+
+comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_list_tac_t *tac2){
+    comp_list_tac_t *new_tac = criar_tac();
+
+    new_tac = montar_tac(operacao,criar_registrador(),tac1->v1,tac2->v1);
+    if(tac1){
+      if(tac2){
+	new_tac->tac_prev = tac2;
+	tac2->tac_next = tac1;
+      }
+      else{
+	new_tac->tac_prev = tac1;
+      }
+    }
+
+    conecta_tacs_irmaos(new_tac);
+    return new_tac;
+}
+
+comp_list_tac_t *criar_tac_literal(int tipo, char* valor)
+{
+	comp_list_tac_t *new_tac = criar_tac();
+
+	new_tac = montar_tac(tipo, valor, NULL, NULL);
+
+	conecta_tacs_irmaos(new_tac);
+	return new_tac;
 }
 
 comp_list_tac_t* criar_tac(){
