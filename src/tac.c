@@ -168,6 +168,3 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     conecta_tacs_irmaos(tac_atr);
     return tac_atr;
 }
-
-
->>>>>>> 6a6b5c174e82695ad870c974f6065ae3f2962fb5

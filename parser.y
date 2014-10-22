@@ -145,6 +145,11 @@ programa:
 decl-global:
     decl-local ';' {
         $$ = $1;
+        
+        symbol_table_cur->desloc += tamanho_tipo($$->hash->type_var);
+        
+        $$->tac = (comp_list_tac_t*)criar_tac();
+        
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1,DECLARACAO_VETOR_INDEXADO);
