@@ -389,6 +389,22 @@ void verifica_funcao(comp_tree_t* node, char* label_function){
 
 }
 
+int tamanho_tipo(int tipo) {
+    switch (tipo){
+        case IKS_INT:
+            return TAMANHO_INT;
+        case IKS_FLOAT:
+            return TAMANHO_FLOAT;
+        case IKS_CHAR:
+            return TAMANHO_CHAR;
+        case IKS_STRING:
+            return TAMANHO_STRING;
+        case IKS_BOOL:
+            return TAMANHO_BOOL;
+        default:
+            return -1;
+    }
+}
 
 void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq, comp_tree_t* node_filho_dir){
   int tipo1;
@@ -398,30 +414,37 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
       switch(node_filho_esq->hash->operador){
         case USO_LITERAL:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_LITERAL);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
         case USO_FUNCAO:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_FUNCAO);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
         case USO_VARIAVEL:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_VARIAVEL);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
         case USO_VETOR_INDEXADO:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,USO_VETOR_INDEXADO);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
         case DECLARACAO_VARIAVEL:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,DECLARACAO_VARIAVEL);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
         case DECLARACAO_VETOR_INDEXADO:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,DECLARACAO_VETOR_INDEXADO);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
         case DECLARACAO_FUNCAO:{
           tipo1 = encontra_tipo(node_filho_esq->hash->key,DECLARACAO_FUNCAO);
+          node_filho_esq->hash->desloc = tamanho_tipo(tipo1);
           break;
         }
       }
@@ -434,30 +457,37 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
     switch(node_filho_dir->hash->operador){
         case USO_LITERAL:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_LITERAL);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
         case USO_FUNCAO:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_FUNCAO);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
         case USO_VARIAVEL:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_VARIAVEL);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
         case USO_VETOR_INDEXADO:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,USO_VETOR_INDEXADO);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
         case DECLARACAO_VARIAVEL:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,DECLARACAO_VARIAVEL);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
         case DECLARACAO_VETOR_INDEXADO:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,DECLARACAO_VETOR_INDEXADO);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
         case DECLARACAO_FUNCAO:{
           tipo2 = encontra_tipo(node_filho_dir->hash->key,DECLARACAO_FUNCAO);
+          node_filho_dir->hash->desloc = tamanho_tipo(tipo2);
           break;
         }
     }
@@ -471,33 +501,51 @@ void verifica_coersao_arvore(comp_tree_t* node_pai, comp_tree_t* node_filho_esq,
     node_filho_esq->tipo_coersao = tipo1;
     node_filho_dir->tipo_coersao = tipo1;
   }
-  
+
   if(tipo1 == IKS_FLOAT && tipo2 == IKS_INT){
     node_pai->tipo_coersao = IKS_FLOAT;
     node_filho_dir->tipo_coersao = IKS_FLOAT;
+
+    node_filho_dir->hash->desloc = tamanho_tipo(IKS_FLOAT);
+    node_filho_esq->hash->desloc = tamanho_tipo(IKS_FLOAT);
   }
-  
+
   if(tipo1 == IKS_INT && tipo2 == IKS_FLOAT){
     node_pai->tipo_coersao = IKS_FLOAT;
     node_filho_esq->tipo_coersao = IKS_FLOAT;
+
+    node_filho_dir->hash->desloc = tamanho_tipo(IKS_FLOAT);
+    node_filho_esq->hash->desloc = tamanho_tipo(IKS_FLOAT);
   }
-  
+
   if(tipo1 == IKS_BOOL && tipo2 == IKS_INT){
     node_pai->tipo_coersao = IKS_INT;
     node_filho_esq->tipo_coersao = IKS_INT;
+
+    node_filho_dir->hash->desloc = tamanho_tipo(IKS_INT);
+    node_filho_esq->hash->desloc = tamanho_tipo(IKS_INT);
   }
-   
+
   if (tipo1 == IKS_INT && tipo2 == IKS_BOOL) {
     node_filho_dir->tipo_coersao = IKS_INT;
     node_pai->tipo_coersao = IKS_INT;
+
+    node_filho_dir->hash->desloc = tamanho_tipo(IKS_INT);
+    node_filho_esq->hash->desloc = tamanho_tipo(IKS_INT);
   }
   if(tipo1 == IKS_BOOL && tipo2 == IKS_FLOAT){
     node_pai->tipo_coersao = IKS_FLOAT;
     node_filho_esq->tipo_coersao = IKS_FLOAT;
+
+    node_filho_dir->hash->desloc = tamanho_tipo(IKS_FLOAT);
+    node_filho_esq->hash->desloc = tamanho_tipo(IKS_FLOAT);
   }
   if(tipo1 == IKS_FLOAT && tipo2 == IKS_BOOL){
     node_pai->tipo_coersao = IKS_FLOAT;
     node_filho_dir->tipo_coersao = IKS_FLOAT;
+
+    node_filho_dir->hash->desloc = tamanho_tipo(IKS_FLOAT);
+    node_filho_esq->hash->desloc = tamanho_tipo(IKS_FLOAT);
   }
   if(((tipo1 == IKS_FLOAT || tipo1 == IKS_INT || tipo1 == IKS_BOOL) && (tipo2 == IKS_STRING))||
     (((tipo2 == IKS_FLOAT || tipo2 == IKS_INT || tipo2 == IKS_BOOL) && (tipo1 == IKS_STRING)))){

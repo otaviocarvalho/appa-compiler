@@ -21,6 +21,7 @@ typedef struct comp_dict_item_t {
     char* key;
     int count_args;
     struct comp_list_t* list_args;
+    int desloc;
 } comp_dict_item_t;
 
 typedef struct comp_dict_node_t {
@@ -32,6 +33,7 @@ typedef struct comp_dict_node_t {
 
 typedef struct comp_dict_t {
     int id;
+    int desloc;
     comp_dict_node_t* entries[PRIME];
 } comp_dict_t;
 

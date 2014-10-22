@@ -5,6 +5,12 @@
 #define IKS_STRING 3
 #define IKS_BOOL 4
 
+#define TAMANHO_INT 4
+#define TAMANHO_FLOAT 8
+#define TAMANHO_CHAR 1
+#define TAMANHO_STRING 1
+#define TAMANHO_BOOL 1
+
 #define IKS_SUCCESS 0
 #define IKS_ERROR_UNDECLARED 1
 #define IKS_ERROR_DECLARED 2
@@ -38,4 +44,5 @@
 #define TAC_LABEL 30
 #define TAC_GOTO 31
 #define TAC_JUMP 32
+#define TAC_ATRIBUICAO 33
 
