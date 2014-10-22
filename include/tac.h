@@ -19,3 +19,5 @@ char* criar_label();
 char* criar_registrador();
 
 comp_list_tac_t* montar_tac(int, char*, char*, char*);
+comp_list_tac_t *criar_tac_expressao(int, comp_list_tac_t*, comp_list_tac_t*);
+comp_list_tac_t *criar_tac_literal(int, char*);
