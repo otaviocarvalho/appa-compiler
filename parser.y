@@ -182,7 +182,7 @@ decl-global:
 ;
 
 decl-local:
-    tipo TK_IDENTIFICADOR ';' {
+    tipo TK_IDENTIFICADOR {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
         hash_item->escopo = INTERNO;
 
@@ -195,7 +195,7 @@ decl-local:
         $$->tac = (comp_list_tac_t*)criar_tac();
 
     }
-    | tipo TK_IDENTIFICADOR '[' lista-expressao-vetor ']' ';' {
+    | tipo TK_IDENTIFICADOR '[' lista-expressao-vetor ']' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
         hash_item->escopo = INTERNO;
 
@@ -349,18 +349,18 @@ sequencia:
     {
         $$ = $1;
     }
-    | decl-local {
+    /*| decl-local {
         $$ = $1;
     }
     | decl-local ';'{
         $$ = $1;
-    }
-    | decl-local ';' sequencia 
+    }*/
+    /*| decl-local ';' sequencia 
     {
         $$ = $3;
 
         conecta_tacs($1->tac, $3->tac);
-    }
+    }*/
 ;
 
 tipo:
@@ -419,6 +419,9 @@ comando:
         $$ = NULL;
     }
     | func {
+        $$ = $1;
+    }
+    | decl-local {
         $$ = $1;
     }
 ;
