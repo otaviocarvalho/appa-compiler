@@ -150,6 +150,7 @@ programa:
 decl-global:
      tipo TK_IDENTIFICADOR ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
+        hash_item->escopo = EXTERNO;
 
         comp_tree_t* node_aux = create_empty_node();
         $$ = node_aux;
@@ -160,6 +161,7 @@ decl-global:
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
+        hash_item->escopo = EXTERNO;
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         node_identificador->next_brother = $4;
@@ -182,6 +184,7 @@ decl-global:
 decl-local:
     tipo TK_IDENTIFICADOR ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
+        hash_item->escopo = INTERNO;
 
         comp_tree_t* node_aux = create_empty_node();
 
@@ -194,19 +197,18 @@ decl-local:
     }
     | tipo TK_IDENTIFICADOR '[' lista-expressao-vetor ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
+        hash_item->escopo = INTERNO;
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         /*node_identificador->next_brother = $4;*/
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
 
-        /*int operador = encontra_operador($4->hash->key);*/
-        int tamanho = 0;
-        /*if(operador = USO_LITERAL){*/
-            /*int tamanho_vetor = atoi($4->hash->key);*/
-            /*tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);*/
-        /*}*/
-
+        int dimensao = calcula_dimensao_arranjo((comp_list_t*)$4);
+	
+        int tamanho = dimensao * tamanho_tipo(hash_item->type_var);
+        
         symbol_table_cur->desloc += tamanho;
+        
     }
 ;
 

@@ -1,6 +1,7 @@
 #include "comp_dict.h"
 #include "definitions.h"
 
+
 // Inicia a árvore de tabelas
 comp_dict_t* init_table_tree(){
     comp_dict_t* root;
