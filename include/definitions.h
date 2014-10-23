@@ -46,3 +46,5 @@
 #define TAC_JUMP 32
 #define TAC_ATRIBUICAO 33
 
+#define INTERNO 1
+#define EXTERNO 0
