@@ -88,6 +88,7 @@ comp_dict_item_t* hash_item_func = NULL;
 %type<node> expressao-logica
 %type<node> atribuicao
 %type<node> lista-expressao
+%type<symbol_list> lista-expressao-vetor
 %type<node> literal
 %type<node> do
 %type<node> while
@@ -192,19 +193,19 @@ decl-local:
         $$->tac = (comp_list_tac_t*)criar_tac();
 
     }
-    | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
+    | tipo TK_IDENTIFICADOR '[' lista-expressao-vetor ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
-        node_identificador->next_brother = $4;
+        /*node_identificador->next_brother = $4;*/
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
 
-        int operador = encontra_operador($4->hash->key);
-        int tamanho;
-        if(operador = USO_LITERAL){
-            int tamanho_vetor = atoi($4->hash->key);
-            tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
-        }
+        /*int operador = encontra_operador($4->hash->key);*/
+        int tamanho = 0;
+        /*if(operador = USO_LITERAL){*/
+            /*int tamanho_vetor = atoi($4->hash->key);*/
+            /*tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);*/
+        /*}*/
 
         symbol_table_cur->desloc += tamanho;
     }
@@ -286,6 +287,27 @@ lista-argumentos:
     }
 ;
 
+lista-parametros:
+    decl-parametro {
+        $$ = $1;
+    }
+    | decl-parametro ',' lista-parametros
+    {
+        $$ = list_concat($1, $3);
+    }
+;
+
+lista-expressao-vetor:
+    expressao {
+        $$ = $1;
+    }
+    | expressao ',' lista-expressao-vetor
+    {
+        /*connect_nodes($1, $3);*/
+        $$ = list_concat($1, $3);
+    }
+;
+
 corpo:
     bloco-comando
     {
@@ -337,16 +359,6 @@ sequencia:
         $$ = $3;
 
         conecta_tacs($1->tac, $3->tac);
-    }
-;
-
-lista-parametros:
-    decl-parametro {
-        $$ = $1;
-    }
-    | decl-parametro ',' lista-parametros
-    {
-        $$ = list_concat($1, $3);
     }
 ;
 
@@ -500,7 +512,6 @@ expressao:
         $$->tac = criar_tac_expressao('-', $2->tac, NULL);
     }
 ;
-
 
 expressao-aritmetica:
     expressao '+' expressao
