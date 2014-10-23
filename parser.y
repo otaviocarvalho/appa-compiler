@@ -12,6 +12,7 @@
 
 int parser_return;
 int cur_dict_id = 1; // Inicializa o id dos dicionários
+int deslocamento_global = 0; //Deslocamento global em relação ao rbss
 
 int cur_line = 1;   // Inicializa o compilador na linha 1
 struct comp_dict_t* symbol_table_root; // Ponteiro para a raiz da tabela de símbolos
@@ -109,19 +110,23 @@ start:
      programa {
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
+        fprintf(stdout,"Deslocamento global: %d\n\n",deslocamento_global);
+        getchar();
         print_tac($1->tac);
      }
 ;
 
 programa:
     decl-global programa {
-        $$ = $2;
-
-        if ($2 != NULL)
-            $$->tac = conecta_tacs($1->tac, $2->tac);
-        else
-            $$->tac = conecta_tacs($1->tac, NULL);
-
+        if ($2 != NULL){
+	    $$ = $2;
+            $$->tac = (comp_list_tac_t*)conecta_tacs($1->tac, $2->tac);
+	}
+        else{
+	   $$ = create_empty_node();
+	   $$->tac = $1->tac;
+	}
+	
         fprintf(stdout, "conecta_tacs global\n");
     }
     | func programa {
@@ -143,8 +148,17 @@ programa:
 ;
 
 decl-global:
-    decl-local ';' {
-        $$ = $1;
+     tipo TK_IDENTIFICADOR ';' {
+        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
+
+        comp_tree_t* node_aux = create_empty_node();
+        
+	$$ = node_aux;
+	
+        deslocamento_global += tamanho_tipo(hash_item->type_var);
+        node_aux->tac = (comp_list_tac_t*) criar_tac();
+        $$->tac = (comp_list_tac_t*)criar_tac();
+        
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
@@ -152,6 +166,15 @@ decl-global:
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         node_identificador->next_brother = $4;
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
+        int operador = encontra_operador($4->hash->key);
+        int tamanho;
+        if(operador = USO_LITERAL){
+	  int tamanho_vetor = atoi($4->hash->key);
+	  tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
+        }       
+        
+        deslocamento_global += tamanho;
+        
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -159,13 +182,32 @@ decl-global:
 ;
 
 decl-local:
-    tipo TK_IDENTIFICADOR {
+    tipo TK_IDENTIFICADOR ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
 
         comp_tree_t* node_aux = create_empty_node();
+        
+	$$ = node_aux;
+	
+        symbol_table_cur->desloc += tamanho_tipo(hash_item->type_var);
         node_aux->tac = (comp_list_tac_t*) criar_tac();
+        $$->tac = (comp_list_tac_t*)criar_tac();
+        
+    }
+    | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
+        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
 
-        $$ = node_aux;
+        comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
+        node_identificador->next_brother = $4;
+        $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
+        int operador = encontra_operador($4->hash->key);
+        int tamanho;
+        if(operador = USO_LITERAL){
+	  int tamanho_vetor = atoi($4->hash->key);
+	  tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
+        }       
+        
+        symbol_table_cur->desloc += tamanho;
     }
 ;
 
@@ -178,7 +220,7 @@ decl-parametro:
 ;
 
 func:
-    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { destroy_table(cur_dict_id--); }
+    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); getchar(); destroy_table(cur_dict_id--); }
     {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
 
@@ -192,7 +234,7 @@ func:
     | tipo TK_IDENTIFICADOR '(' ')' {
                                         hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
                                         create_table(cur_dict_id++);
-                                    } corpo { destroy_table(cur_dict_id--); 
+                                    } corpo {  fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); getchar(); destroy_table(cur_dict_id--); 
                                     }
     {
 
