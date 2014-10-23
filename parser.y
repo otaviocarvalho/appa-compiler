@@ -287,7 +287,7 @@ corpo:
     bloco-comando
     {
 
-        /*$$ = $1;*/
+        $$ = $1;
     }
 ;
 
@@ -316,20 +316,24 @@ sequencia:
     {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$3);
         $$ = $1;
+
+        conecta_tacs($1->tac, $3->tac);
     }
-    |comando ';'
+    | comando ';'
     {
         $$ = $1;
     }
-    |decl-local {
+    | decl-local {
         $$ = $1;
     }
-    |decl-local ';'{
+    | decl-local ';'{
         $$ = $1;
     }
     | decl-local ';' sequencia 
     {
         $$ = $3;
+
+        conecta_tacs($1->tac, $3->tac);
     }
 ;
 
@@ -624,6 +628,7 @@ atribuicao:
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
 
+        fprintf(stdout, "cria tac atribuicao\n");
         $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc);
         /*comp_list_tac_t* tac_test = criar_tac();*/
         /*$$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, tac_test, hash_item->desloc);*/
