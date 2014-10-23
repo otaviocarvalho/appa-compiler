@@ -112,7 +112,6 @@ start:
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
         fprintf(stdout,"Deslocamento global: %d\n\n",deslocamento_global);
-        getchar();
         print_tac($1->tac);
      }
 ;
@@ -215,12 +214,12 @@ decl-parametro:
     tipo TK_IDENTIFICADOR {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
 
-        $$ = list_create(hash_item);
+        $$ = list_create_item(hash_item);
     }
 ;
 
 func:
-    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); getchar(); destroy_table(cur_dict_id--); }
+    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); destroy_table(cur_dict_id--); }
     {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
 
@@ -234,7 +233,7 @@ func:
     | tipo TK_IDENTIFICADOR '(' ')' {
                                         hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
                                         create_table(cur_dict_id++);
-                                    } corpo {  fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); getchar(); destroy_table(cur_dict_id--); 
+                                    } corpo {  fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); destroy_table(cur_dict_id--); 
                                     }
     {
 
@@ -279,11 +278,11 @@ chamada-funcao:
 
 lista-argumentos:
     expressao {
-        $$ = list_create($1->hash);
+        $$ = list_create_item($1->hash);
     }
     | expressao ',' lista-argumentos
     {
-        $$ = list_concat(list_create($1->hash), $3);
+        $$ = list_concat(list_create_item($1->hash), $3);
     }
 ;
 
@@ -299,12 +298,12 @@ lista-parametros:
 
 lista-expressao-vetor:
     expressao {
-        $$ = $1;
+        $$ = list_create_item($1->hash);
     }
     | expressao ',' lista-expressao-vetor
     {
         /*connect_nodes($1, $3);*/
-        $$ = list_concat($1, $3);
+        $$ = list_concat(list_create_item($1->hash), $3);
     }
 ;
 

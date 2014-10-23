@@ -784,7 +784,7 @@ comp_list_t* list_concat(comp_list_t* list_a, comp_list_t* list_b){
     return list_a;
 }
 
-comp_list_t* list_create(comp_dict_item_t* item){
+comp_list_t* list_create_item(comp_dict_item_t* item){
     comp_list_t* new_list = malloc(sizeof(comp_list_t));
     new_list->item = item;
     new_list->next = NULL;
