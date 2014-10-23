@@ -47,7 +47,7 @@ comp_list_tac_t* conecta_tacs(comp_list_tac_t* tac1, comp_list_tac_t* tac2){
         if(tac2 != NULL){
             aux_tac1 = tac1;
             // Percorre até o fim da lista de tacs
-	    while (aux_tac1->tac_next != NULL){
+            while (aux_tac1->tac_next != NULL){
                 aux_tac1 = aux_tac1->tac_next;
             }
 
@@ -60,6 +60,7 @@ comp_list_tac_t* conecta_tacs(comp_list_tac_t* tac1, comp_list_tac_t* tac2){
             aux_tac1->tac_next = aux_tac2;
             aux_tac2->tac_prev = aux_tac1;
         }
+
         return tac1;
     }
     else {
@@ -107,18 +108,18 @@ comp_list_tac_t *montar_tac(int tipo, char* valor1, char* valor2, char* valor3)
     return new_tac;
 }
 
-comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_list_tac_t *tac2){
+comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_list_tac_t *tac2) {
     comp_list_tac_t *new_tac = criar_tac();
 
-    new_tac = montar_tac(operacao,criar_registrador(),tac1->v1,tac2->v1);
-    if(tac1){
-      if(tac2){
-	new_tac->tac_prev = tac2;
-	tac2->tac_next = tac1;
-      }
-      else{
-	new_tac->tac_prev = tac1;
-      }
+    new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+    if (tac1) {
+        if (tac2) {
+            new_tac->tac_prev = tac2;
+            tac2->tac_next = tac1;
+        }
+        else {
+            new_tac->tac_prev = tac1;
+        }
     }
 
     conecta_tacs_irmaos(new_tac);
