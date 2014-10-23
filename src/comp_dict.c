@@ -111,7 +111,7 @@ comp_dict_item_t* find_symbol(comp_dict_t* cur_table, char* key){
 }
 
 // Adiciona um item a uma tabela existente
-comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int type, int type_var, int operador){
+comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int type, int type_var, int operador, int desloc){
     // Aloca estruturas de dados para o novo nodo
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
@@ -122,7 +122,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->next = NULL;
     node->item->line = line;
     node->item->type = convert_type_symbol(type);
-    node->item->desloc = 0;
+    node->item->desloc = desloc;
     node->item->type_var = type_var;
     node->item->operador = operador;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
