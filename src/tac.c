@@ -17,6 +17,9 @@ void print_tac(comp_list_tac_t* raiz){
 
 void print_tac_item(comp_list_tac_t* tac){
     switch(tac->tipo){
+        case TAC_ATRIBUICAO:
+            printf("store %s => %s\n", tac->v2, tac->v3);
+            break;
         case TAC_LABEL:
             printf( "%s: \n", tac->v1);
             break;
@@ -169,5 +172,3 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     return tac_atr;
 
 }
-
-
