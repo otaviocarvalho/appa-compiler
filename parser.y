@@ -145,14 +145,9 @@ programa:
 decl-global:
     decl-local ';' {
         $$ = $1;
-        
-        symbol_table_cur->desloc += tamanho_tipo($$->hash->type_var);
-        
-        $$->tac = (comp_list_tac_t*)criar_tac();
-        
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1,DECLARACAO_VETOR_INDEXADO);
+        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         node_identificador->next_brother = $4;
@@ -165,7 +160,7 @@ decl-global:
 
 decl-local:
     tipo TK_IDENTIFICADOR {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
+        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
 
         comp_tree_t* node_aux = create_empty_node();
         node_aux->tac = (comp_list_tac_t*) criar_tac();
@@ -176,7 +171,7 @@ decl-local:
 
 decl-parametro:
     tipo TK_IDENTIFICADOR {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
+        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
 
         $$ = list_create(hash_item);
     }
@@ -185,7 +180,7 @@ decl-parametro:
 func:
     tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { destroy_table(cur_dict_id--); }
     {
-        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
+        hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
 
         $$ = create_node(IKS_AST_FUNCAO, $2, $7, hash_item);
 
@@ -195,7 +190,7 @@ func:
         $$->tac = (comp_list_tac_t*) criar_tac_funcao($2, $7->tac);
     }
     | tipo TK_IDENTIFICADOR '(' ')' {
-                                        hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO);
+                                        hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
                                         create_table(cur_dict_id++);
                                     } corpo { destroy_table(cur_dict_id--); 
                                     }
@@ -213,7 +208,7 @@ func:
 chamada-funcao:
     TK_IDENTIFICADOR '(' ')'
     {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO, 0);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, $1, node_identificador, hash_item);
@@ -226,7 +221,7 @@ chamada-funcao:
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_FUNCAO, 0);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         $$ = create_node(IKS_AST_CHAMADA_DE_FUNCAO, NULL, node_identificador, NULL);
@@ -412,7 +407,7 @@ output:
 
 expressao:
     TK_IDENTIFICADOR {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, 0);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
 
         $$->tac = criar_tac();
@@ -427,7 +422,7 @@ expressao:
         $$ = $1;
     }
     | TK_IDENTIFICADOR '[' expressao ']' {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, IKS_AST_VETOR_INDEXADO);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, IKS_AST_VETOR_INDEXADO, 0);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
         node_identificador->next_brother = $3;
@@ -575,7 +570,7 @@ expressao-logica:
 atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, 0);
 
         int tipo = encontra_tipo($1,DECLARACAO_VARIAVEL);
         if(tipo == IKS_TYPE_NOT_DEFINED){
@@ -593,7 +588,7 @@ atribuicao:
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
     {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO, 0);
 
         int tipo = encontra_tipo($1,DECLARACAO_VETOR_INDEXADO);
         if(tipo == IKS_TYPE_NOT_DEFINED){
@@ -627,37 +622,39 @@ lista-expressao:
 
 literal:
     TK_LIT_CHAR {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_CHAR, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_CHAR, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_FALSE {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_FLOAT {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT, IKS_FLOAT, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT, IKS_FLOAT, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_INT {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
+
+        fprintf(stdout, "cria tac literal int\n");
     }
     | TK_LIT_STRING {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | TK_LIT_TRUE {
-        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
@@ -678,7 +675,7 @@ while:
 
 return:
     TK_PR_RETURN expressao {
-        hash_item = add_symbol(symbol_table_cur, "return", cur_line, TK_PR_RETURN, IKS_TYPE_NOT_DEFINED, USO_LITERAL);
+        hash_item = add_symbol(symbol_table_cur, "return", cur_line, TK_PR_RETURN, IKS_TYPE_NOT_DEFINED, USO_LITERAL, 0);
 
         $$ = create_node(IKS_AST_RETURN, NULL, $2, hash_item);
     }
