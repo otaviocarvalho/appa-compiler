@@ -44,7 +44,7 @@ comp_list_tac_t* conecta_tacs(comp_list_tac_t* tac1, comp_list_tac_t* tac2){
         if(tac2 != NULL){
             aux_tac1 = tac1;
             // Percorre até o fim da lista de tacs
-            while (aux_tac1->tac_next != NULL){
+	    while (aux_tac1->tac_next != NULL){
                 aux_tac1 = aux_tac1->tac_next;
             }
 
@@ -57,7 +57,6 @@ comp_list_tac_t* conecta_tacs(comp_list_tac_t* tac1, comp_list_tac_t* tac2){
             aux_tac1->tac_next = aux_tac2;
             aux_tac2->tac_prev = aux_tac1;
         }
-
         return tac1;
     }
     else {

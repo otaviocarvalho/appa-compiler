@@ -115,13 +115,17 @@ start:
 
 programa:
     decl-global programa {
-        $$ = $2;
+        
 
-        if ($2 != NULL)
-            $$->tac = conecta_tacs($1->tac, $2->tac);
-        else
-            $$->tac = conecta_tacs($1->tac, NULL);
-
+        if ($2 != NULL){
+	    $$ = $2;
+            $$->tac = (comp_list_tac_t*)conecta_tacs($1->tac, $2->tac);
+	}
+        else{
+	   $$ = create_empty_node();
+	   $$->tac = $1->tac;
+	}
+	
         fprintf(stdout, "conecta_tacs global\n");
     }
     | func programa {
@@ -146,7 +150,7 @@ decl-global:
     decl-local ';' {
         $$ = $1;
         
-        symbol_table_cur->desloc += tamanho_tipo($$->hash->type_var);
+        //symbol_table_cur->desloc += tamanho_tipo($$->hash->type_var);
         
         $$->tac = (comp_list_tac_t*)criar_tac();
         
@@ -168,9 +172,11 @@ decl-local:
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL);
 
         comp_tree_t* node_aux = create_empty_node();
+        
+	$$ = node_aux;
+	
+        symbol_table_cur->desloc += tamanho_tipo(hash_item->type_var);
         node_aux->tac = (comp_list_tac_t*) criar_tac();
-
-        $$ = node_aux;
     }
 ;
 
