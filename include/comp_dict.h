@@ -22,6 +22,7 @@ typedef struct comp_dict_item_t {
     int count_args;
     struct comp_list_t* list_args;
     int desloc;
+    int escopo;
 } comp_dict_item_t;
 
 typedef struct comp_dict_node_t {
