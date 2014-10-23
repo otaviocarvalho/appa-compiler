@@ -152,13 +152,11 @@ decl-global:
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
 
         comp_tree_t* node_aux = create_empty_node();
-        
-	$$ = node_aux;
-	
+        $$ = node_aux;
+
         deslocamento_global += tamanho_tipo(hash_item->type_var);
         node_aux->tac = (comp_list_tac_t*) criar_tac();
         $$->tac = (comp_list_tac_t*)criar_tac();
-        
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
@@ -169,12 +167,12 @@ decl-global:
         int operador = encontra_operador($4->hash->key);
         int tamanho;
         if(operador = USO_LITERAL){
-	  int tamanho_vetor = atoi($4->hash->key);
-	  tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
-        }       
-        
+            int tamanho_vetor = atoi($4->hash->key);
+            tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
+        }
+
         deslocamento_global += tamanho;
-        
+
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -186,13 +184,13 @@ decl-local:
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, symbol_table_cur->desloc);
 
         comp_tree_t* node_aux = create_empty_node();
-        
-	$$ = node_aux;
-	
+
+        $$ = node_aux;
+
         symbol_table_cur->desloc += tamanho_tipo(hash_item->type_var);
         node_aux->tac = (comp_list_tac_t*) criar_tac();
         $$->tac = (comp_list_tac_t*)criar_tac();
-        
+
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, symbol_table_cur->desloc);
@@ -200,13 +198,14 @@ decl-local:
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
         node_identificador->next_brother = $4;
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
+
         int operador = encontra_operador($4->hash->key);
         int tamanho;
         if(operador = USO_LITERAL){
-	  int tamanho_vetor = atoi($4->hash->key);
-	  tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
-        }       
-        
+            int tamanho_vetor = atoi($4->hash->key);
+            tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
+        }
+
         symbol_table_cur->desloc += tamanho;
     }
 ;
@@ -260,6 +259,8 @@ chamada-funcao:
 
         print_stack_dict(stack_scope);
         verifica_funcao($$, $1);
+
+        $$->tac = (comp_list_tac_t*) criar_tac_chamada_funcao($1, NULL);
     }
     | TK_IDENTIFICADOR '(' lista-argumentos ')'
     {
@@ -270,6 +271,8 @@ chamada-funcao:
 
         list_func_connect($$, $3, hash_item);
         verifica_argumentos($$, $1, $3);
+
+        $$->tac = (comp_list_tac_t*) criar_tac_chamada_funcao($1, NULL);
     }
 ;
 
@@ -456,15 +459,12 @@ expressao:
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, 0);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | literal {
         $$ = $1;
     }
     | chamada-funcao {
-        comp_tree_t *node_aux = create_empty_node();
-        node_aux->tac = criar_tac();
-
         $$ = $1;
     }
     | TK_IDENTIFICADOR '[' expressao ']' {
@@ -474,24 +474,15 @@ expressao:
         node_identificador->next_brother = $3;
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
     }
     | '(' expressao ')' {
-        comp_tree_t *node_aux = create_empty_node();
-        node_aux->tac = criar_tac();
-
         $$ = $2;
     }
     | expressao-aritmetica {
-        comp_tree_t *node_aux = create_empty_node();
-        node_aux->tac = criar_tac();
-
         $$ = $1;
     }
     | expressao-logica {
-        comp_tree_t *node_aux = create_empty_node();
-        node_aux->tac = criar_tac();
-
         $$ = $1;
     }
     | '!' expressao {
@@ -499,14 +490,14 @@ expressao:
         connect_nodes(unario, $2);
         $$ = unario;
 
-        unario->tac = criar_tac();
+        $$->tac = criar_tac_expressao('!', $2->tac, NULL);
     }
     | '-' expressao %prec UMINUS {
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
 
-        unario->tac = criar_tac();
+        $$->tac = criar_tac_expressao('-', $2->tac, NULL);
     }
 ;
 
@@ -518,7 +509,7 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao('+', $1->tac, $3->tac);
     }
     | expressao '-' expressao
     {
@@ -526,7 +517,7 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao('-', $1->tac, $3->tac);
     }
     | expressao '*' expressao
     {
@@ -534,7 +525,7 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_MULTIPLICACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao('*', $1->tac, $3->tac);
     }
     | expressao '/' expressao 
     {
@@ -542,7 +533,7 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_DIVISAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao('/', $1->tac, $3->tac);
     }
 ;
 
@@ -553,7 +544,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_COMP_IGUAL, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao(TK_OC_EQ, $1->tac, $3->tac);
     }
     | expressao '<' expressao
     {
@@ -561,7 +552,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_COMP_L, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao('<', $1->tac, $3->tac);
     }
     | expressao TK_OC_LE expressao
     {
@@ -569,7 +560,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_COMP_LE, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao(TK_OC_LE, $1->tac, $3->tac);
     }
     | expressao '>' expressao
     {
@@ -577,7 +568,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_COMP_G, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao('>', $1->tac, $3->tac);
     }
     | expressao TK_OC_GE expressao 
     {
@@ -585,7 +576,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_COMP_GE, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao(TK_OC_GE, $1->tac, $3->tac);
     }
     | expressao TK_OC_NE expressao
     {
@@ -593,7 +584,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_COMP_DIF, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao(TK_OC_NE, $1->tac, $3->tac);
     }
     | expressao TK_OC_AND expressao
     {
@@ -601,7 +592,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_E, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao(TK_OC_AND, $1->tac, $3->tac);
     }
     | expressao TK_OC_OR expressao
     {
@@ -609,7 +600,7 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_OU, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac();
+        $$->tac = criar_tac_expressao(TK_OC_OR, $1->tac, $3->tac);
     }
 ;
 
@@ -650,7 +641,8 @@ atribuicao:
         verifica_tipo_indexador($3);
         verifica_atribuicao($6,tipo);
 
-        $$->tac = criar_tac();
+        fprintf(stdout, "cria tac atribuicao vetor\n");
+        $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $6->tac, hash_item->desloc);
     }
 ;
 

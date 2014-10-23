@@ -22,5 +22,6 @@ comp_list_tac_t* montar_tac(int, char*, char*, char*);
 comp_list_tac_t *criar_tac_expressao(int, comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *criar_tac_literal(int, char*);
 comp_list_tac_t* criar_tac_funcao(char*, comp_list_tac_t*);
+comp_list_tac_t* criar_tac_chamada_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_atribuicao(char*, comp_list_tac_t*, int);
 

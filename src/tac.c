@@ -160,6 +160,14 @@ comp_list_tac_t* criar_tac_funcao(char *id, comp_list_tac_t* tac_func) {
     return tac_rotulo;
 }
 
+// Preencher
+comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
+    fprintf(stdout, "entrou criar_tac_chamada_funcao\n");
+    comp_list_tac_t* tac_new = criar_tac();
+
+    return tac_new;
+}
+
 comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc) {
     comp_list_tac_t* tac_atr;
     char *desloc_str = (char *) malloc (100 * sizeof(char));
