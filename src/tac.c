@@ -17,6 +17,45 @@ void print_tac(comp_list_tac_t* raiz){
 
 void print_tac_item(comp_list_tac_t* tac){
     switch(tac->tipo){
+        case '+':
+            printf("add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '-':
+            printf("sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '/':
+            printf("div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '*':
+            printf("mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case UMINUS:
+            printf("sub 0, %s => %s\n", tac->v2, tac->v1);
+            break;
+        case TK_OC_LE:
+            printf("cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_GE:
+            printf("cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_EQ:
+            printf("cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_NE:
+            printf("cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_AND:
+            printf("and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_OR:
+            printf("or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '<':
+            printf("cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '>':
+            printf("cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
         case TAC_ATRIBUICAO:
             printf("store %s => %s\n", tac->v2, tac->v3);
             break;
@@ -24,7 +63,7 @@ void print_tac_item(comp_list_tac_t* tac){
             printf( "%s: \n", tac->v1);
             break;
         default:
-            printf("default\n");
+            printf("default %d %s %s %s\n", tac->tipo, tac->v1, tac->v2, tac->v3);
             break;
     }
 }
@@ -111,7 +150,13 @@ comp_list_tac_t *montar_tac(int tipo, char* valor1, char* valor2, char* valor3)
 comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_list_tac_t *tac2) {
     comp_list_tac_t *new_tac = criar_tac();
 
-    new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+    if (tac1 == NULL)
+        new_tac = montar_tac(operacao, criar_registrador(), "0", tac2->v1);
+    else if (tac2 == NULL)
+        new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, "0");
+    else
+        new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+
     if (tac1) {
         if (tac2) {
             new_tac->tac_prev = tac2;

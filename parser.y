@@ -504,11 +504,12 @@ expressao:
         $$->tac = criar_tac_expressao('!', $2->tac, NULL);
     }
     | '-' expressao %prec UMINUS {
+        fprintf(stdout, "criar tac expressao uminus\n");
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
 
-        $$->tac = criar_tac_expressao('-', $2->tac, NULL);
+        $$->tac = criar_tac_expressao(UMINUS, $2->tac, NULL);
     }
 ;
 
@@ -519,10 +520,12 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
+        fprintf(stdout, "criar tac expressao soma\n");
         $$->tac = criar_tac_expressao('+', $1->tac, $3->tac);
     }
     | expressao '-' expressao
     {
+        fprintf(stdout, "entrou exp menos\n");
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
