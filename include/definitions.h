@@ -47,6 +47,7 @@
 #define TAC_ATRIBUICAO 33
 #define TAC_JUMP_SE 37
 #define TAC_LOAD_VAL 34
+#define TAC_CBR 35
 
 #define INTERNO 1
 #define EXTERNO 0

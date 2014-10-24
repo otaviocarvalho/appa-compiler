@@ -65,6 +65,9 @@ void print_tac_item(comp_list_tac_t* tac){
         case TAC_LOAD_VAL:
             printf( "loadI %s => %s \n", tac->v3, tac->v1);
             break;
+        case TAC_CBR:
+            printf("cbr %s => %s, %s \n", tac->v1, tac->v2, tac->v3);
+            break;
         default:
             /*printf("default %d %s %s %s\n", tac->tipo, tac->v1, tac->v2, tac->v3);*/
             break;
@@ -240,16 +243,38 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     strcpy(rotulo_if, criar_label());
     strcpy(rotulo_continue, criar_label());
     
-    tac_jump = montar_tac(TAC_JUMP_SE, condicional->v1, rotulo_if, rotulo_continue);
-    tac_jump->tac_prev = condicional;
+    char reg1[100];
+    char reg2[100];
+    char reg3[100];
+    strcpy(reg1, criar_registrador());
+    strcpy(reg2, criar_registrador());
+    strcpy(reg3, criar_registrador());
     
-    tac_rotulo_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
-    tac_rotulo_if->tac_prev = tac_jump;
-    bloco_if->tac_prev = tac_rotulo_if;
+    comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
     
-    tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
-    tac_rotulo_continue->tac_prev = bloco_if;
 
-    conecta_tacs_irmaos(tac_jump);
-    return tac_rotulo_continue;
+    comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
+    
+    
+    comp_list_tac_t* tac_operacao = montar_tac(condicional->tipo, reg1, reg2, reg3);
+    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, reg3, rotulo_if, rotulo_continue);
+    
+    tac_load_val1->tac_prev = tac_load_val2;
+    tac_load_val2->tac_prev = tac_operacao;
+    tac_operacao->tac_prev = tac_branch;
+    tac_branch->tac_prev = bloco_if;
+    
+    
+//     tac_jump = montar_tac(TAC_JUMP_SE, condicional->v1, rotulo_if, rotulo_continue);
+//     tac_jump->tac_prev = condicional;
+//     
+//     tac_rotulo_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
+//     tac_rotulo_if->tac_prev = tac_jump;
+//     bloco_if->tac_prev = tac_rotulo_if;
+//     
+//     tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+//     tac_rotulo_continue->tac_prev = bloco_if;
+
+    conecta_tacs_irmaos(tac_load_val1);
+    return tac_load_val1;
 }
