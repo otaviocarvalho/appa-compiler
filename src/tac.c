@@ -17,14 +17,56 @@ void print_tac(comp_list_tac_t* raiz){
 
 void print_tac_item(comp_list_tac_t* tac){
     switch(tac->tipo){
+        case '+':
+            printf("add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '-':
+            printf("sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '/':
+            printf("div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '*':
+            printf("mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case UMINUS:
+            printf("sub 0, %s => %s\n", tac->v2, tac->v1);
+            break;
+        case TK_OC_LE:
+            printf("cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_GE:
+            printf("cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_EQ:
+            printf("cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_NE:
+            printf("cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_AND:
+            printf("and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case TK_OC_OR:
+            printf("or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '<':
+            printf("cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+        case '>':
+            printf("cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            break;
         case TAC_ATRIBUICAO:
             printf("store %s => %s\n", tac->v2, tac->v3);
             break;
         case TAC_LABEL:
             printf( "%s: \n", tac->v1);
             break;
+        case TAC_LOAD_VAL:
+            printf( "loadI %s => %s \n", tac->v3, tac->v1);
+            break;
         default:
-            printf("default\n");
+            /*printf("default %d %s %s %s\n", tac->tipo, tac->v1, tac->v2, tac->v3);*/
             break;
     }
 }
@@ -111,7 +153,13 @@ comp_list_tac_t *montar_tac(int tipo, char* valor1, char* valor2, char* valor3)
 comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_list_tac_t *tac2) {
     comp_list_tac_t *new_tac = criar_tac();
 
-    new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+    if (tac1 == NULL)
+        new_tac = montar_tac(operacao, criar_registrador(), "0", tac2->v1);
+    else if (tac2 == NULL)
+        new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, "0");
+    else
+        new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+
     if (tac1) {
         if (tac2) {
             new_tac->tac_prev = tac2;
@@ -162,7 +210,7 @@ comp_list_tac_t* criar_tac_funcao(char *id, comp_list_tac_t* tac_func) {
 
 // Preencher
 comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
-    fprintf(stdout, "entrou criar_tac_chamada_funcao\n");
+    /*fprintf(stdout, "entrou criar_tac_chamada_funcao\n");*/
     comp_list_tac_t* tac_new = criar_tac();
 
     return tac_new;
@@ -170,12 +218,18 @@ comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
 
 comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc) {
     comp_list_tac_t* tac_atr;
+    comp_list_tac_t* tac_load_val;
     char *desloc_str = (char *) malloc (100 * sizeof(char));
+
+    /*tac_load_val = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, dest);*/
+    /*tac_load_val->tac_prev = orig;*/
 
     sprintf(desloc_str,"%d",desloc);
     tac_atr = montar_tac(TAC_ATRIBUICAO, dest, orig->v1, desloc_str);
     tac_atr->tac_prev = orig;
+    /*tac_atr->tac_prev = tac_load_val;*/
 
+    /*conecta_tacs_irmaos(tac_atr);*/
     conecta_tacs_irmaos(tac_atr);
     return tac_atr;
 }
