@@ -62,8 +62,11 @@ void print_tac_item(comp_list_tac_t* tac){
         case TAC_LABEL:
             printf( "%s: \n", tac->v1);
             break;
+        case TAC_LOAD_VAL:
+            printf( "loadI %s => %s \n", tac->v3, tac->v1);
+            break;
         default:
-            printf("default %d %s %s %s\n", tac->tipo, tac->v1, tac->v2, tac->v3);
+            /*printf("default %d %s %s %s\n", tac->tipo, tac->v1, tac->v2, tac->v3);*/
             break;
     }
 }
@@ -207,7 +210,7 @@ comp_list_tac_t* criar_tac_funcao(char *id, comp_list_tac_t* tac_func) {
 
 // Preencher
 comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
-    fprintf(stdout, "entrou criar_tac_chamada_funcao\n");
+    /*fprintf(stdout, "entrou criar_tac_chamada_funcao\n");*/
     comp_list_tac_t* tac_new = criar_tac();
 
     return tac_new;
@@ -215,12 +218,18 @@ comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
 
 comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc) {
     comp_list_tac_t* tac_atr;
+    comp_list_tac_t* tac_load_val;
     char *desloc_str = (char *) malloc (100 * sizeof(char));
+
+    /*tac_load_val = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, dest);*/
+    /*tac_load_val->tac_prev = orig;*/
 
     sprintf(desloc_str,"%d",desloc);
     tac_atr = montar_tac(TAC_ATRIBUICAO, dest, orig->v1, desloc_str);
     tac_atr->tac_prev = orig;
+    /*tac_atr->tac_prev = tac_load_val;*/
 
+    /*conecta_tacs_irmaos(tac_atr);*/
     conecta_tacs_irmaos(tac_atr);
     return tac_atr;
 }

@@ -111,7 +111,7 @@ start:
      programa {
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
-        fprintf(stdout,"Deslocamento global: %d\n\n",deslocamento_global);
+        /*fprintf(stdout,"Deslocamento global: %d\n\n",deslocamento_global);*/
         print_tac($1->tac);
      }
 ;
@@ -127,7 +127,7 @@ programa:
 	   $$->tac = $1->tac;
 	}
 	
-        fprintf(stdout, "conecta_tacs global\n");
+        /*fprintf(stdout, "conecta_tacs global\n");*/
     }
     | func programa {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
@@ -137,7 +137,7 @@ programa:
             $$->tac = conecta_tacs($1->tac, $2->tac);
         else
             $$->tac = conecta_tacs($1->tac, NULL);
-        fprintf(stdout, "conecta_tacs func\n");
+        /*fprintf(stdout, "conecta_tacs func\n");*/
     }
     | /* %empty */ {
         $$ = NULL;
@@ -221,7 +221,9 @@ decl-parametro:
 ;
 
 func:
-    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo { fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); destroy_table(cur_dict_id--); }
+    tipo TK_IDENTIFICADOR '(' lista-parametros ')' { create_table(cur_dict_id++); } corpo {
+            /* fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); destroy_table(cur_dict_id--); */
+        }
     {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
 
@@ -235,7 +237,7 @@ func:
     | tipo TK_IDENTIFICADOR '(' ')' {
                                         hash_item_func = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_FUNCAO, 0);
                                         create_table(cur_dict_id++);
-                                    } corpo {  fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); destroy_table(cur_dict_id--); 
+                                    } corpo {  /*fprintf(stdout,"Deslocamento local: %d\n\n", symbol_table_cur->desloc); destroy_table(cur_dict_id--);*/ 
                                     }
     {
 
@@ -509,7 +511,7 @@ expressao:
         $$->tac = criar_tac_expressao('!', $2->tac, NULL);
     }
     | '-' expressao %prec UMINUS {
-        fprintf(stdout, "criar tac expressao uminus\n");
+        /*fprintf(stdout, "criar tac expressao uminus\n");*/
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
@@ -525,12 +527,12 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        fprintf(stdout, "criar tac expressao soma\n");
+        /*fprintf(stdout, "criar tac expressao soma\n");*/
         $$->tac = criar_tac_expressao('+', $1->tac, $3->tac);
     }
     | expressao '-' expressao
     {
-        fprintf(stdout, "entrou exp menos\n");
+        /*fprintf(stdout, "entrou exp menos\n");*/
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
@@ -637,7 +639,7 @@ atribuicao:
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
 
-        fprintf(stdout, "cria tac atribuicao\n");
+        /*fprintf(stdout, "cria tac atribuicao\n");*/
         $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc);
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
@@ -659,7 +661,7 @@ atribuicao:
         verifica_tipo_indexador($3);
         verifica_atribuicao($6,tipo);
 
-        fprintf(stdout, "cria tac atribuicao vetor\n");
+        /*fprintf(stdout, "cria tac atribuicao vetor\n");*/
         $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $6->tac, hash_item->desloc);
     }
 ;
@@ -700,7 +702,7 @@ literal:
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(hash_item->type_var, hash_item->key);
 
-        fprintf(stdout, "cria tac literal int\n");
+        /*fprintf(stdout, "cria tac literal int\n");*/
     }
     | TK_LIT_STRING {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING, USO_LITERAL, 0);
