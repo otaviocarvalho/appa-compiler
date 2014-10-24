@@ -179,3 +179,23 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     conecta_tacs_irmaos(tac_atr);
     return tac_atr;
 }
+
+comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloco_if){
+    char rotulo_if[100], rotulo_continue[100];
+    comp_list_tac_t *tac_jump, *tac_rotulo_if, *tac_rotulo_continue;
+    strcpy(rotulo_if, criar_label());
+    strcpy(rotulo_continue, criar_label());
+    
+    tac_jump = montar_tac(TAC_JUMP_SE, condicional->v1, rotulo_if, rotulo_continue);
+    tac_jump->tac_prev = condicional;
+    
+    tac_rotulo_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
+    tac_rotulo_if->tac_prev = tac_jump;
+    bloco_if->tac_prev = tac_rotulo_if;
+    
+    tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+    tac_rotulo_continue->tac_prev = bloco_if;
+
+    conecta_tacs_irmaos(tac_jump);
+    return tac_rotulo_continue;
+}
