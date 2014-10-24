@@ -219,17 +219,26 @@ comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
 comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc) {
     comp_list_tac_t* tac_atr;
     comp_list_tac_t* tac_load_val;
+    comp_list_tac_t* tac_load_desloc;
     char *desloc_str = (char *) malloc (100 * sizeof(char));
 
-    /*tac_load_val = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, dest);*/
-    /*tac_load_val->tac_prev = orig;*/
+    // Registrador para armazenar o valor a ser atribuído
+    tac_load_val = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, orig->v1);
+    tac_load_val->tac_prev = orig;
 
+    // Registrador para armazenar o deslocamento
     sprintf(desloc_str,"%d",desloc);
-    tac_atr = montar_tac(TAC_ATRIBUICAO, dest, orig->v1, desloc_str);
-    tac_atr->tac_prev = orig;
-    /*tac_atr->tac_prev = tac_load_val;*/
+    tac_load_desloc = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, desloc_str);
+    tac_load_desloc->tac_prev = tac_load_val;
 
-    /*conecta_tacs_irmaos(tac_atr);*/
+    tac_atr = montar_tac(TAC_ATRIBUICAO, dest, tac_load_val->v1, tac_load_desloc->v1);
+    tac_atr->tac_prev = tac_load_desloc;
+
+    // Conecta do último tac até o primeiro na ordem inversa
     conecta_tacs_irmaos(tac_atr);
-    return tac_atr;
+
+    // Imprime tacs na ordem da sequencia de execução
+    /*print_tac(tac_load_val);*/
+
+    return tac_load_val;
 }
