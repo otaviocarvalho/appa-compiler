@@ -232,7 +232,7 @@ comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
     return tac_new;
 }
 
-comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc) {
+comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc, int escopo) {
     comp_list_tac_t* tac_atr;
     comp_list_tac_t* tac_load_val;
     comp_list_tac_t* tac_load_desloc;
@@ -242,14 +242,19 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     tac_load_val = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, orig->v1);
     tac_load_val->tac_prev = orig;
 
-    // Registrador para armazenar o deslocamento
-    sprintf(desloc_str,"%d",desloc);
+	// Calcula o deslocamento com base no escopo da variável
+	if (escopo == INTERNO) {
+		sprintf(desloc_str,"%d",desloc);
+	}
+	else if (escopo == EXTERNO) {		
+		sprintf(desloc_str,"%d",deslocamento_global);
+	}
     tac_load_desloc = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, desloc_str);
     tac_load_desloc->tac_prev = tac_load_val;
 
-    tac_atr = montar_tac(TAC_ATRIBUICAO, dest, tac_load_val->v1, tac_load_desloc->v1);
-    tac_atr->tac_prev = tac_load_desloc;
-
+	tac_atr = montar_tac(TAC_ATRIBUICAO, dest, tac_load_val->v1, tac_load_desloc->v1);
+	tac_atr->tac_prev = tac_load_desloc;
+	
     // Conecta do último tac até o primeiro na ordem inversa
     conecta_tacs_irmaos(tac_atr);
 
