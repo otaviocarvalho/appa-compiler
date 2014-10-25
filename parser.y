@@ -413,6 +413,9 @@ comando:
     | '{' { create_table(cur_dict_id++); } sequencia '}' { destroy_table(cur_dict_id--); }
     {
         $$ = create_node(IKS_AST_BLOCO, NULL, $3, NULL);
+
+        $$->tac = criar_tac();
+	conecta_tacs($$->tac, $3->tac);
     }
     | '{' { create_table(cur_dict_id++); } '}' { destroy_table(cur_dict_id--); } {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL, NULL);
@@ -432,11 +435,14 @@ condicional:
     TK_PR_IF '(' expressao ')' TK_PR_THEN comando {
         $3->next_brother = $6;
         $$ = create_node(IKS_AST_IF_ELSE, NULL, $3, NULL);
+	$$->tac = cria_tac_if($3->tac, $6->tac);
     }
     | TK_PR_IF '(' expressao ')' TK_PR_THEN comando TK_PR_ELSE comando {
         $3->next_brother = $6;
         $6->next_brother = $8;
         $$ = create_node(IKS_AST_IF_ELSE, NULL, $3, NULL);
+
+	$$->tac = cria_tac_if_else($3->tac, $6->tac, $8->tac);
     }
     | TK_PR_IF '(' expressao ')' comando TK_PR_ELSE comando {
         $$ = NULL;
@@ -448,10 +454,13 @@ laco:
   while '(' expressao ')' do comando {
         $3->next_brother = $6;
         $$ = create_node(IKS_AST_WHILE_DO, NULL, $3, NULL);
+        $$->tac = cria_tac_while_do($3->tac, $6->tac);
   }
   | do comando while '(' expressao ')' {
         $2->next_brother = $5;
         $$ = create_node(IKS_AST_DO_WHILE, NULL, $2, NULL);
+	
+	$$->tac = cria_tac_do_while($5->tac, $2->tac);
 
   }
 ;

@@ -43,6 +43,7 @@ void print_tac(comp_list_tac_t*);
 void print_tac_item(comp_list_tac_t*);
 void conecta_tacs_irmaos(comp_list_tac_t*);
 comp_list_tac_t* conecta_tacs(comp_list_tac_t*, comp_list_tac_t*);
+void conecta_bloco_ultimo_com_proximo(comp_list_tac_t*, comp_list_tac_t*);
 char* criar_label();
 char* criar_registrador();
 
@@ -54,4 +55,6 @@ comp_list_tac_t* criar_tac_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_chamada_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_atribuicao(char*, comp_list_tac_t*, int);
 comp_list_tac_t *cria_tac_if(comp_list_tac_t*, comp_list_tac_t*);
-
+comp_list_tac_t *cria_tac_if_else(comp_list_tac_t*, comp_list_tac_t*, comp_list_tac_t*);
+comp_list_tac_t *cria_tac_do_while(comp_list_tac_t*, comp_list_tac_t*);
+comp_list_tac_t *cria_tac_while_do(comp_list_tac_t*, comp_list_tac_t*);
