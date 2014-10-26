@@ -111,7 +111,6 @@ start:
      programa {
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
-        /*fprintf(stdout,"Deslocamento global: %d\n\n",deslocamento_global);*/
         print_tac($1->tac);
      }
 ;
@@ -119,15 +118,13 @@ start:
 programa:
     decl-global programa {
         if ($2 != NULL){
-	    $$ = $2;
-            $$->tac = (comp_list_tac_t*)conecta_tacs($1->tac, $2->tac);
-	}
+			$$ = $2;
+			$$->tac = (comp_list_tac_t*)conecta_tacs($1->tac, $2->tac);
+		}
         else{
-	   $$ = create_empty_node();
-	   $$->tac = $1->tac;
-	}
-	
-        /*fprintf(stdout, "conecta_tacs global\n");*/
+			$$ = create_empty_node();
+			$$->tac = $1->tac;
+		}
     }
     | func programa {
         connect_nodes((comp_tree_t *)$1, (comp_tree_t *)$2);
@@ -137,7 +134,6 @@ programa:
             $$->tac = conecta_tacs($1->tac, $2->tac);
         else
             $$->tac = conecta_tacs($1->tac, NULL);
-        /*fprintf(stdout, "conecta_tacs func\n");*/
     }
     | /* %empty */ {
         $$ = NULL;
@@ -523,7 +519,6 @@ expressao:
         $$->tac = criar_tac_expressao('!', $2->tac, NULL);
     }
     | '-' expressao %prec UMINUS {
-        /*fprintf(stdout, "criar tac expressao uminus\n");*/
         comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
         connect_nodes(unario, $2);
         $$ = unario;
@@ -539,14 +534,10 @@ expressao-aritmetica:
         $$ = create_node(IKS_AST_ARIM_SOMA, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        /*fprintf(stdout, "criar tac expressao soma\n");*/
-        //fprintf(stdout, "%d %s %s %s\n", $1->tac->tipo, $1->tac->v1, $1->tac->v2, $1->tac->v3);
-        //fprintf(stdout, "%d %s %s %s\n", $3->tac->tipo, $3->tac->v1, $3->tac->v2, $3->tac->v3);        
         $$->tac = criar_tac_expressao('+', $1->tac, $3->tac);
     }
     | expressao '-' expressao
     {
-        /*fprintf(stdout, "entrou exp menos\n");*/
         $1->next_brother = $3;
         $$ = create_node(IKS_AST_ARIM_SUBTRACAO, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
@@ -641,7 +632,6 @@ expressao-logica:
 atribuicao:
     TK_IDENTIFICADOR '=' expressao
     {
-        //print_table(symbol_table_cur);
         //hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, -1);
         hash_item = verifica_uso_item(hash_function($1), USO_VARIAVEL, $1);
 
@@ -654,10 +644,7 @@ atribuicao:
 
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
-       
-        //fprintf(stdout, "aaa\n");
-        //print_tac($3->tac);
-        //fprintf(stdout, "bbb\n");        
+             
         $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc, hash_item->escopo);
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao
@@ -680,7 +667,6 @@ atribuicao:
         verifica_tipo_indexador($3);
         verifica_atribuicao($6,tipo);
 
-        /*fprintf(stdout, "cria tac atribuicao vetor\n");*/
         $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $6->tac, hash_item->desloc, hash_item->escopo);
     }
 ;
@@ -720,8 +706,6 @@ literal:
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
         $$->tac = criar_tac_literal(TK_LIT_INT, hash_item->type_var, hash_item->key, hash_item->escopo, -1);
-
-        /*fprintf(stdout, "cria tac literal int\n");*/
     }
     | TK_LIT_STRING {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING, USO_LITERAL, -1);

@@ -176,11 +176,6 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         if(definido == IDENTIFICADOR_NAO_DECLARADO){
             exit(IKS_ERROR_UNDECLARED);
         }
-        
-// 		comp_dict_item_t* item_uso = find_symbol_stack_scope(node->key);
-//         fprintf(stdout, "item uso encontrado %d\n", item_uso->desloc);		
-//         item_uso->line = line;
-//         return item_uso;
     }
 
     // Inicializa bucket com esse elemento se não encontrar nenhum
