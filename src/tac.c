@@ -60,19 +60,20 @@ void print_tac_item(comp_list_tac_t* tac){
             printf("store %s => %s\n", tac->v2, tac->v3);
             break;
         case TAC_LABEL:
-            printf( "%s: \n", tac->v1);
+            printf("%s: \n", tac->v1);
             break;
         case TAC_LOAD_VAL:
-            printf( "loadI %s => %s \n", tac->v3, tac->v1);
+            printf("loadI %s => %s \n", tac->v3, tac->v1);
             break;
         case TAC_LOAD:
-            printf( "load %s => %s \n", tac->v3, tac->v1);
+            printf("load %s => %s \n", tac->v3, tac->v1);
             break;			
         case TAC_CBR:
-            printf("cbr %s => %s, %s \n", tac->v1, tac->v2, tac->v3);
+            printf("cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
             break;
 		case TAC_JUMP_LABEL:
             printf("jumpI -> %s\n", tac->v1);
+			break;
 		case TAC_ADD_VAL:
             printf("addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;			
@@ -437,6 +438,17 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
 
 }
 
+comp_list_tac_t* criar_label_antes_ultimo_bloco(comp_list_tac_t* bloco, comp_list_tac_t* label){
+	comp_list_tac_t* aux = busca_bloco_ultimo(bloco);
+	
+	label->tac_prev = aux->tac_prev;
+	aux->tac_prev = label;
+	
+	conecta_tacs_irmaos(aux);
+
+	return bloco;
+}
+
 comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t* bloco_while){
     char rotulo_while[100];
     char rotulo_continue[100];
@@ -451,13 +463,23 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
     strcpy(reg1, criar_registrador());
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
-    
+	
+	comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
+	tac_rotulo_jump->tac_prev = condicional->tac_prev;
+	condicional->tac_prev = tac_rotulo_jump;
+	conecta_tacs_irmaos(condicional);
+	
+	//comp_list_tac_t* tac_aux_label = criar_label_antes_ultimo_bloco(condicional, tac_rotulo_jump);
 
+	//print_tac(busca_bloco_ultimo(tac_aux_label));
+	//print_tac(tac_rotulo_jump);
+	//fprintf(stdout, "lkajkldf\n");
+	
     //comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
     //comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
     comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
-    comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
     comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, (busca_bloco_ultimo(condicional))->v1, rotulo_while, rotulo_continue);
+	//comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, (busca_bloco_ultimo(tac_aux_label))->v1, rotulo_while, rotulo_continue);
     comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
     comp_list_tac_t* tac_jump_label = montar_tac(TAC_JUMP_LABEL, rotulo_jump, NULL, NULL);
 
@@ -465,7 +487,8 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
 
     //tac_rotulo_jump->tac_prev = tac_load_val2;
 
-    conecta_bloco_ultimo_com_proximo(condicional, tac_rotulo_jump);
+    conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+	conecta_tacs_irmaos(tac_branch);	
     
     //conecta_tacs_irmaos(tac_rotulo_jump);
     //print_tac(condicional);
@@ -473,7 +496,7 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
     
     //condicional->tac_prev = tac_rotulo_jump;
 
-    tac_branch->tac_prev = tac_rotulo_jump;
+    //tac_branch->tac_prev = busca_bloco_ultimo(tac_aux_label);
 
     tac_rotulo_while->tac_prev = tac_branch;
 
@@ -485,9 +508,10 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
 
     conecta_tacs_irmaos(tac_rotulo_continue);
     
-    print_tac(condicional);
-    getchar();
+    //print_tac(tac_jump_label);
+    //getchar();
 
     return condicional;
+	//return tac_aux_label;
 }
 
