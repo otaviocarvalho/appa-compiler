@@ -451,34 +451,43 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
     strcpy(reg1, criar_registrador());
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
+    
 
-
-    comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
-    comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
+    //comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
+    //comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
     comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
     comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, condicional->v1, rotulo_while, rotulo_continue);
+    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, (busca_bloco_ultimo(condicional))->v1, rotulo_while, rotulo_continue);
     comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
     comp_list_tac_t* tac_jump_label = montar_tac(TAC_JUMP_LABEL, rotulo_jump, NULL, NULL);
 
-    tac_load_val2->tac_prev = tac_load_val1;
+    //tac_load_val2->tac_prev = tac_load_val1;
 
-    tac_rotulo_jump->tac_prev = tac_load_val2;
+    //tac_rotulo_jump->tac_prev = tac_load_val2;
 
-    condicional->tac_prev = tac_rotulo_jump;
+    conecta_bloco_ultimo_com_proximo(condicional, tac_rotulo_jump);
+    
+    //conecta_tacs_irmaos(tac_rotulo_jump);
+    //print_tac(condicional);
+    //getchar(); 
+    
+    //condicional->tac_prev = tac_rotulo_jump;
 
-    tac_branch->tac_prev = condicional;
+    tac_branch->tac_prev = tac_rotulo_jump;
 
     tac_rotulo_while->tac_prev = tac_branch;
 
     bloco_while->tac_prev = tac_rotulo_while;
+    
     conecta_bloco_ultimo_com_proximo(bloco_while, tac_jump_label);
 
     tac_rotulo_continue->tac_prev = tac_jump_label;
 
     conecta_tacs_irmaos(tac_rotulo_continue);
+    
+    print_tac(condicional);
+    getchar();
 
-    return tac_load_val1;
-
+    return condicional;
 }
 
