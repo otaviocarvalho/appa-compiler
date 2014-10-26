@@ -219,6 +219,9 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int 
 	char *rbss = (char *) malloc (100 * sizeof(char));
     strcpy(rbss,"rbss");
 	
+	char *rarp = (char *) malloc (100 * sizeof(char));
+    strcpy(rarp,"rarp");
+	
 	char *desloc_str = (char *) malloc (100 * sizeof(char));
 
 	switch(tipo_literal){
@@ -233,9 +236,18 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int 
 			break;
 		case TK_IDENTIFICADOR:
 			if (escopo == INTERNO) {
+// 				sprintf(desloc_str,"%d",desloc);
+// 				new_tac = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, valor);
+// 				conecta_tacs_irmaos(new_tac);
 				sprintf(desloc_str,"%d",desloc);
-				new_tac = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, valor);
+				char* reg_desloc = criar_registrador();
+				tac_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, rarp, desloc_str);
+				new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, reg_desloc);
+				
+				new_tac->tac_prev = tac_desloc;
 				conecta_tacs_irmaos(new_tac);
+				
+				return tac_desloc;
 			}			
 			else if (escopo == EXTERNO) {
 				sprintf(desloc_str,"%d",desloc);
@@ -366,34 +378,31 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
     strcpy(reg3, criar_registrador());
 
     
-    comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);	
-    comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, condicional->v1, rotulo_if, rotulo_else);
+    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_else);
     comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
 
     comp_list_tac_t* tac_jump_continue = montar_tac(TAC_JUMP_LABEL, rotulo_continue, NULL, NULL);
     comp_list_tac_t* tac_label_else = montar_tac(TAC_LABEL, rotulo_else, NULL, NULL);
     comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
 
+	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+	
+	conecta_tacs_irmaos(tac_branch);
 
-    tac_load_val2->tac_prev = tac_load_val1;
-    condicional->tac_prev = tac_load_val2;
-    tac_branch->tac_prev = condicional;
-    tac_label_if->tac_prev = tac_branch;
+	tac_label_if->tac_prev = tac_branch;
+
     bloco_if->tac_prev = tac_label_if;
 
-	
-    conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
+	conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
 
-    tac_label_else->tac_prev = tac_jump_continue;
+ 	tac_label_else->tac_prev = tac_jump_continue;
+	bloco_else->tac_prev = tac_label_else;
 
-    bloco_else->tac_prev = tac_label_else;
+ 	conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
+    
+	conecta_tacs_irmaos(tac_label_continue);
 
-    conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
-
-    conecta_tacs_irmaos(tac_label_continue);
-
-    return tac_load_val1;
+    return condicional;
 }
 
 comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t* bloco_while){
