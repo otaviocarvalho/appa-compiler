@@ -76,7 +76,10 @@ void print_tac_item(comp_list_tac_t* tac){
 			break;
 		case TAC_ADD_VAL:
             printf("addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-            break;			
+            break;
+		case TAC_NOP:
+			printf("nop\n");
+			break;
 	    break;
         default:
             break;
@@ -345,18 +348,29 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
 
     comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+	
+	comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
 
 	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
 	
-	conecta_tacs_irmaos(tac_branch);
-	
+	conecta_tacs_irmaos(tac_branch);	
 	
 	tac_label_if->tac_prev = tac_branch;
 	
-	bloco_if->tac_prev = tac_label_if;
-	
-	conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
+	if(bloco_if != NULL){
 
+		bloco_if->tac_prev = tac_label_if;
+		
+		conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
+	}
+	else{
+		
+		tac_nop->tac_prev = tac_label_if;
+		
+		tac_label_continue->tac_prev = tac_nop;
+		
+	}
+	
     conecta_tacs_irmaos(tac_label_continue);
 
 	return condicional;	
@@ -419,16 +433,9 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
     strcpy(reg3, criar_registrador());
 
 
-    //comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
-    //comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
     comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
     comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_while, rotulo_continue);
     comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
-
-
-   // tac_load_val2->tac_prev = tac_load_val1;
-
-    //tac_rotulo_while->tac_prev = tac_load_val2;
 
     bloco_while->tac_prev = tac_rotulo_while;
 
@@ -436,8 +443,6 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
     
 	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
 	
-  //  tac_branch->tac_prev = condicional;
-
     tac_rotulo_continue->tac_prev = tac_branch;
 
     conecta_tacs_irmaos(tac_rotulo_continue);
