@@ -655,6 +655,9 @@ atribuicao:
         $$ = create_node(IKS_AST_ATRIBUICAO, NULL, node_identificador, NULL);
         verifica_atribuicao($3,tipo);
        
+        //fprintf(stdout, "aaa\n");
+        //print_tac($3->tac);
+        //fprintf(stdout, "bbb\n");        
         $$->tac = (comp_list_tac_t*) criar_tac_atribuicao($1, $3->tac, hash_item->desloc, hash_item->escopo);
     }
     | TK_IDENTIFICADOR '[' expressao ']' '=' expressao

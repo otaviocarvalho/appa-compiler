@@ -103,13 +103,15 @@ void conecta_bloco_ultimo_com_proximo(comp_list_tac_t* bloco_tac, comp_list_tac_
 }
 
 comp_list_tac_t* busca_bloco_ultimo(comp_list_tac_t* bloco){
+	if (bloco == NULL)
+		return NULL;
+	
 	comp_list_tac_t* tac_block_aux = bloco;
-    while (tac_block_aux != NULL){
-        if (tac_block_aux->tac_next == NULL){
-			return tac_block_aux;
-		}
+    while (tac_block_aux->tac_next != NULL){
 		tac_block_aux = tac_block_aux->tac_next;
     }
+    
+    return tac_block_aux;
 }
 
 comp_list_tac_t* conecta_tacs(comp_list_tac_t* tac1, comp_list_tac_t* tac2){
@@ -189,27 +191,37 @@ comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_l
         new_tac = montar_tac(operacao, criar_registrador(), "0", tac2->v1);
     else if (tac2 == NULL)
         new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, "0");
-    else
-        new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+    else {
+        //new_tac = montar_tac(operacao, criar_registrador(), tac1->v1, tac2->v1);
+		new_tac = montar_tac(operacao, criar_registrador(), busca_bloco_ultimo(tac1)->v1, busca_bloco_ultimo(tac2)->v1);
+	}
 	
  	//fprintf(stdout,"tac1 %d, %s, %s => %s\n",tac1->tipo, tac1->v2, tac1->v3, tac1->v1);
     //fprintf(stdout,"tac1 %d, %s, %s => %s\n",tac2->tipo, tac2->v2, tac2->v3, tac2->v1);
 	
     if (tac1 != NULL) {
-		//fprintf(stdout, "tac1 != NULL");
         if (tac2 != NULL) {
-            tac2->tac_prev = tac1;			
-            new_tac->tac_prev = tac2;
+            tac2->tac_prev = busca_bloco_ultimo(tac1);
+            new_tac->tac_prev = busca_bloco_ultimo(tac2);
 
 			conecta_tacs_irmaos(new_tac);
-			//print_tac(tac1);
-			//fprintf(stdout, "tac1 e tac2 != NULL");
         }
         else {
-			//fprintf(stdout, "tac1 != NULL e tac2 == NULL");
-            new_tac->tac_prev = tac1;
+            new_tac->tac_prev = busca_bloco_ultimo(tac1);
         }
     }
+
+//     if (tac1 != NULL) {
+//         if (tac2 != NULL) {
+//             tac2->tac_prev = tac1;
+//             new_tac->tac_prev = tac2;
+// 
+// 			conecta_tacs_irmaos(new_tac);
+//         }
+//         else {
+//             new_tac->tac_prev = tac1;
+//         }
+//     }
 	
 	//print_tac(tac1); getchar();
     return tac1;
@@ -234,12 +246,14 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int 
 		case TK_LIT_FALSE:
 		case TK_LIT_INT:
 		case TK_LIT_FLOAT:
+		    //fprintf(stdout, "literal int float ...\n");			
 			//loadI valor => rX
 			new_tac = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, valor);
 			conecta_tacs_irmaos(new_tac);
 			break;
 		case TK_IDENTIFICADOR:
 			if (escopo == INTERNO) {
+				//fprintf(stdout, "literal escopo interno\n");
 				sprintf(desloc_str,"%d",desloc);
 				new_tac = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, valor);
 				conecta_tacs_irmaos(new_tac);
@@ -254,11 +268,12 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int 
 				
 				new_tac->tac_prev = tac_desloc;
 				//conecta_tacs_irmaos(new_tac);	
-				conecta_tacs_irmaos(tac_desloc);
+				conecta_tacs_irmaos(new_tac);
 				
 				//fprintf(stdout, "bla\n");
 				//print_tac(tac_desloc);
-				//fprintf(stdout, "ble\n");		
+				//fprintf(stdout, "ble\n");
+				return tac_desloc;
 			}
 			break;
 	}
@@ -267,7 +282,6 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int 
 	//conecta_tacs_irmaos(new_tac);
 	
 	return new_tac;
-	//return tac_desloc;
 }
 
 comp_list_tac_t* criar_tac(){
@@ -316,6 +330,8 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     // Registrador para armazenar o valor a ser atribuído
     //tac_load_val = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, orig->v1);
     //tac_load_val->tac_prev = orig;
+	
+	//fprintf(stdout, "tac atrib %s %s %s\n", orig->v1, orig->v2, orig->v3);	
 
 	// Calcula o deslocamento com base no escopo da variável
 	if (escopo == INTERNO) {
@@ -331,7 +347,9 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
 	}
 	
 	//tac_atr = montar_tac(TAC_ATRIBUICAO, dest, tac_load_val->v1, tac_load_desloc->v1);
-	tac_atr = montar_tac(TAC_ATRIBUICAO, dest, (busca_bloco_ultimo(orig))->v1, tac_load_desloc->v1);
+	//fprintf(stdout, "tac atrib %s %s %s\n", orig->v1, orig->v2, orig->v3);	
+	//tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, tac_load_desloc->v1);
+	tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, tac_load_desloc->v1);
 	tac_atr->tac_prev = tac_load_desloc;
 	
     // Conecta do último tac até o primeiro na ordem inversa
