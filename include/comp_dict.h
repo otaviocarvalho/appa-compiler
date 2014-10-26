@@ -55,10 +55,11 @@ int init_dict(comp_dict_t*);
 int free_dict(comp_dict_t*);
 int hash_function(char*);
 comp_dict_item_t* find_symbol(comp_dict_t*, char*);
+comp_dict_item_t* find_symbol_stack_scope(char*);
 comp_dict_item_t* add_symbol(comp_dict_t*, char*, int, int, int, int, int);
 void* alloc_value_symbol(int, char*);
 int print_table(comp_dict_t*);
-char* str_entry(char*, char*, int, int, int ,void*, int);
+char* str_entry(char*, char*, int, int, int ,void*, int, int);
 int print_file_table(FILE*, comp_dict_t*);
 
 comp_dict_t* create_table(int);
@@ -68,4 +69,6 @@ comp_stack_dict_t* stack_dict_pop(comp_stack_dict_t*);
 void print_stack_dict(comp_stack_dict_t*);
 int verifica_se_existe(comp_dict_t*, char*, int, int, int);
 int verifica_uso(int, int, char*);
+comp_dict_item_t* verifica_uso_item(int, int, char*);
+
 #endif

@@ -46,13 +46,14 @@ void print_tac_item(comp_list_tac_t*);
 void conecta_tacs_irmaos(comp_list_tac_t*);
 comp_list_tac_t* conecta_tacs(comp_list_tac_t*, comp_list_tac_t*);
 void conecta_bloco_ultimo_com_proximo(comp_list_tac_t*, comp_list_tac_t*);
+comp_list_tac_t* busca_bloco_ultimo(comp_list_tac_t*);
 char* criar_label();
 char* criar_registrador();
 
 comp_list_tac_t* criar_tac();
 comp_list_tac_t* montar_tac(int, char*, char*, char*);
 comp_list_tac_t *criar_tac_expressao(int, comp_list_tac_t*, comp_list_tac_t*);
-comp_list_tac_t *criar_tac_literal(int, char*);
+comp_list_tac_t *criar_tac_literal(int, int, char*, int, int);
 comp_list_tac_t* criar_tac_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_chamada_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_atribuicao(char*, comp_list_tac_t*, int, int);

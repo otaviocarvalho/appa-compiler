@@ -111,8 +111,36 @@ comp_dict_item_t* find_symbol(comp_dict_t* cur_table, char* key){
     return NULL;
 }
 
+comp_dict_item_t* find_symbol_stack_scope(char* key){
+    int hash = hash_function(key);
+    comp_stack_dict_t* ptaux = stack_scope;
+
+    while(ptaux != NULL){
+        if ((ptaux->dict->entries[hash] == NULL)){
+            ptaux = ptaux->next;
+            continue;
+        }
+
+        if (strcmp(key,ptaux->dict->entries[hash]->key) == 0){
+            return ptaux->dict->entries[hash]->item;
+        }
+
+        comp_dict_node_t* current = ptaux->dict->entries[hash];
+        do {
+            if (strcmp(key,current->key) == 0){
+                return current->item;
+            }
+            current = current->next;
+        } while(current != NULL);
+
+        ptaux = ptaux->next;
+    }
+    return NULL;
+}
+
 // Adiciona um item a uma tabela existente
 comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int type, int type_var, int operador, int desloc){
+	
     // Aloca estruturas de dados para o novo nodo
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
@@ -123,7 +151,9 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
     node->next = NULL;
     node->item->line = line;
     node->item->type = convert_type_symbol(type);
-    node->item->desloc = desloc;
+	// Se não for uso, atualiza o deslocamento
+	if (desloc != -1)
+		node->item->desloc = desloc;
     node->item->type_var = type_var;
     node->item->operador = operador;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
@@ -146,6 +176,11 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
         if(definido == IDENTIFICADOR_NAO_DECLARADO){
             exit(IKS_ERROR_UNDECLARED);
         }
+        
+// 		comp_dict_item_t* item_uso = find_symbol_stack_scope(node->key);
+//         fprintf(stdout, "item uso encontrado %d\n", item_uso->desloc);		
+//         item_uso->line = line;
+//         return item_uso;
     }
 
     // Inicializa bucket com esse elemento se não encontrar nenhum
@@ -288,7 +323,8 @@ int print_file_table(FILE* out, comp_dict_t* table) {
 
             do {
                 str_entry(tmp_string, current->key, current->item->line, current->item->type,
-                        current->item->type_var, (void*)current->item->value, current->item->operador);
+                        current->item->type_var, (void*)current->item->value, 
+						  current->item->desloc, current->item->operador);
                 fprintf(out, "%s", tmp_string);
                 entry_count++;
                 current = current->next;
@@ -303,9 +339,9 @@ int print_table(comp_dict_t* table){
     return print_file_table(stdout, table);
 }
 
-char* str_entry(char* retbuffer, char* key, int line, int type, int type_var, void* value, int operador){
-     sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tType var: %d;\n\tValue: %s;\n\tOperador: %d;\n\n",
-             key, line, type, type_var, (char*)value, operador);
+char* str_entry(char* retbuffer, char* key, int line, int type, int type_var, void* value, int desloc, int operador){
+     sprintf(retbuffer, "ENTRY: %s;\n\tLine: %d;\n\tType: %d;\n\tType var: %d;\n\tValue: %s;\n\tDesloc: %d;\n\tOperador: %d;\n\n",
+             key, line, type, type_var, (char*)value, desloc, operador);
     return retbuffer;
 }
 
@@ -365,11 +401,6 @@ int verifica_uso(int hash, int operador, char* key){
             continue;
         }
 
-        // Tratar segfault
-        /*if (ptaux->dict->entries[hash]->item->value == NULL){*/
-            /*continue;*/
-        /*}*/
-
         if (ptaux->dict->entries[hash]->item != NULL && strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
             if ((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
                 || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
@@ -394,6 +425,60 @@ int verifica_uso(int hash, int operador, char* key){
                     || (current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
                     || (current->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
                         return IDENTIFICADOR_DECLARADO;
+                }
+                if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
+                    exit(IKS_ERROR_VARIABLE);
+                }
+                if ((current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador != USO_VETOR_INDEXADO)){
+                    exit(IKS_ERROR_VECTOR);
+                }
+                if ((current->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
+                    exit(IKS_ERROR_FUNCTION);
+                }
+            }
+            current = current->next;
+        } while(current != NULL);
+
+        ptaux = ptaux->next;
+    }
+
+    exit(IKS_ERROR_UNDECLARED);
+}
+
+comp_dict_item_t* verifica_uso_item(int hash, int operador, char* key){
+
+    comp_stack_dict_t* ptaux = stack_scope;
+
+    while(ptaux != NULL){
+        if ((ptaux->dict->entries[hash] == NULL)){
+            ptaux = ptaux->next;
+            continue;
+        }
+
+        if (ptaux->dict->entries[hash]->item != NULL && strcmp(key,ptaux->dict->entries[hash]->item->value) == 0){
+            if ((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
+                || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
+                || (ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
+                    return ptaux->dict->entries[hash]->item;
+            }
+            if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
+                exit(IKS_ERROR_VARIABLE);
+            }
+            if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador != USO_VETOR_INDEXADO)){
+                exit(IKS_ERROR_VECTOR);
+            }
+            if((ptaux->dict->entries[hash]->item->operador == DECLARACAO_FUNCAO) && (operador != USO_FUNCAO)){
+                exit(IKS_ERROR_FUNCTION);
+            }
+        }
+
+        comp_dict_node_t* current = ptaux->dict->entries[hash];
+        do {
+            if (strcmp(key,current->item->value) == 0){
+                if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador == USO_VARIAVEL)
+                    || (current->item->operador == DECLARACAO_VETOR_INDEXADO) && (operador == USO_VETOR_INDEXADO)
+                    || (current->item->operador == DECLARACAO_FUNCAO) && (operador == USO_FUNCAO)){
+                        return ptaux->dict->entries[hash]->item;
                 }
                 if ((current->item->operador == DECLARACAO_VARIAVEL) && (operador != USO_VARIAVEL)){
                     exit(IKS_ERROR_VARIABLE);
