@@ -145,6 +145,9 @@ programa:
 
 decl-global:
      tipo TK_IDENTIFICADOR ';' {
+     
+		
+		
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, deslocamento_global);
         hash_item->escopo = EXTERNO;
 
@@ -155,6 +158,9 @@ decl-global:
 
         node_aux->tac = (comp_list_tac_t*) criar_tac();
         $$->tac = (comp_list_tac_t*)criar_tac();
+        
+        //print_stack_dict(symbol_table_cur);
+        //frprintf(stdout,
     }
     | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, deslocamento_global);

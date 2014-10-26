@@ -39,7 +39,7 @@ typedef struct comp_list_tac_t {
     char v1[1000], v2[1000], v3[1000];
 } comp_list_tac_t;
 
-extern int deslocamento_global;
+//extern int deslocamento_global;
 
 void print_tac(comp_list_tac_t*);
 void print_tac_item(comp_list_tac_t*);
