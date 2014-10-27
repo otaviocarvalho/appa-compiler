@@ -61,3 +61,4 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_if_else(comp_list_tac_t*, comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_do_while(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_while_do(comp_list_tac_t*, comp_list_tac_t*);
+comp_list_tac_t* criar_tac_expressao_logica(int , comp_list_tac_t* , comp_list_tac_t*);

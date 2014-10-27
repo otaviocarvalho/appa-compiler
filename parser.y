@@ -624,7 +624,8 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_E, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac_expressao(TK_OC_AND, $1->tac, $3->tac);
+        //$$->tac = criar_tac_expressao(TK_OC_AND, $1->tac, $3->tac);
+        $$->tac = criar_tac_expressao_logica(TK_OC_AND, $1->tac, $3->tac);
     }
     | expressao TK_OC_OR expressao
     {
@@ -632,7 +633,8 @@ expressao-logica:
         $$ = create_node(IKS_AST_LOGICO_OU, NULL, $1, NULL);
         verifica_coersao_arvore($$, $1, $3);
 
-        $$->tac = criar_tac_expressao(TK_OC_OR, $1->tac, $3->tac);
+        //$$->tac = criar_tac_expressao(TK_OC_OR, $1->tac, $3->tac);
+        $$->tac = criar_tac_expressao_logica(TK_OC_OR, $1->tac, $3->tac);
     }
 ;
 
