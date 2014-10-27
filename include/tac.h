@@ -39,6 +39,11 @@ typedef struct comp_list_tac_t {
     char v1[1000], v2[1000], v3[1000];
 } comp_list_tac_t;
 
+typedef struct comp_list_tac_vector_t {
+    struct comp_list_tac_t* tac;
+    struct comp_list_tac_vector_t* next;
+} comp_list_tac_vector_t;
+
 //extern int deslocamento_global;
 
 void print_tac(comp_list_tac_t*);
@@ -53,11 +58,18 @@ char* criar_registrador();
 comp_list_tac_t* criar_tac();
 comp_list_tac_t* montar_tac(int, char*, char*, char*);
 comp_list_tac_t *criar_tac_expressao(int, comp_list_tac_t*, comp_list_tac_t*);
-comp_list_tac_t *criar_tac_literal(int, int, char*, int, int);
+comp_list_tac_t *criar_tac_literal(int, int, int, char*, int, int, comp_list_tac_vector_t*);
 comp_list_tac_t* criar_tac_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_chamada_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_atribuicao(char*, comp_list_tac_t*, int, int);
+comp_list_tac_t* criar_tac_atribuicao_vetor(char*, comp_list_tac_t*, comp_list_tac_vector_t*, int, int, int);
 comp_list_tac_t *cria_tac_if(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_if_else(comp_list_tac_t*, comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_do_while(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_while_do(comp_list_tac_t*, comp_list_tac_t*);
+
+comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t*, char*, int, int);
+
+comp_list_tac_vector_t* list_tac_concat(comp_list_tac_vector_t* list_a, comp_list_tac_vector_t* list_b);
+comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t*);
+int list_tac_count(comp_list_tac_vector_t*);

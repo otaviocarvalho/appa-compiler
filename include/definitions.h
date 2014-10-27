@@ -51,6 +51,7 @@
 #define TAC_JUMP_LABEL 36
 #define TAC_ADD_VAL 37
 #define TAC_LOAD 38
+#define TAC_MULT_VAL 39
 
 #define INTERNO 1
 #define EXTERNO 0

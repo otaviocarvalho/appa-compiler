@@ -67,7 +67,7 @@ void print_tac_item(comp_list_tac_t* tac){
             break;
         case TAC_LOAD:
             printf("load %s => %s \n", tac->v3, tac->v1);
-            break;			
+            break;
         case TAC_CBR:
             printf("cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
             break;
@@ -76,7 +76,11 @@ void print_tac_item(comp_list_tac_t* tac){
 			break;
 		case TAC_ADD_VAL:
             printf("addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-            break;			
+            break;
+        case TAC_MULT_VAL:
+            printf("multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+
 	    break;
         default:
             break;
@@ -105,12 +109,12 @@ void conecta_bloco_ultimo_com_proximo(comp_list_tac_t* bloco_tac, comp_list_tac_
 comp_list_tac_t* busca_bloco_ultimo(comp_list_tac_t* bloco){
 	if (bloco == NULL)
 		return NULL;
-	
+
 	comp_list_tac_t* tac_block_aux = bloco;
     while (tac_block_aux->tac_next != NULL){
 		tac_block_aux = tac_block_aux->tac_next;
     }
-    
+
     return tac_block_aux;
 }
 
@@ -186,7 +190,7 @@ comp_list_tac_t *montar_tac(int tipo, char* valor1, char* valor2, char* valor3)
 
 comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_list_tac_t *tac2) {
     comp_list_tac_t *new_tac = criar_tac();
-	
+
     if (tac1 == NULL)
         new_tac = montar_tac(operacao, criar_registrador(), "0", tac2->v1);
     else if (tac2 == NULL)
@@ -194,7 +198,7 @@ comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_l
     else {
 		new_tac = montar_tac(operacao, criar_registrador(), busca_bloco_ultimo(tac1)->v1, busca_bloco_ultimo(tac2)->v1);
 	}
-	
+
     if (tac1 != NULL) {
         if (tac2 != NULL) {
             tac2->tac_prev = busca_bloco_ultimo(tac1);
@@ -210,17 +214,25 @@ comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_l
     return tac1;
 }
 
-comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int escopo, int desloc)
+comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, int tamanho_tipo, char* valor, int escopo, int desloc, comp_list_tac_vector_t* lista_dimensoes)
 {
 	//fprintf(stdout, "%s\n", valor);
 	comp_list_tac_t *new_tac = criar_tac();
 	comp_list_tac_t *tac_desloc = criar_tac();
-	
+
 	// Cria referência para o rbss
-	char *rbss = (char *) malloc (100 * sizeof(char));
-    strcpy(rbss,"rbss");
-	
+	char *escopo_str = (char *) malloc (100 * sizeof(char));
+    if (escopo == EXTERNO) {
+        strcpy(escopo_str,"rbss");
+    }
+    else {
+        strcpy(escopo_str,"rarp");
+    }
+
 	char *desloc_str = (char *) malloc (100 * sizeof(char));
+	char *reg_mult_str = (char *) malloc (100 * sizeof(char));
+	char *tamanho_tipo_str = (char *) malloc (100 * sizeof(char));
+	char *reg_desloc = (char *) malloc (100 * sizeof(char));
 
 	switch(tipo_literal){
 		case TK_LIT_STRING:
@@ -233,25 +245,41 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, char* valor, int 
 			conecta_tacs_irmaos(new_tac);
 			break;
 		case TK_IDENTIFICADOR:
-			if (escopo == INTERNO) {
-				sprintf(desloc_str,"%d",desloc);
-				new_tac = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, valor);
-				conecta_tacs_irmaos(new_tac);
-			}			
-			else if (escopo == EXTERNO) {
-				sprintf(desloc_str,"%d",desloc);
-				char* reg_desloc = criar_registrador();
-				tac_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, rbss, desloc_str);
-				new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, reg_desloc);
-				
-				new_tac->tac_prev = tac_desloc;
-				conecta_tacs_irmaos(new_tac);
+            if (lista_dimensoes != NULL){
+                strcpy(reg_desloc, criar_registrador());
+                strcpy(reg_mult_str, criar_registrador());
 
-				return tac_desloc;
-			}
+                sprintf(desloc_str,"%d",desloc);
+                sprintf(tamanho_tipo_str,"%d",tamanho_tipo);
+
+                comp_list_tac_t* tac_mult_tipo_desloc = montar_tac(TAC_MULT_VAL, reg_mult_str, lista_dimensoes->tac->v1, tamanho_tipo_str);
+                comp_list_tac_t* tac_load_reg_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, tac_mult_tipo_desloc->v1, desloc_str);
+                tac_desloc = montar_tac('+', criar_registrador(), escopo_str, tac_load_reg_desloc->v1);
+                new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, tac_desloc->v1);
+
+                tac_mult_tipo_desloc->tac_prev = lista_dimensoes->tac;
+                tac_load_reg_desloc->tac_prev = tac_mult_tipo_desloc;
+                tac_desloc->tac_prev = tac_load_reg_desloc;
+                new_tac->tac_prev = tac_desloc;
+
+                conecta_tacs_irmaos(new_tac);
+
+                return lista_dimensoes->tac;
+            }
+            else {
+                sprintf(desloc_str,"%d",desloc);
+                char* reg_desloc = criar_registrador();
+                tac_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, escopo_str, desloc_str);
+                new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, reg_desloc);
+
+                new_tac->tac_prev = tac_desloc;
+                conecta_tacs_irmaos(new_tac);
+
+                return tac_desloc;
+            }
 			break;
 	}
-	
+
 	return new_tac;
 }
 
@@ -292,7 +320,7 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     comp_list_tac_t* tac_load_desloc = criar_tac();
     char *desloc_str = (char *) malloc (100 * sizeof(char));
 	char *rbss = (char *) malloc (100 * sizeof(char));
-		
+
 	strcpy(rbss, "rbss");
 	sprintf(desloc_str,"%d",desloc);
 
@@ -303,17 +331,108 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
 	}
 	else if (escopo == EXTERNO) {
 		tac_load_desloc = montar_tac(TAC_ADD_VAL, criar_registrador(), rbss, desloc_str);
-		
-		conecta_bloco_ultimo_com_proximo(orig, tac_load_desloc); 
+
+		conecta_bloco_ultimo_com_proximo(orig, tac_load_desloc);
 	}
-	
+
 	tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, tac_load_desloc->v1);
 	tac_atr->tac_prev = tac_load_desloc;
-	
+
     // Conecta do último tac até o primeiro na ordem inversa
     conecta_tacs_irmaos(tac_atr);
 
 	return orig;
+}
+
+comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t* lista_parametros, char* desloc, int tamanho_tipo, int escopo){
+    comp_list_tac_t* tac_soma_desloc = criar_tac();
+    comp_list_tac_t* tac_soma_desloc_aux = criar_tac();
+    comp_list_tac_t* tac_soma_desloc_escopo = criar_tac();
+
+    char *tamanho_str = (char *) malloc (100 * sizeof(char));
+    char *reg_escopo = (char *) malloc (100 * sizeof(char));
+    char *reg_mult_desloc_vetor = (char *) malloc (100 * sizeof(char));
+
+    sprintf(tamanho_str,"%d",tamanho_tipo);
+
+    if (escopo == EXTERNO){
+        strcpy(reg_escopo, "rbss");
+    }
+    else {
+        strcpy(reg_escopo, "rarp");
+    }
+
+    // Percorrer lista parametros somando deslocamentos
+/*    int criou_primeiro_tac = 0;*/
+    /*comp_list_tac_vector_t* aux = lista_parametros;*/
+    /*while (aux != NULL){*/
+        /*comp_list_tac_t* aux_bloco_ultimo = busca_bloco_ultimo(aux->tac);*/
+
+        /*if (!criou_primeiro_tac) {*/
+            /*tac_soma_desloc = montar_tac(TAC_ADD_VAL, criar_registrador(), aux_bloco_ultimo->v1, desloc);*/
+            /*criou_primeiro_tac = 1;*/
+        /*}*/
+        /*else {*/
+            /*tac_soma_desloc = montar_tac('+', criar_registrador(), aux_bloco_ultimo->v1, tac_soma_desloc->v1);*/
+        /*}*/
+
+        /*aux_bloco_ultimo->tac_prev = tac_soma_desloc;*/
+        /*conecta_tacs_irmaos(aux_bloco_ultimo);*/
+
+        /*aux = aux->next;*/
+    /*}*/
+
+    comp_list_tac_vector_t* aux = lista_parametros;
+    if (aux != NULL) {
+        comp_list_tac_t* aux_bloco_ultimo = busca_bloco_ultimo(aux->tac);
+
+        strcpy(reg_mult_desloc_vetor, criar_registrador());
+        tac_soma_desloc = montar_tac(TAC_MULT_VAL, reg_mult_desloc_vetor, aux_bloco_ultimo->v1, tamanho_str);
+
+        comp_list_tac_t* tac_soma_desloc_escopo = montar_tac('+', criar_registrador(), reg_escopo, tac_soma_desloc->v1);
+
+        tac_soma_desloc->tac_prev = aux_bloco_ultimo;
+        tac_soma_desloc_escopo->tac_prev = tac_soma_desloc;
+
+        conecta_tacs_irmaos(tac_soma_desloc_escopo);
+
+        // Define o TAC para o retorno do bloco de comandos criado
+        tac_soma_desloc = aux->tac;
+    }
+
+    return tac_soma_desloc;
+}
+
+comp_list_tac_t* criar_tac_atribuicao_vetor(char *dest, comp_list_tac_t* orig, comp_list_tac_vector_t* lista_parametros, int desloc, int tamanho_tipo, int escopo) {
+    comp_list_tac_t* tac_atr = criar_tac();
+    comp_list_tac_t* tac_load_val = criar_tac();
+    comp_list_tac_t* tac_load_desloc = criar_tac();
+    comp_list_tac_t* desloc_vetor = criar_tac();
+
+    char *desloc_str = (char *) malloc (100 * sizeof(char));
+    char *rbss = (char *) malloc (100 * sizeof(char));
+
+    strcpy(rbss, "rbss");
+    sprintf(desloc_str,"%d",desloc);
+
+    // Calcula o deslocamento com base no escopo da variável
+    if (escopo == INTERNO) {
+        tac_load_desloc = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, desloc_str);
+        tac_load_desloc->tac_prev = tac_load_val;
+    }
+    else if (escopo == EXTERNO) {
+        // Calcula deslocamento com relação ao vetor
+        desloc_vetor = calcula_tac_lista_param_desloc(lista_parametros, desloc_str, tamanho_tipo, escopo);
+        conecta_bloco_ultimo_com_proximo(orig, desloc_vetor);
+    }
+
+    tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, (busca_bloco_ultimo(desloc_vetor))->v1);
+    tac_atr->tac_prev = busca_bloco_ultimo(desloc_vetor);
+
+    // Conecta do último tac até o primeiro na ordem inversa
+    conecta_tacs_irmaos(tac_atr);
+
+    return orig;
 }
 
 comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloco_if){
@@ -321,7 +440,7 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     comp_list_tac_t *tac_jump, *tac_rotulo_if, *tac_rotulo_continue;
     strcpy(rotulo_if, criar_label());
     strcpy(rotulo_continue, criar_label());
-    
+
     char reg1[100];
     char reg2[100];
     char reg3[100];
@@ -329,13 +448,13 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
 
-    
+
     //comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
-	
+
     //comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
     //tac_load_val2->tac_prev = tac_load_val1;
 
-    
+
 
     comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_continue);
 
@@ -343,40 +462,40 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
 
     comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
 
-    
-	
-	
+
+
+
 	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
-	
+
 	conecta_tacs_irmaos(tac_branch);
-	
-	
+
+
 	tac_label_if->tac_prev = tac_branch;
-	
+
 	bloco_if->tac_prev = tac_label_if;
-	
+
 	//tac_branch->tac_prev = condicional;
-	
+
 	//condicional->tac_prev = tac_load_val2;
-	
+
 	conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
 
     conecta_tacs_irmaos(tac_label_continue);
 
     //return tac_load_val1;
-	return condicional;	
-	
+	return condicional;
+
 // 	comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
 // 	tac_rotulo_jump->tac_prev = condicional->tac_prev;
 // 	condicional->tac_prev = tac_rotulo_jump;
 // 	conecta_tacs_irmaos(condicional);
-// 	
+//
 // 	//comp_list_tac_t* tac_aux_label = criar_label_antes_ultimo_bloco(condicional, tac_rotulo_jump);
-// 
+//
 // 	//print_tac(busca_bloco_ultimo(tac_aux_label));
 // 	//print_tac(tac_rotulo_jump);
 // 	//fprintf(stdout, "lkajkldf\n");
-// 	
+//
 //     //comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
 //     //comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
 //     comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
@@ -384,35 +503,35 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
 // 	//comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, (busca_bloco_ultimo(tac_aux_label))->v1, rotulo_while, rotulo_continue);
 //     comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
 //     comp_list_tac_t* tac_jump_label = montar_tac(TAC_JUMP_LABEL, rotulo_jump, NULL, NULL);
-// 
+//
 //     //tac_load_val2->tac_prev = tac_load_val1;
-// 
+//
 //     //tac_rotulo_jump->tac_prev = tac_load_val2;
-// 
+//
 //     conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
-// 	conecta_tacs_irmaos(tac_branch);	
-//     
+// 	conecta_tacs_irmaos(tac_branch);
+//
 //     //conecta_tacs_irmaos(tac_rotulo_jump);
 //     //print_tac(condicional);
-//     //getchar(); 
-//     
+//     //getchar();
+//
 //     //condicional->tac_prev = tac_rotulo_jump;
-// 
+//
 //     //tac_branch->tac_prev = busca_bloco_ultimo(tac_aux_label);
-// 
+//
 //     //tac_rotulo_while->tac_prev = tac_branch;
-// 
+//
 //     bloco_while->tac_prev = tac_rotulo_while;
-//     
+//
 //     conecta_bloco_ultimo_com_proximo(bloco_while, tac_jump_label);
-// 
+//
 //     tac_rotulo_continue->tac_prev = tac_jump_label;
-// 
+//
 //     conecta_tacs_irmaos(tac_rotulo_continue);
-//     
+//
 //     //print_tac(tac_jump_label);
 //     //getchar();
-// 
+//
 //     return condicional;
 // 	//return tac_aux_label;
 }
@@ -423,7 +542,7 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
     strcpy(rotulo_if, criar_label());
     strcpy(rotulo_continue, criar_label());
     strcpy(rotulo_else, criar_label());
-    
+
     char reg1[100];
     char reg2[100];
     char reg3[100];
@@ -431,8 +550,8 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
 
-    
-    comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);	
+
+    comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
     comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
     comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, condicional->v1, rotulo_if, rotulo_else);
     comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
@@ -448,7 +567,7 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
     tac_label_if->tac_prev = tac_branch;
     bloco_if->tac_prev = tac_label_if;
 
-	
+
     conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
 
     tac_label_else->tac_prev = tac_jump_continue;
@@ -467,7 +586,7 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
     char rotulo_continue[100];
     strcpy(rotulo_while, criar_label());
     strcpy(rotulo_continue, criar_label());
-    
+
     char reg1[100];
     char reg2[100];
     char reg3[100];
@@ -490,7 +609,7 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
     bloco_while->tac_prev = tac_rotulo_while;
 
     conecta_bloco_ultimo_com_proximo(bloco_while, condicional);
-    
+
     tac_branch->tac_prev = condicional;
 
     tac_rotulo_continue->tac_prev = tac_branch;
@@ -503,10 +622,10 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
 
 comp_list_tac_t* criar_label_antes_ultimo_bloco(comp_list_tac_t* bloco, comp_list_tac_t* label){
 	comp_list_tac_t* aux = busca_bloco_ultimo(bloco);
-	
+
 	label->tac_prev = aux->tac_prev;
 	aux->tac_prev = label;
-	
+
 	conecta_tacs_irmaos(aux);
 
 	return bloco;
@@ -526,18 +645,18 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
     strcpy(reg1, criar_registrador());
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
-	
+
 	comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
 	tac_rotulo_jump->tac_prev = condicional->tac_prev;
 	condicional->tac_prev = tac_rotulo_jump;
 	conecta_tacs_irmaos(condicional);
-	
+
 	//comp_list_tac_t* tac_aux_label = criar_label_antes_ultimo_bloco(condicional, tac_rotulo_jump);
 
 	//print_tac(busca_bloco_ultimo(tac_aux_label));
 	//print_tac(tac_rotulo_jump);
 	//fprintf(stdout, "lkajkldf\n");
-	
+
     //comp_list_tac_t* tac_load_val1 = montar_tac(TAC_LOAD_VAL, reg1, NULL, condicional->v2);
     //comp_list_tac_t* tac_load_val2 = montar_tac(TAC_LOAD_VAL, reg2, NULL, condicional->v3);
     comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
@@ -551,34 +670,34 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
     //tac_rotulo_jump->tac_prev = tac_load_val2;
 
     conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
-	conecta_tacs_irmaos(tac_branch);	
-    
+	conecta_tacs_irmaos(tac_branch);
+
     //conecta_tacs_irmaos(tac_rotulo_jump);
     //print_tac(condicional);
-    //getchar(); 
-    
+    //getchar();
+
     //condicional->tac_prev = tac_rotulo_jump;
 
     //tac_branch->tac_prev = busca_bloco_ultimo(tac_aux_label);
 
     tac_rotulo_while->tac_prev = tac_branch;
-	
+
 	if(bloco_while != NULL){
 
 		bloco_while->tac_prev = tac_rotulo_while;
-		
+
 		conecta_bloco_ultimo_com_proximo(bloco_while, tac_jump_label);
 	}
 	else{
 		tac_jump_label->tac_prev = tac_rotulo_while;
 	}
-	
-	
+
+
 	tac_rotulo_continue->tac_prev = tac_jump_label;
-	
-    
+
+
     conecta_tacs_irmaos(tac_rotulo_continue);
-    
+
     //print_tac(tac_jump_label);
     //getchar();
 
@@ -586,3 +705,33 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
 	//return tac_aux_label;
 }
 
+int list_tac_count(comp_list_tac_vector_t* list_args){
+    int count = 0;
+    comp_list_tac_vector_t* aux = list_args;
+    while (aux != NULL){
+        count++;
+        aux = aux->next;
+    }
+
+    return count;
+}
+
+comp_list_tac_vector_t* list_tac_concat(comp_list_tac_vector_t* list_a, comp_list_tac_vector_t* list_b){
+    comp_list_tac_vector_t* list_aux = list_a;
+    while (list_aux != NULL){
+        if (list_aux->next == NULL){
+            list_a->next = list_b;
+        }
+        list_aux = list_aux->next;
+    }
+
+    return list_a;
+}
+
+comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t* tac){
+    comp_list_tac_vector_t* new_list = malloc(sizeof(comp_list_tac_vector_t));
+    new_list->tac = tac;
+    new_list->next = NULL;
+
+    return new_list;
+}

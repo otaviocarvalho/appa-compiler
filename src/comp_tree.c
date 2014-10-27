@@ -20,11 +20,11 @@ comp_tree_t* create_node(int type, char* lex, comp_tree_t* node, comp_dict_item_
     new_node->lex = lex;
     new_node->children = node;
 
-    aux = node;
-    while (aux != NULL){
+    /*aux = node;*/
+    /*while (aux != NULL){*/
         /*gv_connect(new_node, aux);*/
-        aux = aux->next_brother;
-    }
+        /*aux = aux->next_brother;*/
+    /*}*/
 
     return new_node;
 }
@@ -794,11 +794,11 @@ comp_list_t* list_create_item(comp_dict_item_t* item){
 int calcula_dimensao_arranjo(comp_list_t* lista){
     comp_list_t* aux_lista = lista;
     int dimensao = 1;
-    
+
     while(aux_lista != NULL){
       dimensao *= atoi(aux_lista->item->key);
       aux_lista = aux_lista->next;
     }
-    
+
     return dimensao;
 }
