@@ -93,6 +93,7 @@ comp_dict_item_t* hash_item_func = NULL;
 %type<node> do
 %type<node> while
 %type<node> return
+%type<node> expressao-parametro-chamada-funcao
 
 %left TK_OC_OR
 %left TK_OC_AND
@@ -284,10 +285,10 @@ chamada-funcao:
 ;
 
 lista-argumentos:
-    expressao {
+    expressao-parametro-chamada-funcao {
         $$ = list_create_item($1->hash);
     }
-    | expressao ',' lista-argumentos
+    | expressao-parametro-chamada-funcao ',' lista-argumentos
     {
         $$ = list_concat(list_create_item($1->hash), $3);
     }
@@ -746,5 +747,56 @@ return:
         $$ = create_node(IKS_AST_RETURN, NULL, $2, hash_item);
     }
 ;
+
+expressao-parametro-chamada-funcao:
+    TK_IDENTIFICADOR {
+        hash_item = verifica_uso_item(hash_function($1), USO_VARIAVEL, $1);
+        //hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, -1);
+        $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
+
+        $$->tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, hash_item->key, hash_item->escopo, hash_item->desloc);
+    }
+    | literal {
+        $$ = $1;
+    }
+    | chamada-funcao {
+        $$ = $1;
+    }
+    | '(' expressao ')' {
+        $$ = $2;
+    }
+    | expressao-aritmetica {
+        $$ = $1;
+    }
+    | expressao-logica {
+        $$ = $1;
+    }
+    | '!' expressao {
+        comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "!", NULL, NULL);
+        connect_nodes(unario, $2);
+        $$ = unario;
+
+        $$->tac = criar_tac_expressao('!', $2->tac, NULL);
+    }
+    | '-' expressao %prec UMINUS {
+        comp_tree_t* unario = create_node(IKS_AST_IDENTIFICADOR, "-", NULL, NULL);
+        connect_nodes(unario, $2);
+        $$ = unario;
+
+        $$->tac = criar_tac_expressao(UMINUS, $2->tac, NULL);
+    }
+
+;
+
+/*lista-expressao-parametro-chamada-funcao:
+	expressao-parametro-chamada-funcao {
+		$$ = $1;	
+	}
+	|expressao-parametro-chamada-funcao ',' lista-expressao-parametro-chamada-funcao{
+		connect_nodes($1, $3);
+        $$ = $1;
+	}
+;*/
+
 
 %%
