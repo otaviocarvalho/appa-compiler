@@ -394,6 +394,8 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
     
     comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_else);
     comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
+	comp_list_tac_t* tac_nop_if = montar_tac(TAC_NOP, NULL, NULL, NULL);
+	comp_list_tac_t* tac_nop_else = montar_tac(TAC_NOP, NULL, NULL, NULL);
 
     comp_list_tac_t* tac_jump_continue = montar_tac(TAC_JUMP_LABEL, rotulo_continue, NULL, NULL);
     comp_list_tac_t* tac_label_else = montar_tac(TAC_LABEL, rotulo_else, NULL, NULL);
@@ -405,14 +407,27 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
 
 	tac_label_if->tac_prev = tac_branch;
 
-    bloco_if->tac_prev = tac_label_if;
+   	if(bloco_if != NULL){
+		bloco_if->tac_prev = tac_label_if;
+		conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
+	}
+	else{
+		tac_nop_if->tac_prev = tac_label_if;
+		tac_jump_continue->tac_prev = tac_nop_if;
+	}	
 
-	conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
+	 	tac_label_else->tac_prev = tac_jump_continue;
+	
+	if(bloco_else != NULL){
+		bloco_else->tac_prev = tac_label_else;
+		conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
+	}
+	else{
+		tac_nop_else->tac_prev = tac_label_else;
+		tac_label_continue->tac_prev = tac_nop_else;
+	}
 
- 	tac_label_else->tac_prev = tac_jump_continue;
-	bloco_else->tac_prev = tac_label_else;
-
- 	conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
+ 	//conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
     
 	conecta_tacs_irmaos(tac_label_continue);
 
