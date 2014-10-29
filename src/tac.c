@@ -1,5 +1,7 @@
 #include "tac.h"
 
+comp_list_tac_t* tac_label_prox;
+
 int registrador_atual = 0;
 int label_atual = 0;
 
@@ -480,38 +482,45 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     strcpy(reg1, criar_registrador());
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
-
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_continue);
-
-    comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
-
-    comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
-
-
-	comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
-
-	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
-
-	conecta_tacs_irmaos(tac_branch);
-
-	tac_label_if->tac_prev = tac_branch;
-
-	if(bloco_if != NULL){
-
-		bloco_if->tac_prev = tac_label_if;
-
-		conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
+	
+	if(tac_label_prox != NULL){
+		
+		bloco_if->tac_prev = condicional;
+		conecta_bloco_ultimo_com_proximo(condicional,bloco_if);
+		conecta_bloco_ultimo_com_proximo(bloco_if,tac_label_prox);		
+		conecta_tacs_irmaos(tac_label_prox);
 	}
 	else{
+		comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_continue);
 
-		tac_nop->tac_prev = tac_label_if;
+		comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
 
-		tac_label_continue->tac_prev = tac_nop;
+		comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
 
+
+		comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
+
+		conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+
+		conecta_tacs_irmaos(tac_branch);
+
+		tac_label_if->tac_prev = tac_branch;
+
+		if(bloco_if != NULL){
+
+			bloco_if->tac_prev = tac_label_if;
+
+			conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
+		}
+		else{
+
+			tac_nop->tac_prev = tac_label_if;
+
+			tac_label_continue->tac_prev = tac_nop;
+
+		}
+		conecta_tacs_irmaos(tac_label_continue);
 	}
-
-    conecta_tacs_irmaos(tac_label_continue);
-
 	return condicional;
 
 }
@@ -704,11 +713,9 @@ comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t* tac){
 }
 
 comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1, comp_list_tac_t* tac2){
+	char label0[100]; strcpy(label0, criar_label());
 	char label1[100]; strcpy(label1, criar_label());
 	char label2[100]; strcpy(label2, criar_label());
-
-	comp_list_tac_t* tac_label_1 =  montar_tac(TAC_LABEL, label1, NULL, NULL);
-	comp_list_tac_t* tac_label_2 =  montar_tac(TAC_LABEL, label2, NULL, NULL);
 
 	if(operacao == TK_OC_AND){
 			if(strcmp(tac1->v1,"0")==0){
@@ -720,25 +727,25 @@ comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1,
 			}
 	}
 	else if(operacao == TK_OC_OR){
-		comp_list_tac_t* tac_brench = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label1, label2);
-		comp_list_tac_t* tac_or = montar_tac(TK_OC_OR, criar_registrador(), tac1->v1, tac2->v1);
-		conecta_bloco_ultimo_com_proximo(tac1,tac_brench);
-		tac_label_1->tac_prev = tac_brench;
+		comp_list_tac_t* tac_brench1 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label0, label1);
+		comp_list_tac_t* tac_brench2 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac2)->v1, label0, label2);
+		comp_list_tac_t* tac_label_0 =  montar_tac(TAC_LABEL, label0, NULL, NULL);
+		comp_list_tac_t* tac_label_1 =  montar_tac(TAC_LABEL, label1, NULL, NULL);
+		
+		conecta_bloco_ultimo_com_proximo(tac1, tac_brench1);
+		
+		tac_label_1->tac_prev = tac_brench1;
+		
 		tac2->tac_prev = tac_label_1;
-		conecta_bloco_ultimo_com_proximo(tac_label_2,tac2);
-		conecta_tacs_irmaos(tac_label_2);
+		
+		conecta_bloco_ultimo_com_proximo(tac2, tac_brench2);
+		
+		conecta_bloco_ultimo_com_proximo(tac_brench2, tac_label_0);
+		
+		conecta_tacs_irmaos(tac_label_0);		
+		
+		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
+		
 		return tac1;
-
-// 		if(strcmp(tac1->v1,"1")==0){
-//
-// 			conecta_bloco_ultimo_com_proximo(tac1, tac_or);
-// 		}
-// 		else{
-// 			conecta_bloco_ultimo_com_proximo(tac1,tac2);
-// 			comp_list_tac_t* tac_or = montar_tac(TK_OC_OR, criar_registrador(), tac1->v1, tac2->v1);
-// 			conecta_bloco_ultimo_com_proximo(tac2,tac_or);
-// 		}
-// 		conecta_tacs_irmaos(tac_or);
-// 		return tac1;
 	}
 }
