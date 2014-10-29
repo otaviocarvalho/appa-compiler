@@ -25,8 +25,8 @@ comp_dict_item_t* hash_item;
 comp_dict_item_t* hash_item_func = NULL;
 %}
 
-//%define parse.error verbose
-//%define parse.trace
+%define parse.error verbose
+%define parse.trace
 
 %union {
     char* symbol_name;
@@ -148,39 +148,37 @@ programa:
 
 decl-global:
      tipo TK_IDENTIFICADOR ';' {
-     
-		
-		
+
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VARIAVEL, deslocamento_global);
         hash_item->escopo = EXTERNO;
 
         comp_tree_t* node_aux = create_empty_node();
         $$ = node_aux;
 
-        deslocamento_global += tamanho_tipo(hash_item->type_var);        
+        deslocamento_global += tamanho_tipo(hash_item->type_var);
 
         node_aux->tac = (comp_list_tac_t*) criar_tac();
         $$->tac = (comp_list_tac_t*)criar_tac();
-        
-        //print_stack_dict(symbol_table_cur);
-        //frprintf(stdout,
     }
-    | tipo TK_IDENTIFICADOR '[' expressao ']' ';' {
+    | tipo TK_IDENTIFICADOR '[' lista-expressao-vetor ']' ';' {
         hash_item = add_symbol(symbol_table_cur, $2, cur_line, TK_IDENTIFICADOR, $1, DECLARACAO_VETOR_INDEXADO, deslocamento_global);
         hash_item->escopo = EXTERNO;
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $2, NULL, hash_item);
-        node_identificador->next_brother = $4;
+        /*node_identificador->next_brother = $4;*/
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
-        int operador = encontra_operador($4->hash->key);
-        int tamanho;
-        if(operador = USO_LITERAL){
-            int tamanho_vetor = atoi($4->hash->key);
-            tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);
-        }
+
+        /*int operador = encontra_operador($4->hash->key);*/
+        /*int tamanho;*/
+        /*if(operador = USO_LITERAL){*/
+            /*int tamanho_vetor = atoi($4->hash->key);*/
+            /*tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);*/
+        /*}*/
+
+        int dimensao = calcula_dimensao_arranjo((comp_list_t*)$4);
+        int tamanho = dimensao * tamanho_tipo(hash_item->type_var);
 
         deslocamento_global += tamanho;
-
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -282,37 +280,6 @@ chamada-funcao:
         verifica_argumentos($$, $1, $3);
 
         $$->tac = (comp_list_tac_t*) criar_tac_chamada_funcao($1, NULL);
-    }
-;
-
-lista-argumentos:
-    expressao-parametro-chamada-funcao {
-        $$ = list_create_item($1->hash);
-    }
-    | expressao-parametro-chamada-funcao ',' lista-argumentos
-    {
-        $$ = list_concat(list_create_item($1->hash), $3);
-    }
-;
-
-lista-parametros:
-    decl-parametro {
-        $$ = $1;
-    }
-    | decl-parametro ',' lista-parametros
-    {
-        $$ = list_concat($1, $3);
-    }
-;
-
-lista-expressao-vetor:
-    expressao {
-        $$ = list_create_item($1->hash);
-    }
-    | expressao ',' lista-expressao-vetor
-    {
-        /*connect_nodes($1, $3);*/
-        $$ = list_concat(list_create_item($1->hash), $3);
     }
 ;
 
@@ -683,27 +650,6 @@ atribuicao:
     }
 ;
 
-lista-expressao-dimensoes-vetor:
-    expressao {
-        $$ = list_tac_create_item($1->tac);
-    }
-    | expressao ',' lista-expressao-dimensoes-vetor
-    {
-        $$ = list_tac_concat(list_tac_create_item($1->tac), $3);
-    }
-;
-
-lista-expressao:
-    expressao {
-        $$ = $1;
-    }
-    | expressao ',' lista-expressao
-    {
-        connect_nodes($1, $3);
-        $$ = $1;
-    }
-;
-
 literal:
     TK_LIT_CHAR {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_CHAR, USO_LITERAL, -1);
@@ -813,5 +759,64 @@ expressao-parametro-chamada-funcao:
 	}
 ;*/
 
+lista-argumentos:
+    expressao-parametro-chamada-funcao {
+        $$ = list_create_item($1->hash);
+    }
+    | expressao-parametro-chamada-funcao ',' lista-argumentos
+    {
+        $$ = list_concat(list_create_item($1->hash), $3);
+    }
+;
+
+lista-expressao:
+    expressao {
+        $$ = $1;
+    }
+    | expressao ',' lista-expressao
+    {
+        connect_nodes($1, $3);
+        $$ = $1;
+    }
+;
+
+
+lista-parametros:
+    decl-parametro {
+        $$ = $1;
+    }
+    | decl-parametro ',' lista-parametros
+    {
+        $$ = list_concat($1, $3);
+    }
+;
+
+lista-expressao-vetor:
+    /*expressao {*/
+        /*$$ = list_create_item($1->hash);*/
+    /*}*/
+    TK_LIT_INT {
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL, -1);
+
+        $$ = list_create_item(hash_item);
+    }
+    | TK_LIT_INT ',' lista-expressao-vetor
+    {
+        hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL, -1);
+
+        /*$$ = list_concat(list_create_item($1->hash), $3);*/
+        $$ = list_concat(list_create_item(hash_item), $3);
+    }
+;
+
+lista-expressao-dimensoes-vetor:
+    expressao {
+        $$ = list_tac_create_item($1->tac);
+    }
+    | expressao ',' lista-expressao-dimensoes-vetor
+    {
+        $$ = list_tac_concat(list_tac_create_item($1->tac), $3);
+    }
+;
 
 %%
