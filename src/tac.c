@@ -716,15 +716,32 @@ comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1,
 	char label0[100]; strcpy(label0, criar_label());
 	char label1[100]; strcpy(label1, criar_label());
 	char label2[100]; strcpy(label2, criar_label());
+	
+	tac_label_prox = criar_tac();
 
 	if(operacao == TK_OC_AND){
-			if(strcmp(tac1->v1,"0")==0){
-				return tac1;
-			}
-			else{
-				comp_list_tac_t* tac_and = montar_tac(TK_OC_AND, criar_registrador(), tac1->v1, tac2->v1);
-				return tac_and;
-			}
+		
+		comp_list_tac_t* tac_brench1 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label0, label2);
+		comp_list_tac_t* tac_brench2 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac2)->v1, label1, label2);
+		comp_list_tac_t* tac_label_0 =  montar_tac(TAC_LABEL, label0, NULL, NULL);
+		comp_list_tac_t* tac_label_1 =  montar_tac(TAC_LABEL, label1, NULL, NULL);
+		
+		conecta_bloco_ultimo_com_proximo(tac1, tac_brench1);
+		
+		tac_label_0->tac_prev = tac_brench1;
+		
+		tac2->tac_prev = tac_label_0;
+		
+		conecta_bloco_ultimo_com_proximo(tac2, tac_brench2);
+		
+		conecta_bloco_ultimo_com_proximo(tac_brench2, tac_label_1);
+		
+		conecta_tacs_irmaos(tac_label_1);		
+		
+		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
+		
+		return tac1;
+		
 	}
 	else if(operacao == TK_OC_OR){
 		comp_list_tac_t* tac_brench1 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label0, label1);
@@ -742,7 +759,7 @@ comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1,
 		
 		conecta_bloco_ultimo_com_proximo(tac_brench2, tac_label_0);
 		
-		conecta_tacs_irmaos(tac_label_0);		
+		conecta_tacs_irmaos(tac_label_0);	
 		
 		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
 		
