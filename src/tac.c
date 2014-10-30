@@ -1,6 +1,7 @@
 #include "tac.h"
 
 comp_list_tac_t* tac_label_prox;
+int curto_circuito = OFF;
 
 int registrador_atual = 0;
 int label_atual = 0;
@@ -483,12 +484,14 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
 	
-	if(tac_label_prox != NULL){
+	if(curto_circuito == ON){
 		
 		bloco_if->tac_prev = condicional;
 		conecta_bloco_ultimo_com_proximo(condicional,bloco_if);
 		conecta_bloco_ultimo_com_proximo(bloco_if,tac_label_prox);		
 		conecta_tacs_irmaos(tac_label_prox);
+		
+		curto_circuito = OFF;
 	}
 	else{
 		comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_continue);
@@ -740,6 +743,8 @@ comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1,
 		
 		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
 		
+		curto_circuito = ON;
+		
 		return tac1;
 		
 	}
@@ -762,6 +767,8 @@ comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1,
 		conecta_tacs_irmaos(tac_label_0);	
 		
 		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
+		
+		curto_circuito = ON;
 		
 		return tac1;
 	}
