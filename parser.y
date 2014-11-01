@@ -70,14 +70,11 @@ comp_dict_item_t* hash_item_func = NULL;
 %type<node> programa
 %type<node> decl-global
 %type<node> decl-local
-%type<symbol_list> decl-parametro
 %type<node> func
 %type<node> chamada-funcao
-%type<symbol_list> lista-argumentos
 %type<node> corpo
 %type<node> bloco-comando
 %type<node> sequencia
-%type<symbol_list> lista-parametros
 %type<symbol_val> tipo
 %type<node> comando
 %type<node> condicional
@@ -89,7 +86,10 @@ comp_dict_item_t* hash_item_func = NULL;
 %type<node> expressao-logica
 %type<node> atribuicao
 %type<node> lista-expressao
-%type<symbol_list> lista-expressao-vetor
+%type<symbol_list> decl-parametro
+%type<symbol_list> lista-argumentos
+%type<symbol_tac_list> lista-expressao-vetor
+%type<symbol_list> lista-parametros
 %type<symbol_tac_list> lista-expressao-dimensoes-vetor
 %type<node> literal
 %type<node> do
@@ -122,7 +122,8 @@ programa:
     decl-global programa {
         if ($2 != NULL){
 			$$ = $2;
-			$$->tac = (comp_list_tac_t*)conecta_tacs($1->tac, $2->tac);
+
+			$$->tac = conecta_tacs($1->tac, $2->tac);
 		}
         else{
 			$$ = create_empty_node();
@@ -175,10 +176,16 @@ decl-global:
             /*tamanho = tamanho_vetor * tamanho_tipo(hash_item->type_var);*/
         /*}*/
 
-        int dimensao = calcula_dimensao_arranjo((comp_list_t*)$4);
+        hash_item->list_args_vector = $4;
+        /*$$->list_args = $4;*/
+        /*hash_item->list_args = $4;*/
+        /*hash_item->count_args = list_count($4);*/
+
+        int dimensao = calcula_dimensao_arranjo($4);
         int tamanho = dimensao * tamanho_tipo(hash_item->type_var);
 
         deslocamento_global += tamanho;
+        $$->tac = $4->tac;
     }
     | laco { yyerror("Não são permitidos laços fora do escopo de função"); }
     | condicional { yyerror("Não são permitidas expressões condicionais fora do escopo de função"); }
@@ -207,11 +214,17 @@ decl-local:
         /*node_identificador->next_brother = $4;*/
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
 
-        int dimensao = calcula_dimensao_arranjo((comp_list_t*)$4);
+        hash_item->list_args_vector = $4;
+        /*$$->list_args = $4;*/
+        /*hash_item->list_args = $4;*/
+        /*hash_item->count_args = list_count($4);*/
 
+        int dimensao = calcula_dimensao_arranjo($4);
         int tamanho = dimensao * tamanho_tipo(hash_item->type_var);
 
         symbol_table_cur->desloc += tamanho;
+
+        $$->tac = $4->tac;
     }
 ;
 
@@ -387,7 +400,7 @@ comando:
         $$ = create_node(IKS_AST_BLOCO, NULL, $3, NULL);
 
         $$->tac = criar_tac();
-	conecta_tacs($$->tac, $3->tac);
+        conecta_tacs($$->tac, $3->tac);
     }
     | '{' { create_table(cur_dict_id++); } '}' { destroy_table(cur_dict_id--); } {
         $$ = create_node(IKS_AST_BLOCO, NULL, NULL, NULL);
@@ -459,7 +472,7 @@ expressao:
         //hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, -1);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
 
-        $$->tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, NULL);
+        $$->tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, NULL, NULL);
     }
     | literal {
         $$ = $1;
@@ -475,7 +488,16 @@ expressao:
         /*node_identificador->next_brother = $3;*/
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
 
-        $$->tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, $3);
+
+        comp_list_tac_t* vetor_tacs_encadeado = cria_copia_conecta_tacs($3);
+        comp_list_tac_t* vetor_tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, $3, hash_item->list_args_vector);
+        /*$$->tac = vetor_tac;*/
+        /*$$->tac = conecta_tacs($3->tac, vetor_tac);*/
+        $$->tac = conecta_tacs(vetor_tacs_encadeado, vetor_tac);
+
+        /*fprintf(stdout, "t1\n");*/
+        /*print_tac($$->tac);*/
+        /*fprintf(stdout, "t2\n");*/
     }
     | '(' expressao ')' {
         $$ = $2;
@@ -645,8 +667,14 @@ atribuicao:
         /*verifica_tipo_indexador($3);*/
         verifica_atribuicao($6,tipo);
 
-        /*fprintf(stdout, "criar tac atribuicao vetor %s\n", $1);*/
-        $$->tac = (comp_list_tac_t*) criar_tac_atribuicao_vetor($1, $6->tac, $3, hash_item->desloc, tamanho_tipo(hash_item->type_var), hash_item->escopo);
+        // Cria lista encadeada dos tacs da lista de parâmetros
+        comp_list_tac_t* vetor_tacs_encadeado = cria_copia_conecta_tacs($3);
+        comp_list_tac_t* vetor_tac = criar_tac_atribuicao_vetor($1, $6->tac, $3, hash_item->list_args_vector, hash_item->desloc, tamanho_tipo(hash_item->type_var), hash_item->escopo);
+        /*$$->tac = conecta_tacs($3->tac, vetor_tac);*/
+        $$->tac = conecta_tacs(vetor_tacs_encadeado, vetor_tac);
+        /*fprintf(stdout, "test1\n");*/
+        /*print_tac($$->tac);*/
+        /*fprintf(stdout, "test2\n");*/
     }
 ;
 
@@ -655,37 +683,37 @@ literal:
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_CHAR, IKS_CHAR, USO_LITERAL, -1);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
-        $$->tac = criar_tac_literal(TK_LIT_CHAR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL);
+        $$->tac = criar_tac_literal(TK_LIT_CHAR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
     }
     | TK_LIT_FALSE {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL, -1);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
-        $$->tac = criar_tac_literal(TK_LIT_FALSE, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL);
+        $$->tac = criar_tac_literal(TK_LIT_FALSE, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
     }
     | TK_LIT_FLOAT {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_FLOAT, IKS_FLOAT, USO_LITERAL, -1);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
-        $$->tac = criar_tac_literal(TK_LIT_FLOAT, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL);
+        $$->tac = criar_tac_literal(TK_LIT_FLOAT, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
     }
     | TK_LIT_INT {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL, -1);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
-        $$->tac = criar_tac_literal(TK_LIT_INT, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL);
+        $$->tac = criar_tac_literal(TK_LIT_INT, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
     }
     | TK_LIT_STRING {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_STRING, IKS_STRING, USO_LITERAL, -1);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
-        $$->tac = criar_tac_literal(TK_LIT_STRING, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL);
+        $$->tac = criar_tac_literal(TK_LIT_STRING, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
     }
     | TK_LIT_TRUE {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_BOOL, IKS_BOOL, USO_LITERAL, -1);
 
         $$ = create_node(IKS_AST_LITERAL, $1, NULL, hash_item);
-        $$->tac = criar_tac_literal(TK_LIT_TRUE, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL);
+        $$->tac = criar_tac_literal(TK_LIT_TRUE, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
     }
 ;
 
@@ -715,7 +743,7 @@ expressao-parametro-chamada-funcao:
         //hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VARIAVEL, -1);
         $$ = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
 
-        $$->tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, NULL);
+        $$->tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, NULL, NULL);
     }
     | literal {
         $$ = $1;
@@ -792,20 +820,24 @@ lista-parametros:
 ;
 
 lista-expressao-vetor:
-    /*expressao {*/
-        /*$$ = list_create_item($1->hash);*/
-    /*}*/
     TK_LIT_INT {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL, -1);
+        $$->tac = criar_tac_literal(TK_LIT_INT, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
 
-        $$ = list_create_item(hash_item);
+        $$ = list_tac_create_item($$->tac);
+        $$->dimensao = atoi(hash_item->key);
     }
     | TK_LIT_INT ',' lista-expressao-vetor
     {
         hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_PR_INT, IKS_INT, USO_LITERAL, -1);
+        $$->tac = criar_tac_literal(TK_LIT_INT, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, -1, NULL, NULL);
 
-        /*$$ = list_concat(list_create_item($1->hash), $3);*/
-        $$ = list_concat(list_create_item(hash_item), $3);
+        comp_list_tac_vector_t* tac_item = list_tac_create_item($$->tac);
+        tac_item->dimensao = atoi(hash_item->key);
+
+        $$ = list_tac_concat(tac_item, $3);
+
+        conecta_tacs($$->tac, $3->tac);
     }
 ;
 
@@ -816,6 +848,8 @@ lista-expressao-dimensoes-vetor:
     | expressao ',' lista-expressao-dimensoes-vetor
     {
         $$ = list_tac_concat(list_tac_create_item($1->tac), $3);
+
+        /*conecta_tacs($$->tac, $3->tac);*/
     }
 ;
 

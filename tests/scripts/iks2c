@@ -8,7 +8,7 @@ tmp = 'tmp.c'
 
 with open(src) as f:
 	src = f.read()
-src = src.replace('do','').replace('then','')
+src = src.replace('do','').replace('then','').replace(',','][')
 src = '#include <stdio.h>\n'+src
 src = src[:src.rfind('}')] + '\tprintf("%%d\\n",%s);\n}\n'%(target)
 

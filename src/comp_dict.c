@@ -140,7 +140,7 @@ comp_dict_item_t* find_symbol_stack_scope(char* key){
 
 // Adiciona um item a uma tabela existente
 comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int type, int type_var, int operador, int desloc){
-	
+
     // Aloca estruturas de dados para o novo nodo
     comp_dict_node_t* node = malloc(sizeof(comp_dict_node_t));
     node->item = malloc(sizeof(comp_dict_item_t));
@@ -318,7 +318,7 @@ int print_file_table(FILE* out, comp_dict_t* table) {
 
             do {
                 str_entry(tmp_string, current->key, current->item->line, current->item->type,
-                        current->item->type_var, (void*)current->item->value, 
+                        current->item->type_var, (void*)current->item->value,
 						  current->item->desloc, current->item->operador);
                 fprintf(out, "%s", tmp_string);
                 entry_count++;

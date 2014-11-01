@@ -1,3 +1,6 @@
+#ifndef __COMP_TREE_H
+#define __COMP_TREE_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "gv.h"
@@ -46,4 +49,5 @@ comp_list_t* list_create_item(comp_dict_item_t*);
 int list_count(comp_list_t*);
 void verifica_coersao_arvore(comp_tree_t*, comp_tree_t*, comp_tree_t*);
 int tamanho_tipo(int);
-int calcula_dimensao_arranjo(comp_list_t*);
+
+#endif

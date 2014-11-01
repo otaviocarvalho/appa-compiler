@@ -215,7 +215,7 @@ comp_list_tac_t *criar_tac_expressao(int operacao, comp_list_tac_t *tac1, comp_l
     return tac1;
 }
 
-comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, int tamanho_tipo, char* valor, int escopo, int desloc, comp_list_tac_vector_t* lista_dimensoes)
+comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, int tamanho_tipo, char* valor, int escopo, int desloc, comp_list_tac_vector_t* lista_dimensoes, comp_list_tac_vector_t* lista_decl)
 {
 	comp_list_tac_t *new_tac = criar_tac();
 	comp_list_tac_t *tac_desloc = criar_tac();
@@ -258,19 +258,41 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, int tamanho_tipo,
                 sprintf(desloc_str,"%d",desloc);
                 sprintf(tamanho_tipo_str,"%d",tamanho_tipo);
 
-                comp_list_tac_t* tac_mult_tipo_desloc = montar_tac(TAC_MULT_VAL, reg_mult_str, lista_dimensoes->tac->v1, tamanho_tipo_str);
-                comp_list_tac_t* tac_load_reg_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, tac_mult_tipo_desloc->v1, desloc_str);
-                tac_desloc = montar_tac('+', criar_registrador(), escopo_str, tac_load_reg_desloc->v1);
-                new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, tac_desloc->v1);
+                /*comp_list_tac_t* tac_mult_tipo_desloc = montar_tac(TAC_MULT_VAL, reg_mult_str, lista_dimensoes->tac->v1, tamanho_tipo_str);*/
+                /*comp_list_tac_t* tac_load_reg_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, tac_mult_tipo_desloc->v1, desloc_str);*/
+                /*tac_desloc = montar_tac('+', criar_registrador(), escopo_str, tac_load_reg_desloc->v1);*/
+                /*new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, tac_desloc->v1);*/
 
-                tac_mult_tipo_desloc->tac_prev = lista_dimensoes->tac;
-                tac_load_reg_desloc->tac_prev = tac_mult_tipo_desloc;
-                tac_desloc->tac_prev = tac_load_reg_desloc;
-                new_tac->tac_prev = tac_desloc;
+                /*tac_mult_tipo_desloc->tac_prev = lista_dimensoes->tac;*/
+                /*tac_load_reg_desloc->tac_prev = tac_mult_tipo_desloc;*/
+                /*tac_desloc->tac_prev = tac_load_reg_desloc;*/
+                /*new_tac->tac_prev = tac_desloc;*/
 
+                /*conecta_tacs_irmaos(new_tac);*/
+
+                /*fprintf(stdout, "aqui\n");*/
+                /*print_tac(lista_decl->next->tac);*/
+                comp_list_tac_t* desloc_vetor = calcula_tac_lista_param_desloc(lista_dimensoes, lista_decl, desloc_str, tamanho_tipo, escopo);
+                /*print_tac(lista_dimensoes->tac);*/
+                /*fprintf(stdout, "sep\n");*/
+                /*print_tac(desloc_vetor);*/
+                /*exit(1);*/
+
+                /*conecta_bloco_ultimo_com_proximo(lista_dimensoes->tac, desloc_vetor);*/
+                /*conecta_tacs_irmaos(desloc_vetor);*/
+
+                // Carrega com base no deslocamento
+                new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, busca_bloco_ultimo(desloc_vetor)->v1);
+                new_tac->tac_prev = busca_bloco_ultimo(desloc_vetor);
+
+                // Conecta do último tac até o primeiro na ordem inversa
+                /*print_tac(new_tac->tac_prev);*/
+                /*exit(1);*/
                 conecta_tacs_irmaos(new_tac);
+                /*fprintf(stdout, "sep\n");*/
+                /*exit(1);*/
 
-                return lista_dimensoes->tac;
+                return desloc_vetor;
             }
             else {
                 sprintf(desloc_str,"%d",desloc);
@@ -283,37 +305,10 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, int tamanho_tipo,
 
                 return tac_desloc;
             }
+            break;
+    }
 
-			/*if (escopo == INTERNO) {*/
-/*// 				sprintf(desloc_str,"%d",desloc);*/
-/*// 				new_tac = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, valor);*/
-/*// 				conecta_tacs_irmaos(new_tac);*/
-				/*sprintf(desloc_str,"%d",desloc);*/
-				/*char* reg_desloc = criar_registrador();*/
-				/*tac_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, rarp, desloc_str);*/
-				/*new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, reg_desloc);*/
-
-				/*new_tac->tac_prev = tac_desloc;*/
-				/*conecta_tacs_irmaos(new_tac);*/
-
-				/*return tac_desloc;*/
-			/*}*/
-			/*else if (escopo == EXTERNO) {*/
-				/*sprintf(desloc_str,"%d",desloc);*/
-				/*char* reg_desloc = criar_registrador();*/
-				/*tac_desloc = montar_tac(TAC_ADD_VAL, reg_desloc, rbss, desloc_str);*/
-				/*new_tac = montar_tac(TAC_LOAD, criar_registrador(), NULL, reg_desloc);*/
-
-				/*new_tac->tac_prev = tac_desloc;*/
-				/*conecta_tacs_irmaos(new_tac);*/
-
-				/*return tac_desloc;*/
-			/*}*/
-
-			break;
-	}
-
-	return new_tac;
+    return new_tac;
 }
 
 comp_list_tac_t* criar_tac(){
@@ -377,7 +372,41 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
 	return orig;
 }
 
-comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t* lista_parametros, char* desloc, int tamanho_tipo, int escopo){
+comp_list_tac_t* cria_copia_conecta_tacs(comp_list_tac_vector_t* lista){
+    if (lista == NULL)
+        return NULL;
+
+    comp_list_tac_t* retorno;
+    comp_list_tac_t* tac_aux;
+    comp_list_tac_t* tac_connect;
+    comp_list_tac_t* tac_create_next;
+    comp_list_tac_vector_t* vector_aux;
+    int first = 1;
+    vector_aux = lista;
+    while (vector_aux != NULL){
+        tac_aux = vector_aux->tac;
+        while (tac_aux != NULL){
+            if (first) {
+                retorno = montar_tac(tac_aux->tipo, tac_aux->v1, tac_aux->v2, tac_aux->v3);
+                tac_connect = retorno;
+                first = 0;
+            }
+            else {
+                tac_create_next = montar_tac(tac_aux->tipo, tac_aux->v1, tac_aux->v2, tac_aux->v3);
+                tac_create_next->tac_prev = tac_connect;
+
+                conecta_tacs_irmaos(tac_create_next);
+                tac_connect = tac_create_next;
+            }
+            tac_aux = tac_aux->tac_next;
+        }
+        vector_aux = vector_aux->next;
+    }
+
+    return retorno;
+}
+
+comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t* lista_parametros, comp_list_tac_vector_t* lista_decl, char* desloc, int tamanho_tipo, int escopo){
     comp_list_tac_t* tac_soma_desloc = criar_tac();
     comp_list_tac_t* tac_soma_desloc_aux = criar_tac();
     comp_list_tac_t* tac_soma_desloc_escopo = criar_tac();
@@ -395,70 +424,161 @@ comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t* lista_pa
         strcpy(reg_escopo, "rarp");
     }
 
-    // Percorrer lista parametros somando deslocamentos
-/*    int criou_primeiro_tac = 0;*/
-    /*comp_list_tac_vector_t* aux = lista_parametros;*/
-    /*while (aux != NULL){*/
+/*    comp_list_tac_vector_t* aux = lista_parametros;*/
+    /*if (aux != NULL) {*/
         /*comp_list_tac_t* aux_bloco_ultimo = busca_bloco_ultimo(aux->tac);*/
 
-        /*if (!criou_primeiro_tac) {*/
-            /*tac_soma_desloc = montar_tac(TAC_ADD_VAL, criar_registrador(), aux_bloco_ultimo->v1, desloc);*/
-            /*criou_primeiro_tac = 1;*/
-        /*}*/
-        /*else {*/
-            /*tac_soma_desloc = montar_tac('+', criar_registrador(), aux_bloco_ultimo->v1, tac_soma_desloc->v1);*/
-        /*}*/
+        /*strcpy(reg_mult_desloc_vetor, criar_registrador());*/
+        /*tac_soma_desloc = montar_tac(TAC_MULT_VAL, reg_mult_desloc_vetor, aux_bloco_ultimo->v1, tamanho_str);*/
 
-        /*aux_bloco_ultimo->tac_prev = tac_soma_desloc;*/
-        /*conecta_tacs_irmaos(aux_bloco_ultimo);*/
+        /*comp_list_tac_t* tac_soma_desloc_escopo = montar_tac('+', criar_registrador(), reg_escopo, tac_soma_desloc->v1);*/
 
-        /*aux = aux->next;*/
+        /*tac_soma_desloc->tac_prev = aux_bloco_ultimo;*/
+        /*tac_soma_desloc_escopo->tac_prev = tac_soma_desloc;*/
+
+        /*conecta_tacs_irmaos(tac_soma_desloc_escopo);*/
+
+        /*// Define o TAC para o retorno do bloco de comandos criado*/
+        /*tac_soma_desloc = aux->tac;*/
     /*}*/
 
+
+    /*comp_list_tac_vector_t* retorno = lista_parametros;*/
+    /*comp_list_tac_vector_t* aux = lista_parametros;*/
+    /*comp_list_tac_vector_t* aux_decl = lista_decl;*/
+    comp_list_tac_t* tac_connect = NULL;
+    comp_list_tac_t* retorno = NULL;
     comp_list_tac_vector_t* aux = lista_parametros;
-    if (aux != NULL) {
+    comp_list_tac_vector_t* aux_decl = lista_decl;
+    /*fprintf(stdout, "entrou tac\n");*/
+    while (aux != NULL && aux_decl != NULL) {
+        /*fprintf(stdout, "entrou while tac\n");*/
+
         comp_list_tac_t* aux_bloco_ultimo = busca_bloco_ultimo(aux->tac);
 
-        strcpy(reg_mult_desloc_vetor, criar_registrador());
-        tac_soma_desloc = montar_tac(TAC_MULT_VAL, reg_mult_desloc_vetor, aux_bloco_ultimo->v1, tamanho_str);
+        // Verifica se é a última iteração
+        if (aux->next == NULL) {
+            /*fprintf(stdout, "entrou ultim iter if\n");*/
+            strcpy(reg_mult_desloc_vetor, criar_registrador());
+            // Multiplica valor do literal inteiro da dimensão pelo tamanho do tipo
+            if (tac_connect != NULL)
+                tac_soma_desloc = montar_tac(TAC_MULT_VAL, reg_mult_desloc_vetor, tac_connect->v1, tamanho_str);
+            else {
+                tac_soma_desloc = montar_tac(TAC_MULT_VAL, reg_mult_desloc_vetor, aux_bloco_ultimo->v1, tamanho_str);
+            }
+            /*print_tac_item(aux_bloco_ultimo);*/
+            /*print_tac_item(tac_soma_desloc);*/
 
-        comp_list_tac_t* tac_soma_desloc_escopo = montar_tac('+', criar_registrador(), reg_escopo, tac_soma_desloc->v1);
+            // Soma ponteiro do registrador base com o deslocamento do início do array
+            comp_list_tac_t* tac_soma_desloc_base = montar_tac(TAC_ADD_VAL, criar_registrador(), reg_escopo, desloc);
 
-        tac_soma_desloc->tac_prev = aux_bloco_ultimo;
-        tac_soma_desloc_escopo->tac_prev = tac_soma_desloc;
+            // Soma ponteiro para o início do array com deslocamento do array calculado
+            comp_list_tac_t* tac_soma_desloc_fim = montar_tac('+', criar_registrador(), tac_soma_desloc_base->v1, tac_soma_desloc->v1);
 
-        conecta_tacs_irmaos(tac_soma_desloc_escopo);
+            /*tac_soma_desloc->tac_prev = aux_bloco_ultimo;*/
+            tac_soma_desloc_base->tac_prev = tac_soma_desloc;
+            tac_soma_desloc_fim->tac_prev = tac_soma_desloc_base;
 
-        // Define o TAC para o retorno do bloco de comandos criado
-        tac_soma_desloc = aux->tac;
+            // Conecta o laço e ajusta o retorno
+            if (tac_connect != NULL)
+                tac_soma_desloc->tac_prev = tac_connect;
+            else {
+                retorno = tac_soma_desloc;
+            }
+            tac_connect = tac_soma_desloc;
+
+            // Conecta tacs das outras dimensões com os criados para a última dimensão
+            conecta_tacs_irmaos(tac_soma_desloc_fim);
+            /*fprintf(stdout, "test\n");*/
+            /*print_tac(retorno);*/
+            /*fprintf(stdout, "testend\n");*/
+        }
+        else {
+            /*print_tac(aux->next->tac);*/
+            /*fprintf(stdout, "aqui\n");*/
+            // Concatena tacs auxiliares de carregamento das variáveis
+            /*aux_decl->next->tac->tac_prev = aux_bloco_ultimo;*/
+            /*aux->next->tac->tac_prev = busca_bloco_ultimo(aux_decl->next->tac);*/
+
+            /*fprintf(stdout, "entrou else\n");*/
+            // tac i * len[2] + j p/ (m[i,j])
+            /*comp_list_tac_t* tac_mult_dim_array_decl = montar_tac('*', criar_registrador(), aux_bloco_ultimo->v1, busca_bloco_ultimo(aux_decl->next->tac)->v1);*/
+            comp_list_tac_t* tac_mult_dim_array_decl = montar_tac('*', criar_registrador(), busca_bloco_ultimo(aux->tac)->v1, busca_bloco_ultimo(aux_decl->next->tac)->v1);
+            comp_list_tac_t* tac_soma_dim_array_desloc = montar_tac('+', criar_registrador(), tac_mult_dim_array_decl->v1,
+                                                                                                busca_bloco_ultimo(aux->next->tac)->v1);
+
+            /*print_tac(aux->tac);*/
+            /*fprintf(stdout, "z\n");*/
+
+            /*tac_mult_dim_array_decl->tac_prev = aux_bloco_ultimo;*/
+            /*tac_mult_dim_array_decl->tac_prev = busca_bloco_ultimo(aux->next->tac);*/
+            tac_soma_dim_array_desloc->tac_prev = tac_mult_dim_array_decl;
+
+            conecta_tacs_irmaos(tac_soma_dim_array_desloc);
+            /*print_tac(aux_bloco_ultimo);*/
+            /*fprintf(stdout, "saiu else\n");*/
+
+            // Conecta o laço e ajusta o retorno
+            if (tac_connect != NULL) {
+                tac_mult_dim_array_decl->tac_prev = tac_connect;
+            }
+            else {
+                retorno = tac_mult_dim_array_decl;
+            }
+            tac_connect = tac_soma_dim_array_desloc;
+
+
+            /*fprintf(stdout, "test\n");*/
+            /*print_tac(retorno);*/
+            /*fprintf(stdout, "testend\n");*/
+        }
+
+        aux_decl = aux_decl->next;
+        aux = aux->next;
     }
 
-    return tac_soma_desloc;
+    /*return lista_parametros->tac;*/
+    return retorno;
 }
 
-comp_list_tac_t* criar_tac_atribuicao_vetor(char *dest, comp_list_tac_t* orig, comp_list_tac_vector_t* lista_parametros, int desloc, int tamanho_tipo, int escopo) {
+comp_list_tac_vector_t* cria_copia_tac(comp_list_tac_vector_t* vector) {
+    comp_list_tac_vector_t* copia = malloc(sizeof(comp_list_tac_vector_t) * list_tac_count(vector));
+
+    comp_list_tac_vector_t* aux = vector;
+    while (aux != NULL){
+        memcpy(copia, aux, sizeof(comp_list_tac_vector_t));
+        aux = aux->next;
+    }
+
+    return copia;
+}
+
+comp_list_tac_t* criar_tac_atribuicao_vetor(char *dest, comp_list_tac_t* orig, comp_list_tac_vector_t* lista_parametros, comp_list_tac_vector_t* lista_decl, int desloc, int tamanho_tipo, int escopo) {
     comp_list_tac_t* tac_atr = criar_tac();
     comp_list_tac_t* tac_load_val = criar_tac();
     comp_list_tac_t* tac_load_desloc = criar_tac();
     comp_list_tac_t* desloc_vetor = criar_tac();
 
     char *desloc_str = (char *) malloc (100 * sizeof(char));
-    char *rbss = (char *) malloc (100 * sizeof(char));
+    char *reg_escopo = (char *) malloc (100 * sizeof(char));
 
-    strcpy(rbss, "rbss");
     sprintf(desloc_str,"%d",desloc);
+    if (escopo == EXTERNO){
+        strcpy(reg_escopo, "rbss");
+    }
+    else {
+        strcpy(reg_escopo, "rarp");
+    }
+
+    /*fprintf(stdout, "test\n");*/
+    /*print_tac(orig);*/
+    /*fprintf(stdout, "testend\n");*/
 
     // Calcula o deslocamento com base no escopo da variável
-    if (escopo == INTERNO) {
-        tac_load_desloc = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, desloc_str);
-        tac_load_desloc->tac_prev = tac_load_val;
-    }
-    else if (escopo == EXTERNO) {
-        // Calcula deslocamento com relação ao vetor
-        desloc_vetor = calcula_tac_lista_param_desloc(lista_parametros, desloc_str, tamanho_tipo, escopo);
-        conecta_bloco_ultimo_com_proximo(orig, desloc_vetor);
-    }
+    desloc_vetor = calcula_tac_lista_param_desloc(lista_parametros, lista_decl, desloc_str, tamanho_tipo, escopo);
+    conecta_bloco_ultimo_com_proximo(orig, desloc_vetor);
 
+    // Atribui com base no deslocamento
     tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, (busca_bloco_ultimo(desloc_vetor))->v1);
     tac_atr->tac_prev = busca_bloco_ultimo(desloc_vetor);
 
@@ -672,6 +792,18 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
 
 }
 
+int calcula_dimensao_arranjo(comp_list_tac_vector_t* lista){
+    comp_list_tac_vector_t* aux_lista = lista;
+    int dimensao = 1;
+
+    while(aux_lista != NULL){
+      dimensao *= aux_lista->dimensao;
+      aux_lista = aux_lista->next;
+    }
+
+    return dimensao;
+}
+
 int list_tac_count(comp_list_tac_vector_t* list_args){
     int count = 0;
     comp_list_tac_vector_t* aux = list_args;
@@ -698,6 +830,7 @@ comp_list_tac_vector_t* list_tac_concat(comp_list_tac_vector_t* list_a, comp_lis
 comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t* tac){
     comp_list_tac_vector_t* new_list = malloc(sizeof(comp_list_tac_vector_t));
     new_list->tac = tac;
+    new_list->dimensao = 0;
     new_list->next = NULL;
 
     return new_list;

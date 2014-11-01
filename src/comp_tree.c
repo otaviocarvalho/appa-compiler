@@ -791,14 +791,3 @@ comp_list_t* list_create_item(comp_dict_item_t* item){
     return new_list;
 }
 
-int calcula_dimensao_arranjo(comp_list_t* lista){
-    comp_list_t* aux_lista = lista;
-    int dimensao = 1;
-
-    while(aux_lista != NULL){
-      dimensao *= atoi(aux_lista->item->key);
-      aux_lista = aux_lista->next;
-    }
-
-    return dimensao;
-}
