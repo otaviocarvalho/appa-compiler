@@ -46,8 +46,6 @@ typedef struct comp_list_tac_vector_t {
     struct comp_list_tac_vector_t* next;
 } comp_list_tac_vector_t;
 
-//extern int deslocamento_global;
-
 void print_tac(comp_list_tac_t*);
 void print_tac_item(comp_list_tac_t*);
 void conecta_tacs_irmaos(comp_list_tac_t*);

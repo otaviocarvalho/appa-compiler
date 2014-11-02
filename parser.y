@@ -482,22 +482,14 @@ expressao:
     }
     | TK_IDENTIFICADOR '[' lista-expressao-dimensoes-vetor ']' {
         hash_item = verifica_uso_item(hash_function($1), USO_VETOR_INDEXADO, $1);
-        //hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, IKS_AST_VETOR_INDEXADO, 0);
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        /*node_identificador->next_brother = $3;*/
         $$ = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
 
 
         comp_list_tac_t* vetor_tacs_encadeado = cria_copia_conecta_tacs($3);
         comp_list_tac_t* vetor_tac = criar_tac_literal(TK_IDENTIFICADOR, hash_item->type_var, tamanho_tipo(hash_item->type_var), hash_item->key, hash_item->escopo, hash_item->desloc, $3, hash_item->list_args_vector);
-        /*$$->tac = vetor_tac;*/
-        /*$$->tac = conecta_tacs($3->tac, vetor_tac);*/
         $$->tac = conecta_tacs(vetor_tacs_encadeado, vetor_tac);
-
-        /*fprintf(stdout, "t1\n");*/
-        /*print_tac($$->tac);*/
-        /*fprintf(stdout, "t2\n");*/
     }
     | '(' expressao ')' {
         $$ = $2;
@@ -649,7 +641,6 @@ atribuicao:
     }
     | TK_IDENTIFICADOR '[' lista-expressao-dimensoes-vetor ']' '=' expressao
     {
-        //hash_item = add_symbol(symbol_table_cur, $1, cur_line, TK_IDENTIFICADOR, IKS_TYPE_NOT_DEFINED, USO_VETOR_INDEXADO, -1);
         hash_item = verifica_uso_item(hash_function($1), USO_VETOR_INDEXADO, $1);
 
         int tipo = encontra_tipo($1,DECLARACAO_VETOR_INDEXADO);
@@ -658,7 +649,6 @@ atribuicao:
         }
 
         comp_tree_t* node_identificador = create_node(IKS_AST_IDENTIFICADOR, $1, NULL, hash_item);
-        /*node_identificador->next_brother = $3;*/
 
         comp_tree_t* vetor = create_node(IKS_AST_VETOR_INDEXADO, NULL, node_identificador, NULL);
         vetor->next_brother = $6;
@@ -670,11 +660,7 @@ atribuicao:
         // Cria lista encadeada dos tacs da lista de parâmetros
         comp_list_tac_t* vetor_tacs_encadeado = cria_copia_conecta_tacs($3);
         comp_list_tac_t* vetor_tac = criar_tac_atribuicao_vetor($1, $6->tac, $3, hash_item->list_args_vector, hash_item->desloc, tamanho_tipo(hash_item->type_var), hash_item->escopo);
-        /*$$->tac = conecta_tacs($3->tac, vetor_tac);*/
         $$->tac = conecta_tacs(vetor_tacs_encadeado, vetor_tac);
-        /*fprintf(stdout, "test1\n");*/
-        /*print_tac($$->tac);*/
-        /*fprintf(stdout, "test2\n");*/
     }
 ;
 
@@ -848,8 +834,6 @@ lista-expressao-dimensoes-vetor:
     | expressao ',' lista-expressao-dimensoes-vetor
     {
         $$ = list_tac_concat(list_tac_create_item($1->tac), $3);
-
-        /*conecta_tacs($$->tac, $3->tac);*/
     }
 ;
 
