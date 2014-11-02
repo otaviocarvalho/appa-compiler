@@ -56,3 +56,6 @@
 
 #define INTERNO 1
 #define EXTERNO 0
+
+#define OFF 0
+#define ON 1

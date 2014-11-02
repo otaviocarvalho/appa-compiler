@@ -1,5 +1,9 @@
 #include "tac.h"
 
+comp_list_tac_t* tac_label_prox;
+comp_list_tac_t* tac_label_inicio;
+int curto_circuito = OFF;
+
 int registrador_atual = 0;
 int label_atual = 0;
 
@@ -601,38 +605,62 @@ comp_list_tac_t *cria_tac_if(comp_list_tac_t *condicional, comp_list_tac_t *bloc
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
 
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_continue);
+	if(curto_circuito == ON){
+	    comp_list_tac_t* tac_nop_inicio = montar_tac(TAC_NOP, NULL, NULL, NULL);
 
-    comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
+	    condicional->tac_prev = tac_nop_inicio;
 
-    comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+		conecta_bloco_ultimo_com_proximo(condicional,tac_label_inicio);
 
+		bloco_if->tac_prev = tac_label_inicio;
+		//conecta_bloco_ultimo_com_proximo(condicional,bloco_if);
+		conecta_bloco_ultimo_com_proximo(bloco_if,tac_label_prox);
+		conecta_tacs_irmaos(tac_label_prox);
 
-	comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
+		curto_circuito = OFF;
 
-	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
-
-	conecta_tacs_irmaos(tac_branch);
-
-	tac_label_if->tac_prev = tac_branch;
-
-	if(bloco_if != NULL){
-
-		bloco_if->tac_prev = tac_label_if;
-
-		conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
+		return tac_nop_inicio;
 	}
 	else{
+	    comp_list_tac_t* tac_nop_inicio = montar_tac(TAC_NOP, NULL, NULL, NULL);
 
-		tac_nop->tac_prev = tac_label_if;
+		comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_continue);
 
-		tac_label_continue->tac_prev = tac_nop;
+		comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
 
+		comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+
+
+		comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
+
+		condicional->tac_prev = tac_nop_inicio;
+
+		conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+
+		conecta_tacs_irmaos(tac_branch);
+
+		tac_label_if->tac_prev = tac_branch;
+
+		if(bloco_if != NULL){
+
+			bloco_if->tac_prev = tac_label_if;
+
+			conecta_bloco_ultimo_com_proximo(bloco_if, tac_label_continue);
+		}
+		else{
+
+			tac_nop->tac_prev = tac_label_if;
+
+			tac_label_continue->tac_prev = tac_nop;
+
+		}
+		conecta_tacs_irmaos(tac_label_continue);
+
+		return tac_nop_inicio;
 	}
 
-    conecta_tacs_irmaos(tac_label_continue);
 
-	return condicional;
+
 
 }
 
@@ -650,44 +678,70 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t *condicional, comp_list_tac_t 
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
 
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_else);
-    comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
-	comp_list_tac_t* tac_nop_if = montar_tac(TAC_NOP, NULL, NULL, NULL);
-	comp_list_tac_t* tac_nop_else = montar_tac(TAC_NOP, NULL, NULL, NULL);
 
-    comp_list_tac_t* tac_jump_continue = montar_tac(TAC_JUMP_LABEL, rotulo_continue, NULL, NULL);
-    comp_list_tac_t* tac_label_else = montar_tac(TAC_LABEL, rotulo_else, NULL, NULL);
-    comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+    if(curto_circuito == ON){
+        comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
+        comp_list_tac_t* tac_jump_continue = montar_tac(TAC_JUMP_LABEL, rotulo_continue, NULL, NULL);
+        comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
 
-	conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+        condicional->tac_prev = tac_nop;
+        conecta_bloco_ultimo_com_proximo(condicional, tac_label_inicio);
+        bloco_if->tac_prev = tac_label_inicio;
+        conecta_bloco_ultimo_com_proximo(bloco_if,tac_jump_continue);
+        tac_label_prox->tac_prev = tac_jump_continue;
+        bloco_else->tac_prev = tac_label_prox;
+        conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
 
-	conecta_tacs_irmaos(tac_branch);
+        conecta_tacs_irmaos(tac_label_continue);
 
-	tac_label_if->tac_prev = tac_branch;
+        curto_circuito = OFF;
 
-   	if(bloco_if != NULL){
-		bloco_if->tac_prev = tac_label_if;
-		conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
-	}
-	else{
-		tac_nop_if->tac_prev = tac_label_if;
-		tac_jump_continue->tac_prev = tac_nop_if;
-	}
+        return tac_nop;
+    }
 
-	 	tac_label_else->tac_prev = tac_jump_continue;
+    else{
+        comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
+        comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_if, rotulo_else);
+        comp_list_tac_t* tac_label_if = montar_tac(TAC_LABEL, rotulo_if, NULL, NULL);
+        comp_list_tac_t* tac_nop_if = montar_tac(TAC_NOP, NULL, NULL, NULL);
+        comp_list_tac_t* tac_nop_else = montar_tac(TAC_NOP, NULL, NULL, NULL);
 
-	if(bloco_else != NULL){
-		bloco_else->tac_prev = tac_label_else;
-		conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
-	}
-	else{
-		tac_nop_else->tac_prev = tac_label_else;
-		tac_label_continue->tac_prev = tac_nop_else;
-	}
+        comp_list_tac_t* tac_jump_continue = montar_tac(TAC_JUMP_LABEL, rotulo_continue, NULL, NULL);
+        comp_list_tac_t* tac_label_else = montar_tac(TAC_LABEL, rotulo_else, NULL, NULL);
+        comp_list_tac_t* tac_label_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
 
-	conecta_tacs_irmaos(tac_label_continue);
+        condicional->tac_prev = tac_nop;
 
-    return condicional;
+        conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+
+        conecta_tacs_irmaos(tac_branch);
+
+        tac_label_if->tac_prev = tac_branch;
+
+        if(bloco_if != NULL){
+            bloco_if->tac_prev = tac_label_if;
+            conecta_bloco_ultimo_com_proximo(bloco_if, tac_jump_continue);
+        }
+        else{
+            tac_nop_if->tac_prev = tac_label_if;
+            tac_jump_continue->tac_prev = tac_nop_if;
+        }
+
+            tac_label_else->tac_prev = tac_jump_continue;
+
+        if(bloco_else != NULL){
+            bloco_else->tac_prev = tac_label_else;
+            conecta_bloco_ultimo_com_proximo(bloco_else, tac_label_continue);
+        }
+        else{
+            tac_nop_else->tac_prev = tac_label_else;
+            tac_label_continue->tac_prev = tac_nop_else;
+        }
+
+        conecta_tacs_irmaos(tac_label_continue);
+
+        return tac_nop;
+    }
 }
 
 comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t* bloco_while){
@@ -703,32 +757,48 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t* condicional, comp_list_tac_t
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
 
-
-    comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_while, rotulo_continue);
-    comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
-	comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
-
-	if(bloco_while != NULL){
-
-		bloco_while->tac_prev = tac_rotulo_while;
-
+	if(curto_circuito == ON){
+		comp_list_tac_t* tac_nop = montar_tac(TAC_NOP,NULL, NULL, NULL);
+		tac_label_inicio->tac_prev = tac_nop;
+		bloco_while->tac_prev = tac_label_inicio;
 		conecta_bloco_ultimo_com_proximo(bloco_while, condicional);
-
-		conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+		conecta_bloco_ultimo_com_proximo(condicional, tac_label_prox);
+		conecta_tacs_irmaos(tac_label_prox);
+		return tac_nop;
 
 	}
 	else{
-		tac_nop->tac_prev = tac_rotulo_while;
-		condicional->tac_prev = tac_nop;
-		conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+		comp_list_tac_t* tac_nop_incio = montar_tac(TAC_NOP,NULL, NULL, NULL);
+		comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
+		comp_list_tac_t* tac_branch = montar_tac(TAC_CBR,busca_bloco_ultimo(condicional)->v1, rotulo_while, rotulo_continue);
+		comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+		comp_list_tac_t* tac_nop = montar_tac(TAC_NOP, NULL, NULL, NULL);
+
+		if(bloco_while != NULL){
+
+			tac_rotulo_while->tac_prev = tac_nop_incio;
+
+			bloco_while->tac_prev = tac_rotulo_while;
+
+			conecta_bloco_ultimo_com_proximo(bloco_while, condicional);
+
+			conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+
+		}
+		else{
+
+			tac_rotulo_while->tac_prev = tac_nop_incio;
+			tac_nop->tac_prev = tac_rotulo_while;
+			condicional->tac_prev = tac_nop;
+			conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+		}
+
+		tac_rotulo_continue->tac_prev = tac_branch;
+
+		conecta_tacs_irmaos(tac_rotulo_continue);
+
+		return tac_nop_incio;;
 	}
-
-	tac_rotulo_continue->tac_prev = tac_branch;
-
-	conecta_tacs_irmaos(tac_rotulo_continue);
-
-    return tac_rotulo_while;
 
 }
 
@@ -757,39 +827,53 @@ comp_list_tac_t *cria_tac_while_do(comp_list_tac_t* condicional, comp_list_tac_t
     strcpy(reg1, criar_registrador());
     strcpy(reg2, criar_registrador());
     strcpy(reg3, criar_registrador());
+	if(curto_circuito == ON){
+		comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
+		comp_list_tac_t* tac_jump_label = montar_tac(TAC_JUMP_LABEL, rotulo_jump, NULL, NULL);
+		comp_list_tac_t* tac_nop = montar_tac(TAC_NOP,NULL, NULL, NULL);
 
-	comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
-	tac_rotulo_jump->tac_prev = condicional->tac_prev;
-	condicional->tac_prev = tac_rotulo_jump;
-	conecta_tacs_irmaos(condicional);
+		tac_rotulo_jump->tac_prev = tac_nop;
+		condicional->tac_prev = tac_rotulo_jump;
+		conecta_bloco_ultimo_com_proximo(condicional,tac_label_inicio);
+		bloco_while->tac_prev = tac_label_inicio;
+		conecta_bloco_ultimo_com_proximo(bloco_while,tac_jump_label);
+		tac_label_prox->tac_prev = tac_jump_label;
+		conecta_tacs_irmaos(tac_label_prox);
 
-    comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
-    comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, (busca_bloco_ultimo(condicional))->v1, rotulo_while, rotulo_continue);
-    comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
-    comp_list_tac_t* tac_jump_label = montar_tac(TAC_JUMP_LABEL, rotulo_jump, NULL, NULL);
-
-    conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
-	conecta_tacs_irmaos(tac_branch);
-
-    tac_rotulo_while->tac_prev = tac_branch;
-
-	if(bloco_while != NULL){
-
-		bloco_while->tac_prev = tac_rotulo_while;
-
-		conecta_bloco_ultimo_com_proximo(bloco_while, tac_jump_label);
+		return tac_nop;
 	}
 	else{
-		tac_jump_label->tac_prev = tac_rotulo_while;
+		comp_list_tac_t* tac_nop = montar_tac(TAC_NOP,NULL, NULL, NULL);
+		comp_list_tac_t* tac_rotulo_jump = montar_tac(TAC_LABEL, rotulo_jump, NULL, NULL);
+		comp_list_tac_t* tac_rotulo_while = montar_tac(TAC_LABEL, rotulo_while, NULL, NULL);
+		comp_list_tac_t* tac_branch = montar_tac(TAC_CBR, (busca_bloco_ultimo(condicional))->v1, rotulo_while, rotulo_continue);
+		comp_list_tac_t* tac_rotulo_continue = montar_tac(TAC_LABEL, rotulo_continue, NULL, NULL);
+		comp_list_tac_t* tac_jump_label = montar_tac(TAC_JUMP_LABEL, rotulo_jump, NULL, NULL);
+
+		tac_rotulo_jump->tac_prev = tac_nop;
+		condicional->tac_prev = tac_rotulo_jump;
+		conecta_bloco_ultimo_com_proximo(condicional, tac_branch);
+		conecta_tacs_irmaos(tac_branch);
+
+		tac_rotulo_while->tac_prev = tac_branch;
+
+		if(bloco_while != NULL){
+
+			bloco_while->tac_prev = tac_rotulo_while;
+
+			conecta_bloco_ultimo_com_proximo(bloco_while, tac_jump_label);
+		}
+		else{
+			tac_jump_label->tac_prev = tac_rotulo_while;
+		}
+
+		tac_rotulo_continue->tac_prev = tac_jump_label;
+
+
+		conecta_tacs_irmaos(tac_rotulo_continue);
+
+		return tac_nop;
 	}
-
-	tac_rotulo_continue->tac_prev = tac_jump_label;
-
-
-    conecta_tacs_irmaos(tac_rotulo_continue);
-
-    return condicional;
-
 }
 
 int calcula_dimensao_arranjo(comp_list_tac_vector_t* lista){
@@ -837,41 +921,67 @@ comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t* tac){
 }
 
 comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1, comp_list_tac_t* tac2){
+	char label0[100]; strcpy(label0, criar_label());
 	char label1[100]; strcpy(label1, criar_label());
 	char label2[100]; strcpy(label2, criar_label());
 
-	comp_list_tac_t* tac_label_1 =  montar_tac(TAC_LABEL, label1, NULL, NULL);
-	comp_list_tac_t* tac_label_2 =  montar_tac(TAC_LABEL, label2, NULL, NULL);
+	tac_label_prox = criar_tac();
 
 	if(operacao == TK_OC_AND){
-			if(strcmp(tac1->v1,"0")==0){
-				return tac1;
-			}
-			else{
-				comp_list_tac_t* tac_and = montar_tac(TK_OC_AND, criar_registrador(), tac1->v1, tac2->v1);
-				return tac_and;
-			}
-	}
-	else if(operacao == TK_OC_OR){
-		comp_list_tac_t* tac_brench = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label1, label2);
-		comp_list_tac_t* tac_or = montar_tac(TK_OC_OR, criar_registrador(), tac1->v1, tac2->v1);
-		conecta_bloco_ultimo_com_proximo(tac1,tac_brench);
-		tac_label_1->tac_prev = tac_brench;
-		tac2->tac_prev = tac_label_1;
-		conecta_bloco_ultimo_com_proximo(tac_label_2,tac2);
-		conecta_tacs_irmaos(tac_label_2);
+
+		comp_list_tac_t* tac_brench1 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label0, label2);
+		comp_list_tac_t* tac_brench2 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac2)->v1, label1, label2);
+		comp_list_tac_t* tac_label_0 =  montar_tac(TAC_LABEL, label0, NULL, NULL);
+		comp_list_tac_t* tac_label_1 =  montar_tac(TAC_LABEL, label1, NULL, NULL);
+
+		conecta_bloco_ultimo_com_proximo(tac1, tac_brench1);
+
+		tac_label_0->tac_prev = tac_brench1;
+
+		tac2->tac_prev = tac_label_0;
+
+		conecta_bloco_ultimo_com_proximo(tac2, tac_brench2);
+
+// 		conecta_bloco_ultimo_com_proximo(tac_brench2, tac_label_1);
+//
+// 		conecta_tacs_irmaos(tac_label_1);
+		conecta_tacs_irmaos(tac_brench2);
+
+		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
+
+		curto_circuito = ON;
+
+		tac_label_inicio = montar_tac(TAC_LABEL,label1, NULL, NULL);
+
 		return tac1;
 
-// 		if(strcmp(tac1->v1,"1")==0){
+	}
+	else if(operacao == TK_OC_OR){
+		comp_list_tac_t* tac_brench1 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac1)->v1, label0, label1);
+		comp_list_tac_t* tac_brench2 = montar_tac(TAC_CBR, busca_bloco_ultimo(tac2)->v1, label0, label2);
+		comp_list_tac_t* tac_label_0 =  montar_tac(TAC_LABEL, label0, NULL, NULL);
+		comp_list_tac_t* tac_label_1 =  montar_tac(TAC_LABEL, label1, NULL, NULL);
+
+		conecta_bloco_ultimo_com_proximo(tac1, tac_brench1);
+
+		tac_label_1->tac_prev = tac_brench1;
+
+		tac2->tac_prev = tac_label_1;
+
+		conecta_bloco_ultimo_com_proximo(tac2, tac_brench2);
+
+// 		conecta_bloco_ultimo_com_proximo(tac_brench2, tac_label_0);
 //
-// 			conecta_bloco_ultimo_com_proximo(tac1, tac_or);
-// 		}
-// 		else{
-// 			conecta_bloco_ultimo_com_proximo(tac1,tac2);
-// 			comp_list_tac_t* tac_or = montar_tac(TK_OC_OR, criar_registrador(), tac1->v1, tac2->v1);
-// 			conecta_bloco_ultimo_com_proximo(tac2,tac_or);
-// 		}
-// 		conecta_tacs_irmaos(tac_or);
-// 		return tac1;
+// 		conecta_tacs_irmaos(tac_label_0);
+
+		conecta_tacs_irmaos(tac_brench2);
+
+		tac_label_prox = montar_tac(TAC_LABEL, label2, NULL, NULL);
+
+		curto_circuito = ON;
+
+		tac_label_inicio = montar_tac(TAC_LABEL,label0, NULL, NULL);
+
+		return tac1;
 	}
 }
