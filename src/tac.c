@@ -320,29 +320,31 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
     comp_list_tac_t* tac_load_val = criar_tac();
     comp_list_tac_t* tac_load_desloc = criar_tac();
     char *desloc_str = (char *) malloc (100 * sizeof(char));
-	char *rbss = (char *) malloc (100 * sizeof(char));
+    /*char *rbss = (char *) malloc (100 * sizeof(char));*/
+    char *reg_escopo = (char *) malloc (100 * sizeof(char));
 
-	strcpy(rbss, "rbss");
-	sprintf(desloc_str,"%d",desloc);
+    /*strcpy(rbss, "rbss");*/
+    sprintf(desloc_str,"%d",desloc);
 
-	// Calcula o deslocamento com base no escopo da variável
-	if (escopo == INTERNO) {
-		tac_load_desloc = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, desloc_str);
-		tac_load_desloc->tac_prev = tac_load_val;
-	}
-	else if (escopo == EXTERNO) {
-		tac_load_desloc = montar_tac(TAC_ADD_VAL, criar_registrador(), rbss, desloc_str);
+    if (escopo == EXTERNO){
+        strcpy(reg_escopo, "rbss");
+    }
+    else {
+        strcpy(reg_escopo, "rarp");
+    }
 
-		conecta_bloco_ultimo_com_proximo(orig, tac_load_desloc);
-	}
+    // Calcula o deslocamento com base no escopo da variável
+    tac_load_desloc = montar_tac(TAC_ADD_VAL, criar_registrador(), reg_escopo, desloc_str);
+    conecta_bloco_ultimo_com_proximo(orig, tac_load_desloc);
 
-	tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, tac_load_desloc->v1);
-	tac_atr->tac_prev = tac_load_desloc;
+    // Monta o tac da atribuição
+    tac_atr = montar_tac(TAC_ATRIBUICAO, NULL, (busca_bloco_ultimo(orig))->v1, tac_load_desloc->v1);
+    tac_atr->tac_prev = tac_load_desloc;
 
     // Conecta do último tac até o primeiro na ordem inversa
     conecta_tacs_irmaos(tac_atr);
 
-	return orig;
+    return orig;
 }
 
 comp_list_tac_t* cria_copia_conecta_tacs(comp_list_tac_vector_t* lista){
