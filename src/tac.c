@@ -297,7 +297,11 @@ comp_list_tac_t* criar_tac(){
 }
 
 comp_list_tac_t* criar_tac_funcao(char *id, comp_list_tac_t* tac_func) {
-    comp_list_tac_t* tac_rotulo = montar_tac(TAC_LABEL, id, NULL, NULL);
+    char *label_func = (char *) malloc(100 * sizeof(char));
+    sprintf(label_func, "L%s", id);
+
+    /*comp_list_tac_t* tac_rotulo = montar_tac(TAC_LABEL, id, NULL, NULL);*/
+    comp_list_tac_t* tac_rotulo = montar_tac(TAC_LABEL, label_func, NULL, NULL);
 
     if(tac_func !=NULL){
         tac_func->tac_prev = tac_rotulo;
@@ -899,4 +903,14 @@ comp_list_tac_t* criar_tac_expressao_logica(int operacao, comp_list_tac_t* tac1,
 
 		return tac1;
 	}
+}
+
+comp_list_tac_t* criar_tac_jump_main() {
+    comp_list_tac_t* tac_jump = criar_tac();
+    char *label_main = (char *) malloc(100 * sizeof(char));
+
+    sprintf(label_main,"Lmain");
+    tac_jump = montar_tac(TAC_JUMP_LABEL, label_main, NULL, NULL);
+
+    return tac_jump;
 }

@@ -112,9 +112,17 @@ comp_dict_item_t* hash_item_func = NULL;
 /* Regras (e ações) da gramática */
 start:
      programa {
+        // Cria TAC para executar a função main
+        comp_list_tac_t* tac_programa = conecta_tacs(criar_tac_jump_main(), $1->tac);
+        $1->tac = tac_programa;
+
         arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);
         $$ = arvore_sintatica;
+        /*print_tac(tac_programa);*/
         print_tac($1->tac);
+        /*arvore_sintatica = create_node(IKS_AST_PROGRAMA, NULL, $1, NULL);*/
+        /*$$ = arvore_sintatica;*/
+        /*print_tac($1->tac);*/
      }
 ;
 

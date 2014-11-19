@@ -70,6 +70,7 @@ comp_list_tac_t *cria_tac_do_while(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_while_do(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t*, comp_list_tac_vector_t*, char*, int, int);
 comp_list_tac_t* criar_tac_expressao_logica(int , comp_list_tac_t* , comp_list_tac_t*);
+comp_list_tac_t* criar_tac_jump_main();
 
 comp_list_tac_vector_t* list_tac_concat(comp_list_tac_vector_t* list_a, comp_list_tac_vector_t* list_b);
 comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t*);
