@@ -6,6 +6,7 @@ int curto_circuito = OFF;
 
 int registrador_atual = 0;
 int label_atual = 0;
+FILE* arquivo;
 
 void print_tac(comp_list_tac_t* raiz){
     comp_list_tac_t* aux = raiz;
@@ -13,83 +14,114 @@ void print_tac(comp_list_tac_t* raiz){
         printf("RAIZ NULL\n");
     }
 
+    arquivo = fopen("tac.i", "w");
+	if(arquivo != NULL){
+			printf("deu brete");
+	}
+    
     while (aux != NULL){
         print_tac_item(aux);
         aux = aux->tac_next;
     }
+    
+    fclose(arquivo);
 }
 
 void print_tac_item(comp_list_tac_t* tac){
-    switch(tac->tipo){
+	
+	switch(tac->tipo){
         case '+':
             printf("add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '-':
             printf("sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '/':
             printf("div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '*':
             printf("mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case UMINUS:
             printf("sub 0, %s => %s\n", tac->v2, tac->v1);
+			fprintf(arquivo,"sub 0, %s => %s\n", tac->v2, tac->v1);
             break;
         case TK_OC_LE:
             printf("cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_GE:
             printf("cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_EQ:
             printf("cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_NE:
             printf("cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_AND:
             printf("and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_OR:
             printf("or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '<':
             printf("cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '>':
             printf("cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TAC_ATRIBUICAO:
             printf("store %s => %s\n", tac->v2, tac->v3);
+			fprintf(arquivo,"store %s => %s\n", tac->v2, tac->v3);
             break;
         case TAC_LABEL:
             printf("%s: \n", tac->v1);
+			fprintf(arquivo,"%s: \n", tac->v1);
             break;
         case TAC_LOAD_VAL:
             printf("loadI %s => %s \n", tac->v3, tac->v1);
+			fprintf(arquivo,"loadI %s => %s \n", tac->v3, tac->v1);
             break;
         case TAC_LOAD:
             printf("load %s => %s \n", tac->v3, tac->v1);
+			fprintf(arquivo,"load %s => %s \n", tac->v3, tac->v1);
             break;
         case TAC_CBR:
             printf("cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
+			fprintf(arquivo,"cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
             break;
 		case TAC_JUMP_LABEL:
             printf("jumpI -> %s\n", tac->v1);
+			fprintf(arquivo,"jumpI -> %s\n", tac->v1);
 			break;
 		case TAC_ADD_VAL:
             printf("addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo, "addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TAC_MULT_VAL:
             printf("multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
 		case TAC_NOP:
 			printf("nop\n");
+			fprintf(arquivo,"nop\n");
 			break;
 		default:
             break;
     }
+    //fclose(arquivo);
 }
 
 void conecta_tacs_irmaos(comp_list_tac_t* last){
