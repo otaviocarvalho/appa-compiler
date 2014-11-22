@@ -7,6 +7,7 @@ int curto_circuito = OFF;
 int registrador_atual = 0;
 int label_atual = 0;
 FILE* arquivo;
+FILE* arquivoOtimizado;
 
 void print_tac(comp_list_tac_t* raiz){
     comp_list_tac_t* aux = raiz;
@@ -20,14 +21,29 @@ void print_tac(comp_list_tac_t* raiz){
 	}
     
     while (aux != NULL){
-        print_tac_item(aux);
+        print_tac_item(aux,arquivo);
         aux = aux->tac_next;
     }
-    
     fclose(arquivo);
+    
+    //Otimização dos códigos  
+    arquivoOtimizado = fopen("tacOtimizado.i","w");
+	if(arquivoOtimizado != NULL){
+		printf("deu brete nos barato loko");
+	}
+    aux = raiz;
+	
+	otimiza_os_barato(raiz);
+	
+    while (aux != NULL){
+        print_tac_item(aux,arquivoOtimizado);
+        aux = aux->tac_next;
+    }   
+	fclose(arquivoOtimizado);
+	
 }
 
-void print_tac_item(comp_list_tac_t* tac){
+void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
 	
 	switch(tac->tipo){
         case '+':
@@ -945,4 +961,72 @@ comp_list_tac_t* criar_tac_jump_main() {
     tac_jump = montar_tac(TAC_JUMP_LABEL, label_main, NULL, NULL);
 
     return tac_jump;
+}
+
+void otimiza_os_barato(comp_list_tac_t* lista){
+	comp_list_tac_t* ptaux;
+	ptaux = lista;
+	while(ptaux !=NULL){
+	
+		if(ptaux->tipo == '+'){
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 && strcmp(ptaux->tac_prev->v3,"0")!=0){
+				ptaux->tac_prev->tac_prev->tac_prev->tac_next = ptaux->tac_prev;
+				ptaux->tac_prev->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->v1);
+				ptaux->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev;				
+			}
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")!=0 && strcmp(ptaux->tac_prev->v3,"0")==0){
+				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
+			}
+		}
+		
+		if(ptaux->tipo == '*'){
+			//multiplicaçao por um
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"1")==0 && strcmp(ptaux->tac_prev->v3,"1")!=0){
+				ptaux->tac_prev->tac_prev->tac_prev->tac_next = ptaux->tac_prev;
+				ptaux->tac_prev->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->v1);
+				ptaux->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev;				
+			}
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"1")!=0 && strcmp(ptaux->tac_prev->v3,"1")==0){
+				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
+			}
+			//multiplicação por zero
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 || strcmp(ptaux->tac_prev->v3,"0")==0){
+				char reg[100]; 
+				strcpy(reg, criar_registrador());
+				comp_list_tac_t* tac = criar_tac();
+				tac = montar_tac(TAC_LOAD_VAL, reg, NULL, "0");
+				ptaux->tac_prev->tac_prev->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				tac->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = tac;
+				strcpy(ptaux->tac_next->tac_next->v2, reg);
+			}	
+		}
+		
+		if(ptaux->tipo == '/'){
+			//divisão por um
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")!=0 && strcmp(ptaux->tac_prev->v3,"1")==0){
+				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
+			}
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 && strcmp(ptaux->tac_prev->v3,"0")!=0){
+				ptaux->tac_prev->tac_prev->tac_prev->tac_next = ptaux->tac_prev;
+				ptaux->tac_prev->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
+				ptaux->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev;				
+			}
+		}
+		
+		ptaux = ptaux->tac_next;
+	}
 }
