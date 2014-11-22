@@ -981,6 +981,11 @@ void otimiza_os_barato(comp_list_tac_t* lista){
 				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
 				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
 			}
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 && strcmp(ptaux->tac_prev->v3,"0")==0){
+				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
+			}
 		}
 		
 		if(ptaux->tipo == '*'){
@@ -1018,12 +1023,30 @@ void otimiza_os_barato(comp_list_tac_t* lista){
 				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
 				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
 			}
+			//zero dividido por algo
 			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 && strcmp(ptaux->tac_prev->v3,"0")!=0){
-				ptaux->tac_prev->tac_prev->tac_prev->tac_next = ptaux->tac_prev;
-				ptaux->tac_prev->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
+				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);		
+			}
+		}
+		
+		if(ptaux->tipo == '-'){
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")!=0 && strcmp(ptaux->tac_prev->v3,"0")==0){
+				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
 				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
-				ptaux->tac_prev->tac_next = ptaux->tac_next;
-				ptaux->tac_next->tac_prev = ptaux->tac_prev;				
+			}
+			if(strcmp(ptaux->tac_prev->tac_prev->v3, ptaux->tac_prev->v3)==0){
+				char reg[100]; 
+				strcpy(reg, criar_registrador());
+				comp_list_tac_t* tac = criar_tac();
+				tac = montar_tac(TAC_LOAD_VAL, reg, NULL, "0");
+				ptaux->tac_prev->tac_prev->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				tac->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = tac;
+				strcpy(ptaux->tac_next->tac_next->v2, reg);
 			}
 		}
 		
