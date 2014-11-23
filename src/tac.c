@@ -7,16 +7,18 @@ int curto_circuito = OFF;
 int registrador_atual = 0;
 int label_atual = 0;
 FILE* arquivo;
-FILE* arquivoOtimizado;
+FILE* arquivo_otimizado_ac;
+FILE* arquivo_otimizado_sa;
 
 void print_tac(comp_list_tac_t* raiz){
     comp_list_tac_t* aux = raiz;
     if (raiz == NULL) {
         printf("RAIZ NULL\n");
     }
-
+	
+	printf("Tac Original\n");
     arquivo = fopen("tac.i", "w");
-	if(arquivo != NULL){
+	if(arquivo == NULL){
 			printf("deu brete");
 	}
     
@@ -25,21 +27,44 @@ void print_tac(comp_list_tac_t* raiz){
         aux = aux->tac_next;
     }
     fclose(arquivo);
+	printf("\n\n");
     
-    //Otimização dos códigos  
-    arquivoOtimizado = fopen("tacOtimizado.i","w");
-	if(arquivoOtimizado != NULL){
+	
+    //Otimização de código
+	
+	//Avaliação de constantes
+	printf("Tac avaliação de constantes\n");
+    arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");
+	if(arquivo_otimizado_ac == NULL){
 		printf("deu brete nos barato loko");
 	}
     aux = raiz;
 	
-	otimiza_os_barato(raiz);
+	otimizacao_avaliacao_constantes(raiz);
 	
     while (aux != NULL){
-        print_tac_item(aux,arquivoOtimizado);
+        print_tac_item(aux,arquivo_otimizado_ac);
         aux = aux->tac_next;
-    }   
-	fclose(arquivoOtimizado);
+    }
+    fclose(arquivo_otimizado_ac);
+	printf("\n\n");
+	
+	//Simplificações algébricas
+	printf("Tac simplificações algébricas\n");
+    arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");
+	if(arquivo_otimizado_sa == NULL){
+		printf("deu brete nos barato loko 2");
+	}
+    aux = raiz;
+	
+	otimizacao_simplificacao_algebrica(raiz);
+	
+    while (aux != NULL){
+        print_tac_item(aux,arquivo_otimizado_sa);
+        aux = aux->tac_next;
+    }    
+    fclose(arquivo_otimizado_sa);
+	printf("\n\n");
 	
 }
 
@@ -129,6 +154,14 @@ void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
         case TAC_MULT_VAL:
             printf("multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
 			fprintf(arquivo,"multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+		case TAC_LSHIFT_VAL:
+            printf("lshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            break;
+		case TAC_RSHIFT_VAL:
+            printf("rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+			fprintf(arquivo,"rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
 		case TAC_NOP:
 			printf("nop\n");
@@ -963,7 +996,7 @@ comp_list_tac_t* criar_tac_jump_main() {
     return tac_jump;
 }
 
-void otimiza_os_barato(comp_list_tac_t* lista){
+void otimizacao_avaliacao_constantes(comp_list_tac_t* lista){
 	comp_list_tac_t* ptaux;
 	ptaux = lista;
 	while(ptaux !=NULL){
@@ -1050,6 +1083,62 @@ void otimiza_os_barato(comp_list_tac_t* lista){
 			}
 		}
 		
+		ptaux = ptaux->tac_next;
+	}
+}
+	
+void otimizacao_simplificacao_algebrica(comp_list_tac_t* lista){
+	comp_list_tac_t* ptaux;
+	ptaux = lista;
+	while(ptaux !=NULL){
+		//Multiplicação por 2
+		if(ptaux->tipo == '*'){
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"2")==0){
+				char reg[100]; 
+				comp_list_tac_t* tac;
+				strcpy(reg, criar_registrador());
+				tac = criar_tac();
+				tac = montar_tac(TAC_LSHIFT_VAL, ptaux->v1, ptaux->tac_prev->v1, "1");
+				ptaux->tac_prev->tac_prev->tac_prev->tac_next = ptaux->tac_prev;
+				ptaux->tac_prev->tac_prev = ptaux->tac_prev->tac_prev->tac_prev;
+				ptaux->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev;
+				tac->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = tac;
+			}
+			
+			if(strcmp(ptaux->tac_prev->v3,"2")==0){
+				char reg[100]; 
+				comp_list_tac_t* tac;
+				strcpy(reg, criar_registrador());
+				tac = criar_tac();
+				tac = montar_tac(TAC_LSHIFT_VAL, ptaux->v1, ptaux->tac_prev->tac_prev->v1, "1");
+				
+				ptaux->tac_prev->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev->tac_prev;
+				ptaux->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev;
+				tac->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = tac;
+			}
+		}			
+		if(ptaux->tipo == '/'){
+			
+			if(strcmp(ptaux->tac_prev->v3,"2")==0){
+				char reg[100]; 
+				comp_list_tac_t* tac;
+				strcpy(reg, criar_registrador());
+				tac = criar_tac();
+				tac = montar_tac(TAC_RSHIFT_VAL, ptaux->v1, ptaux->tac_prev->tac_prev->v1, "1");
+				
+				ptaux->tac_prev->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev->tac_prev;
+				ptaux->tac_prev->tac_next = tac;
+				tac->tac_prev = ptaux->tac_prev;
+				tac->tac_next = ptaux->tac_next;
+				ptaux->tac_next->tac_prev = tac;
+			}
+		}			
 		ptaux = ptaux->tac_next;
 	}
 }
