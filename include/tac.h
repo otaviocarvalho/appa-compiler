@@ -80,3 +80,5 @@ int calcula_dimensao_arranjo(comp_list_tac_vector_t*);
 
 void otimizacao_avaliacao_constantes(comp_list_tac_t*);
 void otimizacao_simplificacao_algebrica(comp_list_tac_t*);
+void otimizacao_propagacao_copia(comp_list_tac_t*);
+void otimizacao_instrucoes_redundantes(comp_list_tac_t*);

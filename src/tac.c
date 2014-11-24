@@ -9,6 +9,8 @@ int label_atual = 0;
 FILE* arquivo;
 FILE* arquivo_otimizado_ac;
 FILE* arquivo_otimizado_sa;
+FILE* arquivo_otimizado_pc;
+FILE* arquivo_otimizado_ir;
 
 void print_tac(comp_list_tac_t* raiz){
     comp_list_tac_t* aux = raiz;
@@ -66,6 +68,40 @@ void print_tac(comp_list_tac_t* raiz){
     fclose(arquivo_otimizado_sa);
 	printf("\n\n");
 	
+	
+	//Propagação de cópias
+	printf("Tac propagação de cópias\n");
+    arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");
+	if(arquivo_otimizado_pc == NULL){
+		printf("deu brete nos barato loko 3");
+	}
+    aux = raiz;
+	
+	otimizacao_propagacao_copia(raiz);
+	
+    while (aux != NULL){
+        print_tac_item(aux,arquivo_otimizado_pc);
+        aux = aux->tac_next;
+    }    
+    fclose(arquivo_otimizado_pc);
+	printf("\n\n");
+	
+	//Instruções redundantes
+	printf("Tac instruções redundantes\n");
+    arquivo_otimizado_pc = fopen("tac_instrucoes_redundantes.i","w");
+	if(arquivo_otimizado_ir == NULL){
+		printf("deu brete nos barato loko 4");
+	}
+    aux = raiz;
+	
+	//otimizacao_instrucoes_redundantes(raiz);
+	
+    while (aux != NULL){
+        print_tac_item(aux,arquivo_otimizado_ir);
+        aux = aux->tac_next;
+    }    
+    fclose(arquivo_otimizado_ir);
+	printf("\n\n");
 }
 
 void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
@@ -1140,5 +1176,93 @@ void otimizacao_simplificacao_algebrica(comp_list_tac_t* lista){
 			}
 		}			
 		ptaux = ptaux->tac_next;
+	}	
+}
+
+void otimizacao_propagacao_copia(comp_list_tac_t* lista){
+	comp_list_tac_t* ptaux;
+	comp_list_tac_t* ptaux2;
+	ptaux = lista;
+	int usado = 0;
+	char* deslocamento;
+	while(ptaux != NULL){
+		if(ptaux->tipo == TAC_ADD_VAL && strcmp(ptaux->v2,"rbss") == 0){
+			strcpy(deslocamento,ptaux->v3);
+			
+			ptaux2 = ptaux->tac_next;
+			while(ptaux2!=NULL){
+				if(ptaux2->tipo == TAC_ADD_VAL && (strcmp(ptaux2->v2,"rbss") == 0) && (strcmp(deslocamento,ptaux2->v3) == 0)){
+					usado = 1;
+				}
+				ptaux2 = ptaux2->tac_next;
+			}
+						
+			//otimiza
+			if(usado == 0){
+				if(ptaux->tac_next->tac_next!=NULL){
+					ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next->tac_next;
+					ptaux->tac_next->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
+					
+				}
+			}		
+		}
+		usado = 0;
+	ptaux = ptaux->tac_next;	
+	}
+}
+
+void otimizacao_instrucoes_redundantes(comp_list_tac_t* lista){
+	comp_list_tac_t* ptaux;
+	comp_list_tac_t* ptaux2;
+	comp_list_tac_t* ptaux3;
+	ptaux = lista;
+	int otimiza = 0;
+	char* deslocamento;
+	
+	while(ptaux != NULL){
+		if(ptaux->tipo == TAC_ADD_VAL && strcmp(ptaux->v2,"rbss" ) == 0  && ptaux->tac_next->tipo == TAC_ATRIBUICAO){
+			strcpy(deslocamento,ptaux->v3);
+			
+			ptaux2 = ptaux->tac_next;
+			while(ptaux2 != NULL){
+				if(ptaux2->tipo == TAC_ADD_VAL && (strcmp(ptaux2->v2,"rbss") == 0) && ptaux2->tac_next->tipo == TAC_ATRIBUICAO){
+					if((strcmp(deslocamento,ptaux2->v3) == 0)){
+						//otimiza o barato
+						otimiza = 1;
+						break;
+					}
+					else{
+						//não otimiza o barato
+						otimiza = 0;
+						break;
+					}
+				}
+				ptaux2 = ptaux2->tac_next;
+			}
+						
+			//otimiza
+			if(otimiza == 1){
+				ptaux3 = ptaux;
+				while(ptaux3->tipo != TAC_LABEL && ptaux3->tipo != TAC_NOP && ptaux3->tipo != TAC_ATRIBUICAO){
+// 					fprintf(stdout, "%s\n",ptaux3->v1);
+// 					getchar();
+					ptaux3 = ptaux3->tac_prev;
+				}
+				
+					fprintf(stdout, "%s\n",ptaux3->v1);
+					fprintf(stdout, "%s\n",ptaux3->tac_next->v1);
+					fprintf(stdout, "%s\n",ptaux->v1);
+					fprintf(stdout, "%s\n",ptaux->tac_next->tac_next->v1);
+					fprintf(stdout, "%s\n",ptaux->tac_next->tac_next->v1);
+					getchar();
+				
+					
+				ptaux3->tac_next = ptaux->tac_next->tac_next;
+				ptaux->tac_next->tac_next->tac_prev = ptaux3;
+				return;
+			}	
+		}
+		
+		ptaux = ptaux->tac_next;	
 	}
 }
