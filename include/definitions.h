@@ -54,6 +54,8 @@
 #define TAC_MULT_VAL 40
 #define TAC_NOP 41
 #define TAC_STORE_DESLOC 88
+#define TAC_RSHIFT_VAL 100
+#define TAC_LSHIFT_VAL 101
 
 #define INTERNO 1
 #define EXTERNO 0

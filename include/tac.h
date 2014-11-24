@@ -47,7 +47,7 @@ typedef struct comp_list_tac_vector_t {
 } comp_list_tac_vector_t;
 
 void print_tac(comp_list_tac_t*);
-void print_tac_item(comp_list_tac_t*);
+void print_tac_item(comp_list_tac_t*, FILE*);
 void conecta_tacs_irmaos(comp_list_tac_t*);
 comp_list_tac_t* conecta_tacs(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t* cria_copia_conecta_tacs(comp_list_tac_vector_t*);
@@ -81,3 +81,8 @@ comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t*);
 int list_tac_count(comp_list_tac_vector_t*);
 
 int calcula_dimensao_arranjo(comp_list_tac_vector_t*);
+
+void otimizacao_avaliacao_constantes(comp_list_tac_t*);
+void otimizacao_simplificacao_algebrica(comp_list_tac_t*);
+void otimizacao_propagacao_copia(comp_list_tac_t*);
+void otimizacao_instrucoes_redundantes(comp_list_tac_t*);
