@@ -156,6 +156,7 @@ comp_dict_item_t* add_symbol(comp_dict_t* cur_table, char* key, int line, int ty
 		node->item->desloc = desloc;
     node->item->type_var = type_var;
     node->item->operador = operador;
+    node->item->escopo = -1;
     node->item->value = alloc_value_symbol(node->item->type, key); // Aloca valor do token de acordo com o tipo
     node->item->key = strdup(key);
 

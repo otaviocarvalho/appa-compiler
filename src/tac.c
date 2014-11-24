@@ -16,19 +16,19 @@ void print_tac(comp_list_tac_t* raiz){
 
     arquivo = fopen("tac.i", "w");
 	if(arquivo != NULL){
-			printf("deu brete");
+			/*printf("deu brete");*/
 	}
-    
+
     while (aux != NULL){
         print_tac_item(aux);
         aux = aux->tac_next;
     }
-    
+
     fclose(arquivo);
 }
 
 void print_tac_item(comp_list_tac_t* tac){
-	
+
 	switch(tac->tipo){
         case '+':
             printf("add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
@@ -86,6 +86,10 @@ void print_tac_item(comp_list_tac_t* tac){
             printf("store %s => %s\n", tac->v2, tac->v3);
 			fprintf(arquivo,"store %s => %s\n", tac->v2, tac->v3);
             break;
+        case TAC_STORE_DESLOC:
+            printf("storeAI %s => %s, %s\n", tac->v1, tac->v2, tac->v3);
+			fprintf(arquivo,"storeAI %s => %s, %s\n", tac->v1, tac->v2, tac->v3);
+            break;
         case TAC_LABEL:
             printf("%s: \n", tac->v1);
 			fprintf(arquivo,"%s: \n", tac->v1);
@@ -102,6 +106,10 @@ void print_tac_item(comp_list_tac_t* tac){
             printf("cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
 			fprintf(arquivo,"cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
             break;
+		case TAC_JUMP:
+            printf("jump -> %s\n", tac->v1);
+			fprintf(arquivo,"jumpI -> %s\n", tac->v1);
+			break;
 		case TAC_JUMP_LABEL:
             printf("jumpI -> %s\n", tac->v1);
 			fprintf(arquivo,"jumpI -> %s\n", tac->v1);
@@ -261,7 +269,8 @@ comp_list_tac_t *criar_tac_literal(int tipo_literal, int tipo, int tamanho_tipo,
         strcpy(escopo_str,"rbss");
     }
     else {
-        strcpy(escopo_str,"rarp");
+        /*strcpy(escopo_str,"rarp");*/
+        strcpy(escopo_str,"rlocal_vars_offset");
     }
 
     char *desloc_str = (char *) malloc (100 * sizeof(char));
@@ -344,13 +353,6 @@ comp_list_tac_t* criar_tac_funcao(char *id, comp_list_tac_t* tac_func) {
     return tac_rotulo;
 }
 
-// Preencher
-comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func) {
-    comp_list_tac_t* tac_new = criar_tac();
-
-    return tac_new;
-}
-
 comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int desloc, int escopo) {
     comp_list_tac_t* tac_atr = criar_tac();
     comp_list_tac_t* tac_load_val = criar_tac();
@@ -366,7 +368,8 @@ comp_list_tac_t* criar_tac_atribuicao(char *dest, comp_list_tac_t* orig, int des
         strcpy(reg_escopo, "rbss");
     }
     else {
-        strcpy(reg_escopo, "rarp");
+        /*strcpy(reg_escopo, "rarp");*/
+        strcpy(reg_escopo, "rlocal_vars_offset");
     }
 
     // Calcula o deslocamento com base no escopo da variável
@@ -432,7 +435,8 @@ comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t* lista_pa
         strcpy(reg_escopo, "rbss");
     }
     else {
-        strcpy(reg_escopo, "rarp");
+        /*strcpy(reg_escopo, "rarp");*/
+        strcpy(reg_escopo, "rlocal_vars_offset");
     }
 
     comp_list_tac_t* tac_connect = NULL;
@@ -526,7 +530,8 @@ comp_list_tac_t* criar_tac_atribuicao_vetor(char *dest, comp_list_tac_t* orig, c
         strcpy(reg_escopo, "rbss");
     }
     else {
-        strcpy(reg_escopo, "rarp");
+        /*strcpy(reg_escopo, "rarp");*/
+        strcpy(reg_escopo, "rlocal_vars_offset");
     }
 
     // Calcula o deslocamento com base no escopo da variável
@@ -945,4 +950,152 @@ comp_list_tac_t* criar_tac_jump_main() {
     tac_jump = montar_tac(TAC_JUMP_LABEL, label_main, NULL, NULL);
 
     return tac_jump;
+}
+
+comp_list_tac_t* criar_tac_fim_programa() {
+    comp_list_tac_t* tac_label_end = criar_tac();
+    char *label_end = (char *) malloc(100 * sizeof(char));
+
+    sprintf(label_end,"lend");
+    tac_label_end = montar_tac(TAC_LABEL, label_end, NULL, NULL);
+
+    return tac_label_end;
+}
+
+comp_list_tac_t* criar_tac_zera_sp() {
+    comp_list_tac_t* tac_zera_sp = criar_tac();
+    char *rsp = (char *) malloc(100 * sizeof(char));
+    char *zero = (char *) malloc(100 * sizeof(char));
+
+    sprintf(rsp, "rsp");
+    sprintf(zero, "0");
+    tac_zera_sp = montar_tac(TAC_LOAD_VAL, rsp, NULL, zero);
+
+    return tac_zera_sp;
+}
+
+comp_list_tac_t* criar_tac_registro_ativacao(int linha_escopo_estatico) {
+    char *rarp = (char *) malloc(100 * sizeof(char));
+    char *rsp = (char *) malloc(100 * sizeof(char));
+    sprintf(rarp, "rarp");
+    sprintf(rsp, "rsp");
+
+    // Atualiza fp pro antigo sp
+    // fp = rarp = rsp
+    comp_list_tac_t* tac_atualiza_fp = criar_tac();
+    tac_atualiza_fp = montar_tac(TAC_LOAD, rarp, NULL, rsp);
+
+    // Insere link estático
+    // ve = rarp+2
+    char *desloc_linha = (char *) malloc(100 * sizeof(char));
+    sprintf(desloc_linha, "%d", linha_escopo_estatico);
+    comp_list_tac_t* tac_load_desloc_linha = criar_tac();
+    tac_load_desloc_linha = montar_tac(TAC_LOAD_VAL, criar_registrador(), NULL, desloc_linha);
+
+    char *desloc_link_pos = (char *) malloc(100 * sizeof(char));
+    sprintf(desloc_link_pos, "2");
+    comp_list_tac_t* tac_link_estatico = criar_tac();
+    tac_link_estatico = montar_tac(TAC_STORE_DESLOC, tac_load_desloc_linha->v1, rarp, desloc_link_pos);
+
+    // Atualiza sp pro novo topo
+    // sp = rsp = rarp+3
+    char *desloc_topo_sp = (char *) malloc(100 * sizeof(char));
+    sprintf(desloc_topo_sp, "3");
+    comp_list_tac_t* tac_desloc_topo_sp = criar_tac();
+    tac_desloc_topo_sp = montar_tac(TAC_LOAD_VAL, rsp, NULL, desloc_topo_sp);
+
+    char *label_reg_local_vars = (char *) malloc(100 * sizeof(char));
+    char *label_reg_local_vars_desloc = (char *) malloc(100 * sizeof(char));
+    // Registrador para o início das variáveis locais
+    sprintf(label_reg_local_vars, "rlocal_vars_offset");
+    /*sprintf(label_reg_local_vars_desloc, "3");*/
+    comp_list_tac_t* tac_local_vars = criar_tac();
+    /*tac_local_vars = montar_tac(TAC_LOAD_VAL, label_reg_local_vars, NULL, label_reg_local_vars_desloc);*/
+    tac_local_vars = montar_tac(TAC_LOAD, label_reg_local_vars, NULL, rsp);
+
+    // Juntar tacs
+    /*tac_atualiza_fp->tac_prev = tac_local_vars;*/
+    /*conecta_tacs_irmaos(tac_atualiza_fp);*/
+
+    tac_load_desloc_linha->tac_prev = tac_atualiza_fp;
+    tac_link_estatico->tac_prev = tac_load_desloc_linha;
+    tac_desloc_topo_sp->tac_prev = tac_link_estatico;
+    tac_local_vars->tac_prev = tac_desloc_topo_sp;
+
+    /*conecta_tacs_irmaos(tac_link_estatico);*/
+    /*conecta_tacs_irmaos(tac_desloc_topo_sp);*/
+    conecta_tacs_irmaos(tac_local_vars);
+
+    /*print_tac(tac_local_vars);*/
+    /*fprintf(stdout, "aslkfdjkl\n");*/
+
+    return tac_atualiza_fp;
+    /*return tac_local_vars;*/
+}
+
+comp_list_tac_t* criar_tac_destroi_registro_ativacao(char* nome_funcao) {
+    comp_list_tac_t* tac_retorno = criar_tac();
+    char *label_main = (char *) malloc(100 * sizeof(char));
+
+    // Retorna para o fim do código se terminou a main
+    if (strcmp(nome_funcao, "main") == 0){
+        char *label_end = (char *) malloc(100 * sizeof(char));
+
+        sprintf(label_end,"Lend");
+        tac_retorno = montar_tac(TAC_JUMP_LABEL, label_end, NULL, NULL);
+    }
+    // Retorna para a linha posterior a chamada da função
+    else {
+        // load rarp => rX
+        // jump -> rX
+        comp_list_tac_t* tac_load = criar_tac();
+        comp_list_tac_t* tac_jump = criar_tac();
+        char *label_rarp = (char *) malloc(100 * sizeof(char));
+        sprintf(label_rarp,"rarp");
+
+        tac_load = montar_tac(TAC_LOAD, criar_registrador(), NULL, label_rarp);
+        tac_jump = montar_tac(TAC_JUMP, tac_load->v1, NULL, NULL);
+
+        tac_jump->tac_prev = tac_load;
+        conecta_tacs_irmaos(tac_jump);
+
+        tac_retorno = tac_load;
+    }
+
+    return tac_retorno;
+}
+
+comp_list_tac_t* criar_tac_chamada_funcao(char* id, comp_list_tac_t* tac_func, int linha_retorno, int linha_vinc_dinamico) {
+    char *rsp = (char *) malloc (100 * sizeof(char));
+    char *val = (char *) malloc (100 * sizeof(char));
+    char *str_link_vinc_dinamico = (char *) malloc (100 * sizeof(char));
+    char *desloc_vinc_dinamico = (char *) malloc (100 * sizeof(char));
+
+    // Atualiza link de retorno no próximo escopo, a partir do sp do escopo atual (fp[0] do escopo a ser criado)
+    sprintf(rsp, "rsp");
+    sprintf(val, "rL%d", linha_retorno);
+    comp_list_tac_t* tac_end_retorno = criar_tac();
+    tac_end_retorno = montar_tac(TAC_LOAD_VAL, rsp, NULL, val);
+
+    // Insere link dinâmico
+    // ve = rsp+1
+    sprintf(str_link_vinc_dinamico, "%d", linha_vinc_dinamico);
+    sprintf(desloc_vinc_dinamico, "1");
+    comp_list_tac_t* tac_vinc_dinamico = criar_tac();
+    tac_vinc_dinamico = montar_tac(TAC_STORE_DESLOC, str_link_vinc_dinamico, rsp, desloc_vinc_dinamico);
+
+    // Passa o controle para a função chamada
+    char *label_funcao = (char *) malloc (100 * sizeof(char));
+    sprintf(label_funcao, "L%s", id);
+    comp_list_tac_t* tac_jump_funcao = criar_tac();
+    tac_jump_funcao = montar_tac(TAC_JUMP_LABEL, label_funcao, NULL, NULL);
+
+    // Conecta tacs
+    tac_vinc_dinamico->tac_prev = tac_end_retorno;
+    tac_jump_funcao->tac_prev = tac_vinc_dinamico;
+
+    /*conecta_tacs_irmaos(tac_vinc_dinamico);*/
+    conecta_tacs_irmaos(tac_jump_funcao);
+
+    return tac_end_retorno;
 }

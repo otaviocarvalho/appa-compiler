@@ -53,6 +53,7 @@
 #define TAC_ADD_VAL 39
 #define TAC_MULT_VAL 40
 #define TAC_NOP 41
+#define TAC_STORE_DESLOC 88
 
 #define INTERNO 1
 #define EXTERNO 0

@@ -61,7 +61,6 @@ comp_list_tac_t* montar_tac(int, char*, char*, char*);
 comp_list_tac_t *criar_tac_expressao(int, comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *criar_tac_literal(int, int, int, char*, int, int, comp_list_tac_vector_t*, comp_list_tac_vector_t*);
 comp_list_tac_t* criar_tac_funcao(char*, comp_list_tac_t*);
-comp_list_tac_t* criar_tac_chamada_funcao(char*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_atribuicao(char*, comp_list_tac_t*, int, int);
 comp_list_tac_t* criar_tac_atribuicao_vetor(char*, comp_list_tac_t*, comp_list_tac_vector_t*, comp_list_tac_vector_t*, int, int, int);
 comp_list_tac_t *cria_tac_if(comp_list_tac_t*, comp_list_tac_t*);
@@ -69,8 +68,13 @@ comp_list_tac_t *cria_tac_if_else(comp_list_tac_t*, comp_list_tac_t*, comp_list_
 comp_list_tac_t *cria_tac_do_while(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t *cria_tac_while_do(comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t* calcula_tac_lista_param_desloc(comp_list_tac_vector_t*, comp_list_tac_vector_t*, char*, int, int);
-comp_list_tac_t* criar_tac_expressao_logica(int , comp_list_tac_t* , comp_list_tac_t*);
+comp_list_tac_t* criar_tac_expressao_logica(int, comp_list_tac_t*, comp_list_tac_t*);
 comp_list_tac_t* criar_tac_jump_main();
+comp_list_tac_t* criar_tac_fim_programa();
+comp_list_tac_t* criar_tac_registro_ativacao(int);
+comp_list_tac_t* criar_tac_destroi_registro_ativacao(char*);
+comp_list_tac_t* criar_tac_chamada_funcao(char*, comp_list_tac_t*, int, int);
+comp_list_tac_t* criar_tac_zera_sp();
 
 comp_list_tac_vector_t* list_tac_concat(comp_list_tac_vector_t* list_a, comp_list_tac_vector_t* list_b);
 comp_list_tac_vector_t* list_tac_create_item(comp_list_tac_t*);
