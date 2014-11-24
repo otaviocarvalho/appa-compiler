@@ -1,4 +1,5 @@
 #include "main.h"
+#include "tac.h"
 
 extern FILE *yyin;
 extern char *yytext;
@@ -71,6 +72,21 @@ int main_avaliacao_etapa_2 (int argc, char **argv)
   return ret;
 }
 
+int main_avaliacao_etapa_2_plus (int argc, char **argv, int file)
+{
+    if (file == 1){
+        fprintf(stdout, "main_avaliacao_etapa_7\n");
+        comp_list_tac_t* list_tacs = gerar_tacs_input(yyin);
+        print_tac(list_tacs);
+    }
+    else {
+        int ret = yyparse();
+        return ret;
+    }
+
+    return 0;
+}
+
 int main_avaliacao_etapa_3 (int argc, char **argv)
 {
   gv_init(NULL);
@@ -84,29 +100,33 @@ int main_avaliacao_etapa_4 (int argc, char **argv)
   return main_avaliacao_etapa_2 (argc, argv);
 }
 
-int main_avaliacao_etapa_5 (int argc, char **argv)
+int main_avaliacao_etapa_5 (int argc, char **argv, int file)
 {
-  return main_avaliacao_etapa_2 (argc, argv);
+  return main_avaliacao_etapa_2_plus (argc, argv, file);
 }
 
-int main_avaliacao_etapa_6 (int argc, char **argv)
+int main_avaliacao_etapa_6 (int argc, char **argv, int file)
 {
-  return main_avaliacao_etapa_2 (argc, argv);
+  return main_avaliacao_etapa_2_plus (argc, argv, file);
 }
 
-int main_avaliacao_etapa_7 (int argc, char **argv)
+int main_avaliacao_etapa_7 (int argc, char **argv, int file)
 {
-  return main_avaliacao_etapa_2 (argc, argv);
+    return main_avaliacao_etapa_2_plus (argc, argv, file);
 }
 
 int main (int argc, char **argv)
 {
+    int flag_file = 0;
   //if some argument is provided, treat it as input
   if (argc != 1){
     yyin = fopen(argv[1], "r");
     //if fopen fails, yyin continues to be stdin
     if (yyin == NULL){
       yyin = stdin;
+    }
+    else{
+        flag_file = 1;
     }
   }
   USER_INIT;
@@ -120,11 +140,11 @@ int main (int argc, char **argv)
 #elif AVALIACAO_ETAPA_4
   r = main_avaliacao_etapa_4 (argc, argv);
 #elif AVALIACAO_ETAPA_5
-  r = main_avaliacao_etapa_5 (argc, argv);
+  r = main_avaliacao_etapa_5 (argc, argv, flag_file);
 #elif AVALIACAO_ETAPA_6
-  r = main_avaliacao_etapa_6 (argc, argv);
+  r = main_avaliacao_etapa_6 (argc, argv, flag_file);
 #elif AVALIACAO_ETAPA_7
-  r = main_avaliacao_etapa_7 (argc, argv);
+  r = main_avaliacao_etapa_7 (argc, argv, flag_file);
 #else
   r = 0;
 #endif

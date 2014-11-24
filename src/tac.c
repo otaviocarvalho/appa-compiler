@@ -12,6 +12,11 @@ FILE* arquivo_otimizado_sa;
 FILE* arquivo_otimizado_pc;
 FILE* arquivo_otimizado_ir;
 
+comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
+    fprintf(stdout, "gerar_tacs_input()\n");
+    return NULL;
+}
+
 void print_tac(comp_list_tac_t* raiz){
     comp_list_tac_t* aux = raiz;
     if (raiz == NULL) {
