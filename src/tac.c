@@ -93,13 +93,13 @@ void print_tac(comp_list_tac_t* raiz){
 
 	//Instruções redundantes
 	printf("Tac instruções redundantes\n");
-    arquivo_otimizado_pc = fopen("tac_instrucoes_redundantes.i","w");
+    arquivo_otimizado_ir = fopen("tac_instrucoes_redundantes.i","w");
 	if(arquivo_otimizado_ir == NULL){
 		printf("deu brete nos barato loko 4");
 	}
     aux = raiz;
 
-	//otimizacao_instrucoes_redundantes(raiz);
+	otimizacao_instrucoes_redundantes(raiz);
 
     while (aux != NULL){
         print_tac_item(aux,arquivo_otimizado_ir);
@@ -1411,12 +1411,11 @@ void otimizacao_instrucoes_redundantes(comp_list_tac_t* lista){
 					fprintf(stdout, "%s\n",ptaux3->tac_next->v1);
 					fprintf(stdout, "%s\n",ptaux->v1);
 					fprintf(stdout, "%s\n",ptaux->tac_next->tac_next->v1);
-					fprintf(stdout, "%s\n",ptaux->tac_next->tac_next->v1);
 					getchar();
 
-
-				ptaux3->tac_next = ptaux->tac_next->tac_next;
 				ptaux->tac_next->tac_next->tac_prev = ptaux3;
+				ptaux3->tac_next = ptaux->tac_next->tac_next;
+				
 				return;
 			}
 		}
