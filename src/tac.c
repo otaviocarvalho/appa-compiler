@@ -306,7 +306,7 @@ void print_tac(comp_list_tac_t* raiz){
 	printf("Tac avaliação de constantes\n");
     arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");
 	if(arquivo_otimizado_ac == NULL){
-		printf("deu brete nos barato loko");
+		printf("Erro ao abrir arquivo ac");
 	}
     aux = raiz;
 
@@ -323,7 +323,7 @@ void print_tac(comp_list_tac_t* raiz){
 	printf("Tac simplificações algébricas\n");
     arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");
 	if(arquivo_otimizado_sa == NULL){
-		printf("deu brete nos barato loko 2");
+		printf("Erro ao abrir arquivo ac");
 	}
     aux = raiz;
 
@@ -341,7 +341,7 @@ void print_tac(comp_list_tac_t* raiz){
 	printf("Tac propagação de cópias\n");
     arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");
 	if(arquivo_otimizado_pc == NULL){
-		printf("deu brete nos barato loko 3");
+		printf("Erro ao abrir arquivo pc");
 	}
     aux = raiz;
 
@@ -355,21 +355,21 @@ void print_tac(comp_list_tac_t* raiz){
 	printf("\n\n");
 
 	//Instruções redundantes
-	printf("Tac instruções redundantes\n");
-    arquivo_otimizado_pc = fopen("tac_instrucoes_redundantes.i","w");
-	if(arquivo_otimizado_ir == NULL){
-		printf("deu brete nos barato loko 4");
-	}
-    aux = raiz;
-
-	//otimizacao_instrucoes_redundantes(raiz);
-
-    while (aux != NULL){
-        print_tac_item(aux,arquivo_otimizado_ir);
-        aux = aux->tac_next;
-    }
-    fclose(arquivo_otimizado_ir);
-	printf("\n\n");
+// 	printf("Tac instruções redundantes\n");
+//     arquivo_otimizado_pc = fopen("tac_instrucoes_redundantes.i","w");
+// 	if(arquivo_otimizado_ir == NULL){
+// 		printf("Erro ao abrir arquivo ir");
+// 	}
+//     aux = raiz;
+// 
+// 	//otimizacao_instrucoes_redundantes(raiz);
+// 
+//     while (aux != NULL){
+//         print_tac_item(aux,arquivo_otimizado_ir);
+//         aux = aux->tac_next;
+//     }
+//     fclose(arquivo_otimizado_ir);
+// 	printf("\n\n");
 }
 
 void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
