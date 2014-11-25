@@ -12,9 +12,270 @@ FILE* arquivo_otimizado_sa;
 FILE* arquivo_otimizado_pc;
 FILE* arquivo_otimizado_ir;
 
-comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
-    fprintf(stdout, "gerar_tacs_input()\n");
+comp_list_tac_t* gerar_tac_string(char* linha) {
+    char* token;
+    char* token_v1;
+    char* token_v2;
+    char* token_v3;
+    int resultado;
+    comp_list_tac_t* tac = criar_tac();
+
+    if (strcmp(linha, "nop\n") == 0){
+        tac = montar_tac(TAC_NOP, NULL, NULL, NULL);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+
+    /*fprintf(stdout, "%s\n", linha);*/
+    if (linha[0] == 'L'){
+        token_v1 = strtok(linha, ":");
+        tac = montar_tac(TAC_LABEL, token_v1, NULL, NULL);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+
+    token = strtok(linha, " ");
+    /*fprintf(stdout, "%s\n", token);*/
+    /*getchar();*/
+    // Identifica a instrução
+    if (strcmp(token, "add") == 0){
+        token_v3 = strtok(NULL, ",");
+        /*fprintf(stdout, "%s\n", token_v3);*/
+        token_v2 = strtok(NULL, "=> ");
+        /*fprintf(stdout, "%s\n", token_v2);*/
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        /*fprintf(stdout, "%s\n", token_v1);*/
+        tac = montar_tac('+', token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "sub") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac('-', token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "div") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac('/', token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "mult") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac('*', token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cmp_LE") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "-> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TK_OC_LE, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cmp_GE") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "-> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TK_OC_GE, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cmp_EQ") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "-> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TK_OC_EQ, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cmp_NE") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "-> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TK_OC_NE, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "and") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TK_OC_AND, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "or") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TK_OC_OR, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cmp_LT") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "-> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac('<', token_v2, token_v3, token_v1);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cmp_GT") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "-> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac('>', token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "store") == 0){
+        token_v3 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, " ");
+        token_v2 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_ATRIBUICAO, NULL, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "storeAI") == 0){
+        token_v3 = strtok(NULL, " ");
+        /*fprintf(stdout, "%s\n", token_v3);*/
+        token_v2 = strtok(NULL, " ");
+        token_v2 = strtok(NULL, ", ");
+        /*fprintf(stdout, "%s\n", token_v2);*/
+        token_v1 = strtok(NULL, "\n");
+        token_v1 = token_v1 + 1;
+        /*fprintf(stdout, "%s\n", token_v1);*/
+        tac = montar_tac(TAC_STORE_DESLOC, token_v3, token_v2, token_v1);
+        /*print_tac_item(tac, NULL);*/
+
+        return tac;
+    }
+    if (strcmp(token, "loadI") == 0){
+        token_v3 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, " ");
+        token_v2 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_LOAD_VAL, token_v2, NULL, token_v3);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "load") == 0){
+        token_v3 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, " ");
+        token_v2 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_LOAD, token_v2, NULL, token_v3);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "cbr") == 0){
+        token_v3 = strtok(NULL, " ");
+        /*fprintf(stdout, "%s\n", token_v3);*/
+        token_v2 = strtok(NULL, " ");
+        token_v2 = strtok(NULL, ", ");
+        /*fprintf(stdout, "%s\n", token_v2);*/
+        token_v1 = strtok(NULL, "\n");
+        token_v1 = token_v1 + 1;
+        /*fprintf(stdout, "%s\n", token_v1);*/
+        tac = montar_tac(TAC_CBR, token_v3, token_v2, token_v1);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "jump") == 0){
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_JUMP, token_v1, NULL, NULL);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "jumpI") == 0){
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_JUMP_LABEL, token_v1, NULL, NULL);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "addI") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_ADD_VAL, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "multI") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_MULT_VAL, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "lshiftI") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_LSHIFT_VAL, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+    if (strcmp(token, "rshiftI") == 0){
+        token_v3 = strtok(NULL, ",");
+        token_v2 = strtok(NULL, "=> ");
+        token_v1 = strtok(NULL, " ");
+        token_v1 = strtok(NULL, "\n");
+        tac = montar_tac(TAC_RSHIFT_VAL, token_v1, token_v3, token_v2);
+        /*print_tac_item(tac, NULL);*/
+        return tac;
+    }
+
     return NULL;
+}
+
+comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
+    size_t buffer_size = MAX_LINE_LENGTH-1;
+    char* buffer = malloc(buffer_size+1);
+
+    comp_list_tac_t* list_tacs = criar_tac();
+
+    /*fprintf(stdout, "gerar_tacs_input()\n");*/
+
+    while ((getline(&buffer, &buffer_size, yyin)) > 0) {
+        if (strcmp(buffer, "\r\n") == 0)
+            break;
+        /*fprintf(stdout, "%s", buffer);*/
+
+        // Cria um novo tac com base na linha lida da entrada
+        comp_list_tac_t* new_tac = gerar_tac_string(buffer);
+
+        // Conecta o tac criado com a lista de tacs
+        new_tac->tac_prev = list_tacs;
+        conecta_tacs_irmaos(new_tac);
+    }
+
+    return list_tacs;
 }
 
 void print_tac(comp_list_tac_t* raiz){

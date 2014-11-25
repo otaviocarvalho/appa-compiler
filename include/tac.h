@@ -33,6 +33,8 @@
 #define TOKEN_ERRO 284
 #define UMINUS 285
 
+#define MAX_LINE_LENGTH 200
+
 typedef struct comp_list_tac_t {
     struct comp_list_tac_t* tac_prev;
     struct comp_list_tac_t* tac_next;
@@ -88,4 +90,4 @@ void otimizacao_propagacao_copia(comp_list_tac_t*);
 void otimizacao_instrucoes_redundantes(comp_list_tac_t*);
 
 comp_list_tac_t* gerar_tacs_input(FILE*);
-
+comp_list_tac_t* gerar_tac_string(char*);

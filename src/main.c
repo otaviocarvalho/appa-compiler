@@ -75,7 +75,6 @@ int main_avaliacao_etapa_2 (int argc, char **argv)
 int main_avaliacao_etapa_2_plus (int argc, char **argv, int file)
 {
     if (file == 1){
-        fprintf(stdout, "main_avaliacao_etapa_7\n");
         comp_list_tac_t* list_tacs = gerar_tacs_input(yyin);
         print_tac(list_tacs);
     }
