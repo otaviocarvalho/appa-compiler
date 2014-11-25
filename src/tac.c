@@ -258,10 +258,11 @@ comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
     size_t buffer_size = MAX_LINE_LENGTH-1;
     char* buffer = malloc(buffer_size+1);
 
-    comp_list_tac_t* list_tacs = criar_tac();
 
     /*fprintf(stdout, "gerar_tacs_input()\n");*/
 
+    comp_list_tac_t* list_tacs_aux = criar_tac();
+    comp_list_tac_t* list_tacs_retorno = list_tacs_aux;
     while ((getline(&buffer, &buffer_size, yyin)) > 0) {
         if (strcmp(buffer, "\r\n") == 0)
             break;
@@ -271,11 +272,12 @@ comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
         comp_list_tac_t* new_tac = gerar_tac_string(buffer);
 
         // Conecta o tac criado com a lista de tacs
-        new_tac->tac_prev = list_tacs;
+        new_tac->tac_prev = list_tacs_aux;
         conecta_tacs_irmaos(new_tac);
+        list_tacs_aux = new_tac;
     }
 
-    return list_tacs;
+    return list_tacs_retorno;
 }
 
 void print_tac(comp_list_tac_t* raiz){
@@ -1307,7 +1309,7 @@ comp_list_tac_t* criar_tac_fim_programa() {
     comp_list_tac_t* tac_label_end = criar_tac();
     char *label_end = (char *) malloc(100 * sizeof(char));
 
-    sprintf(label_end,"lend");
+    sprintf(label_end,"Lend");
     tac_label_end = montar_tac(TAC_LABEL, label_end, NULL, NULL);
 
     return tac_label_end;
