@@ -91,3 +91,5 @@ void otimizacao_instrucoes_redundantes(comp_list_tac_t*);
 
 comp_list_tac_t* gerar_tacs_input(FILE*);
 comp_list_tac_t* gerar_tac_string(char*);
+
+extern int global_optimization_parameter;

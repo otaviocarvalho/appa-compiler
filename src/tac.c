@@ -281,6 +281,7 @@ comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
 }
 
 void print_tac(comp_list_tac_t* raiz){
+    /*fprintf(stdout, "optim %d\n", global_optimization_parameter);*/
     comp_list_tac_t* aux = raiz;
     if (raiz == NULL) {
         printf("RAIZ NULL\n");
@@ -353,23 +354,6 @@ void print_tac(comp_list_tac_t* raiz){
     }
     fclose(arquivo_otimizado_pc);
 	printf("\n\n");
-
-	//Instruções redundantes
-// 	printf("Tac instruções redundantes\n");
-//     arquivo_otimizado_pc = fopen("tac_instrucoes_redundantes.i","w");
-// 	if(arquivo_otimizado_ir == NULL){
-// 		printf("Erro ao abrir arquivo ir");
-// 	}
-//     aux = raiz;
-// 
-// 	//otimizacao_instrucoes_redundantes(raiz);
-// 
-//     while (aux != NULL){
-//         print_tac_item(aux,arquivo_otimizado_ir);
-//         aux = aux->tac_next;
-//     }
-//     fclose(arquivo_otimizado_ir);
-// 	printf("\n\n");
 }
 
 void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){

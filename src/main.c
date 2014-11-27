@@ -72,7 +72,8 @@ int main_avaliacao_etapa_2 (int argc, char **argv)
   return ret;
 }
 
-int main_avaliacao_etapa_2_plus (int argc, char **argv, int file)
+int global_optimization_parameter = 4;
+int main_avaliacao_etapa_2_plus (int argc, char **argv, int file, int optimization_type)
 {
     if (file == 1){
         comp_list_tac_t* list_tacs = gerar_tacs_input(yyin);
@@ -99,32 +100,47 @@ int main_avaliacao_etapa_4 (int argc, char **argv)
   return main_avaliacao_etapa_2 (argc, argv);
 }
 
-int main_avaliacao_etapa_5 (int argc, char **argv, int file)
+int main_avaliacao_etapa_5 (int argc, char **argv)
 {
-  return main_avaliacao_etapa_2_plus (argc, argv, file);
+  return main_avaliacao_etapa_2 (argc, argv);
 }
 
-int main_avaliacao_etapa_6 (int argc, char **argv, int file)
+int main_avaliacao_etapa_6 (int argc, char **argv, int file, int optimization_type)
 {
-  return main_avaliacao_etapa_2_plus (argc, argv, file);
+  return main_avaliacao_etapa_2_plus (argc, argv, file, optimization_type);
 }
 
-int main_avaliacao_etapa_7 (int argc, char **argv, int file)
+int main_avaliacao_etapa_7 (int argc, char **argv, int file, int optimization_type)
 {
-    return main_avaliacao_etapa_2_plus (argc, argv, file);
+    return main_avaliacao_etapa_2_plus (argc, argv, file, optimization_type);
 }
 
 int main (int argc, char **argv)
 {
-    int flag_file = 0;
+  int flag_file = 0;
+  int optimization_type = 0;
   //if some argument is provided, treat it as input
-  if (argc != 1){
+  if (argc != 1) {
+    //process input parameters
+    if (argc == 2) {
+        optimization_type = 0;
+    }
+    else if (argc == 3){
+        optimization_type = 1;
+        if (strncmp(argv[1], "-O", 2) == 0) {
+            optimization_type = atoi(argv[1]+2);
+        }
+    }
+    else {
+        fprintf(stdout, "Input format: ./main [-O<optimization-type-number>] <input file>\n");
+    }
+
     yyin = fopen(argv[1], "r");
     //if fopen fails, yyin continues to be stdin
-    if (yyin == NULL){
+    if (yyin == NULL) {
       yyin = stdin;
     }
-    else{
+    else {
         flag_file = 1;
     }
   }
@@ -139,11 +155,11 @@ int main (int argc, char **argv)
 #elif AVALIACAO_ETAPA_4
   r = main_avaliacao_etapa_4 (argc, argv);
 #elif AVALIACAO_ETAPA_5
-  r = main_avaliacao_etapa_5 (argc, argv, flag_file);
+  r = main_avaliacao_etapa_5 (argc, argv);
 #elif AVALIACAO_ETAPA_6
-  r = main_avaliacao_etapa_6 (argc, argv, flag_file);
+  r = main_avaliacao_etapa_6 (argc, argv, flag_file, optimization_type);
 #elif AVALIACAO_ETAPA_7
-  r = main_avaliacao_etapa_7 (argc, argv, flag_file);
+  r = main_avaliacao_etapa_7 (argc, argv, flag_file, optimization_type);
 #else
   r = 0;
 #endif
