@@ -9,6 +9,9 @@ extern int getLineNumber();
 #define USER_INIT main_init (argc, argv);
 #define USER_FINALIZE main_finalize ();
 
+// Globally defined optimization heuristics
+int global_optimization_parameter = 0;
+
 int main_avaliacao_etapa_1 (int argc, char **argv)
 {
   int token = 0;
@@ -72,9 +75,10 @@ int main_avaliacao_etapa_2 (int argc, char **argv)
   return ret;
 }
 
-int global_optimization_parameter = 4;
 int main_avaliacao_etapa_2_plus (int argc, char **argv, int file, int optimization_type)
 {
+    global_optimization_parameter = optimization_type;
+
     if (file == 1){
         comp_list_tac_t* list_tacs = gerar_tacs_input(yyin);
         print_tac(list_tacs);
@@ -124,18 +128,20 @@ int main (int argc, char **argv)
     //process input parameters
     if (argc == 2) {
         optimization_type = 0;
+        yyin = fopen(argv[1], "r");
     }
     else if (argc == 3){
         optimization_type = 1;
         if (strncmp(argv[1], "-O", 2) == 0) {
             optimization_type = atoi(argv[1]+2);
         }
+        yyin = fopen(argv[2], "r");
     }
     else {
         fprintf(stdout, "Input format: ./main [-O<optimization-type-number>] <input file>\n");
+        yyin = fopen(argv[1], "r");
     }
 
-    yyin = fopen(argv[1], "r");
     //if fopen fails, yyin continues to be stdin
     if (yyin == NULL) {
       yyin = stdin;

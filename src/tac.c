@@ -281,79 +281,148 @@ comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
 }
 
 void print_tac(comp_list_tac_t* raiz){
-    /*fprintf(stdout, "optim %d\n", global_optimization_parameter);*/
+    int file_opened = 0;
     comp_list_tac_t* aux = raiz;
+
+    /*fprintf(stdout, "optim %d\n", global_optimization_parameter);*/
     if (raiz == NULL) {
         printf("RAIZ NULL\n");
+        return;
     }
 
-	printf("Tac Original\n");
-    arquivo = fopen("tac.i", "w");
-	if(arquivo != NULL){
-			/*printf("deu brete");*/
-	}
+    // Optimization parameter on function call (./main -O<global_optimization_parameter> <filename>.iloc)
+    switch (global_optimization_parameter) {
+        case 0:
+            break;
 
+        case 1:
+            /*fprintf(stdout, "case 1\n");*/
+            arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");
+
+            if(arquivo_otimizado_ac == NULL){
+                printf("Erro ao abrir arquivo ac");
+            }
+            else {
+                aux = raiz;
+                otimizacao_avaliacao_constantes(raiz);
+                arquivo = arquivo_otimizado_ac;
+                file_opened = 1;
+            }
+            break;
+
+        case 2:
+            /*fprintf(stdout, "case 2\n");*/
+            arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");
+
+            if(arquivo_otimizado_sa == NULL){
+                printf("Erro ao abrir arquivo ac");
+            }
+            else {
+                aux = raiz;
+                otimizacao_simplificacao_algebrica(raiz);
+                arquivo = arquivo_otimizado_sa;
+                file_opened = 1;
+            }
+            break;
+
+        case 3:
+            /*fprintf(stdout, "case 3\n");*/
+            arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");
+
+            if(arquivo_otimizado_pc == NULL){
+                printf("Erro ao abrir arquivo pc");
+            }
+            else {
+                aux = raiz;
+                otimizacao_propagacao_copia(raiz);
+                arquivo = arquivo_otimizado_pc;
+                file_opened = 1;
+            }
+            break;
+
+        default:
+            /*fprintf(stdout, "heurística padrão\n");*/
+            break;
+    }
+
+    // Impressão dos TACs
     while (aux != NULL){
-        print_tac_item(aux,arquivo);
+        /*print_tac_item(aux,NULL);*/
+        print_tac_item(aux, arquivo);
         aux = aux->tac_next;
     }
-    fclose(arquivo);
-	printf("\n\n");
 
+    if (file_opened)
+        fclose(arquivo);
+
+    return;
+
+	/*printf("Tac Original\n");*/
+    /*arquivo = fopen("tac.i", "w");*/
+	/*if(arquivo != NULL){*/
+			/*[>printf("deu brete");<]*/
+	/*}*/
+
+    /*while (aux != NULL){*/
+        /*print_tac_item(aux,arquivo);*/
+        /*aux = aux->tac_next;*/
+    /*}*/
+    /*fclose(arquivo);*/
+	/*printf("\n\n");*/
 
     //Otimização de código
 
 	//Avaliação de constantes
-	printf("Tac avaliação de constantes\n");
-    arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");
-	if(arquivo_otimizado_ac == NULL){
-		printf("Erro ao abrir arquivo ac");
-	}
-    aux = raiz;
+	/*printf("Tac avaliação de constantes\n");*/
+    /*arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");*/
+	/*if(arquivo_otimizado_ac == NULL){*/
+		/*printf("Erro ao abrir arquivo ac");*/
+	/*}*/
+    /*aux = raiz;*/
 
-	otimizacao_avaliacao_constantes(raiz);
+	/*otimizacao_avaliacao_constantes(raiz);*/
 
-    while (aux != NULL){
-        print_tac_item(aux,arquivo_otimizado_ac);
-        aux = aux->tac_next;
-    }
-    fclose(arquivo_otimizado_ac);
-	printf("\n\n");
+    /*while (aux != NULL){*/
+        /*print_tac_item(aux,arquivo_otimizado_ac);*/
+        /*aux = aux->tac_next;*/
+    /*}*/
+    /*fclose(arquivo_otimizado_ac);*/
+	/*printf("\n\n");*/
 
 	//Simplificações algébricas
-	printf("Tac simplificações algébricas\n");
-    arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");
-	if(arquivo_otimizado_sa == NULL){
-		printf("Erro ao abrir arquivo ac");
-	}
-    aux = raiz;
+	/*printf("Tac simplificações algébricas\n");*/
+    /*arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");*/
+	/*if(arquivo_otimizado_sa == NULL){*/
+		/*printf("Erro ao abrir arquivo ac");*/
+	/*}*/
+    /*aux = raiz;*/
 
-	otimizacao_simplificacao_algebrica(raiz);
+	/*otimizacao_simplificacao_algebrica(raiz);*/
 
-    while (aux != NULL){
-        print_tac_item(aux,arquivo_otimizado_sa);
-        aux = aux->tac_next;
-    }
-    fclose(arquivo_otimizado_sa);
-	printf("\n\n");
+    /*while (aux != NULL){*/
+        /*print_tac_item(aux,arquivo_otimizado_sa);*/
+        /*aux = aux->tac_next;*/
+    /*}*/
+    /*fclose(arquivo_otimizado_sa);*/
+	/*printf("\n\n");*/
 
 
 	//Propagação de cópias
-	printf("Tac propagação de cópias\n");
-    arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");
-	if(arquivo_otimizado_pc == NULL){
-		printf("Erro ao abrir arquivo pc");
-	}
-    aux = raiz;
+	/*printf("Tac propagação de cópias\n");*/
+    /*arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");*/
+	/*if(arquivo_otimizado_pc == NULL){*/
+		/*printf("Erro ao abrir arquivo pc");*/
+	/*}*/
+    /*aux = raiz;*/
 
-	otimizacao_propagacao_copia(raiz);
+	/*otimizacao_propagacao_copia(raiz);*/
 
-    while (aux != NULL){
-        print_tac_item(aux,arquivo_otimizado_pc);
-        aux = aux->tac_next;
-    }
-    fclose(arquivo_otimizado_pc);
-	printf("\n\n");
+    /*while (aux != NULL){*/
+        /*print_tac_item(aux,arquivo_otimizado_pc);*/
+        /*aux = aux->tac_next;*/
+    /*}*/
+    /*fclose(arquivo_otimizado_pc);*/
+	/*printf("\n\n");*/
 }
 
 void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
@@ -361,107 +430,133 @@ void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
 	switch(tac->tipo){
         case '+':
             printf("add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"add %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '-':
             printf("sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"sub %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '/':
             printf("div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"div %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '*':
             printf("mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"mult %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case UMINUS:
             printf("sub 0, %s => %s\n", tac->v2, tac->v1);
-			fprintf(arquivo,"sub 0, %s => %s\n", tac->v2, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"sub 0, %s => %s\n", tac->v2, tac->v1);
             break;
         case TK_OC_LE:
             printf("cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cmp_LE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_GE:
             printf("cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cmp_GE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_EQ:
             printf("cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cmp_EQ %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_NE:
             printf("cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cmp_NE %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_AND:
             printf("and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"and %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TK_OC_OR:
             printf("or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"or %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '<':
             printf("cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cmp_LT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case '>':
             printf("cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cmp_GT %s, %s -> %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TAC_ATRIBUICAO:
             printf("store %s => %s\n", tac->v2, tac->v3);
-			fprintf(arquivo,"store %s => %s\n", tac->v2, tac->v3);
+            if (arquivo != NULL)
+                fprintf(arquivo,"store %s => %s\n", tac->v2, tac->v3);
             break;
         case TAC_STORE_DESLOC:
             printf("storeAI %s => %s, %s\n", tac->v1, tac->v2, tac->v3);
-			fprintf(arquivo,"storeAI %s => %s, %s\n", tac->v1, tac->v2, tac->v3);
+            if (arquivo != NULL)
+                fprintf(arquivo,"storeAI %s => %s, %s\n", tac->v1, tac->v2, tac->v3);
             break;
         case TAC_LABEL:
             printf("%s: \n", tac->v1);
-			fprintf(arquivo,"%s: \n", tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"%s: \n", tac->v1);
             break;
         case TAC_LOAD_VAL:
             printf("loadI %s => %s \n", tac->v3, tac->v1);
-			fprintf(arquivo,"loadI %s => %s \n", tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"loadI %s => %s \n", tac->v3, tac->v1);
             break;
         case TAC_LOAD:
             printf("load %s => %s \n", tac->v3, tac->v1);
-			fprintf(arquivo,"load %s => %s \n", tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"load %s => %s \n", tac->v3, tac->v1);
             break;
         case TAC_CBR:
             printf("cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
-			fprintf(arquivo,"cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
+            if (arquivo != NULL)
+                fprintf(arquivo,"cbr %s -> %s, %s \n", tac->v1, tac->v2, tac->v3);
             break;
 		case TAC_JUMP:
             printf("jump -> %s\n", tac->v1);
-			fprintf(arquivo,"jumpI -> %s\n", tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"jumpI -> %s\n", tac->v1);
 			break;
 		case TAC_JUMP_LABEL:
             printf("jumpI -> %s\n", tac->v1);
-			fprintf(arquivo,"jumpI -> %s\n", tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"jumpI -> %s\n", tac->v1);
 			break;
 		case TAC_ADD_VAL:
             printf("addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo, "addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo, "addI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
         case TAC_MULT_VAL:
             printf("multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"multI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
 		case TAC_LSHIFT_VAL:
             printf("lshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
 		case TAC_RSHIFT_VAL:
             printf("rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
-			fprintf(arquivo,"rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
+            if (arquivo != NULL)
+                fprintf(arquivo,"rshiftI %s, %s => %s\n", tac->v2, tac->v3, tac->v1);
             break;
 		case TAC_NOP:
 			printf("nop\n");
-			fprintf(arquivo,"nop\n");
+            if (arquivo != NULL)
+                fprintf(arquivo,"nop\n");
 			break;
 		default:
             break;
