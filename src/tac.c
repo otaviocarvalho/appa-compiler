@@ -284,7 +284,6 @@ void print_tac(comp_list_tac_t* raiz){
     int file_opened = 0;
     comp_list_tac_t* aux = raiz;
 
-    /*fprintf(stdout, "optim %d\n", global_optimization_parameter);*/
     if (raiz == NULL) {
         printf("RAIZ NULL\n");
         return;
@@ -296,7 +295,6 @@ void print_tac(comp_list_tac_t* raiz){
             break;
 
         case 1:
-            /*fprintf(stdout, "case 1\n");*/
             arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");
 
             if(arquivo_otimizado_ac == NULL){
@@ -311,7 +309,6 @@ void print_tac(comp_list_tac_t* raiz){
             break;
 
         case 2:
-            /*fprintf(stdout, "case 2\n");*/
             arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");
 
             if(arquivo_otimizado_sa == NULL){
@@ -326,7 +323,6 @@ void print_tac(comp_list_tac_t* raiz){
             break;
 
         case 3:
-            /*fprintf(stdout, "case 3\n");*/
             arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");
 
             if(arquivo_otimizado_pc == NULL){
@@ -341,88 +337,20 @@ void print_tac(comp_list_tac_t* raiz){
             break;
 
         default:
-            /*fprintf(stdout, "heurística padrão\n");*/
             break;
     }
 
-    // Impressão dos TACs
+    // TACs output
     while (aux != NULL){
-        /*print_tac_item(aux,NULL);*/
         print_tac_item(aux, arquivo);
         aux = aux->tac_next;
     }
 
+    // Close opened files
     if (file_opened)
         fclose(arquivo);
 
     return;
-
-	/*printf("Tac Original\n");*/
-    /*arquivo = fopen("tac.i", "w");*/
-	/*if(arquivo != NULL){*/
-			/*[>printf("deu brete");<]*/
-	/*}*/
-
-    /*while (aux != NULL){*/
-        /*print_tac_item(aux,arquivo);*/
-        /*aux = aux->tac_next;*/
-    /*}*/
-    /*fclose(arquivo);*/
-	/*printf("\n\n");*/
-
-    //Otimização de código
-
-	//Avaliação de constantes
-	/*printf("Tac avaliação de constantes\n");*/
-    /*arquivo_otimizado_ac = fopen("tac_avaliacao_constantes.i","w");*/
-	/*if(arquivo_otimizado_ac == NULL){*/
-		/*printf("Erro ao abrir arquivo ac");*/
-	/*}*/
-    /*aux = raiz;*/
-
-	/*otimizacao_avaliacao_constantes(raiz);*/
-
-    /*while (aux != NULL){*/
-        /*print_tac_item(aux,arquivo_otimizado_ac);*/
-        /*aux = aux->tac_next;*/
-    /*}*/
-    /*fclose(arquivo_otimizado_ac);*/
-	/*printf("\n\n");*/
-
-	//Simplificações algébricas
-	/*printf("Tac simplificações algébricas\n");*/
-    /*arquivo_otimizado_sa = fopen("tac_simplificacoes_algebricas.i","w");*/
-	/*if(arquivo_otimizado_sa == NULL){*/
-		/*printf("Erro ao abrir arquivo ac");*/
-	/*}*/
-    /*aux = raiz;*/
-
-	/*otimizacao_simplificacao_algebrica(raiz);*/
-
-    /*while (aux != NULL){*/
-        /*print_tac_item(aux,arquivo_otimizado_sa);*/
-        /*aux = aux->tac_next;*/
-    /*}*/
-    /*fclose(arquivo_otimizado_sa);*/
-	/*printf("\n\n");*/
-
-
-	//Propagação de cópias
-	/*printf("Tac propagação de cópias\n");*/
-    /*arquivo_otimizado_pc = fopen("tac_propagacao_copias.i","w");*/
-	/*if(arquivo_otimizado_pc == NULL){*/
-		/*printf("Erro ao abrir arquivo pc");*/
-	/*}*/
-    /*aux = raiz;*/
-
-	/*otimizacao_propagacao_copia(raiz);*/
-
-    /*while (aux != NULL){*/
-        /*print_tac_item(aux,arquivo_otimizado_pc);*/
-        /*aux = aux->tac_next;*/
-    /*}*/
-    /*fclose(arquivo_otimizado_pc);*/
-	/*printf("\n\n");*/
 }
 
 void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
