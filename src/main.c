@@ -127,8 +127,13 @@ int main (int argc, char **argv)
   if (argc != 1) {
     //process input parameters
     if (argc == 2) {
-        optimization_type = 0;
-        yyin = fopen(argv[1], "r");
+        if (strncmp(argv[1], "-O", 2) == 0) {
+            optimization_type = atoi(argv[1]+2);
+        }
+        else {
+            optimization_type = 0;
+            yyin = fopen(argv[1], "r");
+        }
     }
     else if (argc == 3){
         optimization_type = 1;

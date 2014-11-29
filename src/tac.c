@@ -258,9 +258,6 @@ comp_list_tac_t* gerar_tacs_input(FILE* yyin) {
     size_t buffer_size = MAX_LINE_LENGTH-1;
     char* buffer = malloc(buffer_size+1);
 
-
-    /*fprintf(stdout, "gerar_tacs_input()\n");*/
-
     comp_list_tac_t* list_tacs_aux = criar_tac();
     comp_list_tac_t* list_tacs_retorno = list_tacs_aux;
     while ((getline(&buffer, &buffer_size, yyin)) > 0) {
@@ -334,6 +331,25 @@ void print_tac(comp_list_tac_t* raiz){
                 arquivo = arquivo_otimizado_pc;
                 file_opened = 1;
             }
+            break;
+
+        case 4:
+            aux = raiz;
+            otimizacao_avaliacao_constantes(raiz);
+            otimizacao_simplificacao_algebrica(raiz);
+            break;
+
+        case 5:
+            aux = raiz;
+            otimizacao_simplificacao_algebrica(raiz);
+            otimizacao_propagacao_copia(raiz);
+            break;
+
+        case 6:
+            aux = raiz;
+            otimizacao_avaliacao_constantes(raiz);
+            otimizacao_simplificacao_algebrica(raiz);
+            otimizacao_propagacao_copia(raiz);
             break;
 
         default:
@@ -489,7 +505,6 @@ void print_tac_item(comp_list_tac_t* tac, FILE* arquivo){
 		default:
             break;
     }
-    //fclose(arquivo);
 }
 
 void conecta_tacs_irmaos(comp_list_tac_t* last){
@@ -1521,7 +1536,7 @@ void otimizacao_avaliacao_constantes(comp_list_tac_t* lista){
 				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
 			}
 			//zero dividido por algo
-			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 && strcmp(ptaux->tac_prev->v3,"0")!=0){
+			if(strcmp(ptaux->tac_prev->tac_prev->v3,"0")==0 || strcmp(ptaux->tac_prev->v3,"0")==0){
 				ptaux->tac_prev->tac_prev->tac_next = ptaux->tac_next;
 				ptaux->tac_next->tac_prev = ptaux->tac_prev->tac_prev;
 				strcpy(ptaux->tac_next->tac_next->v2, ptaux->tac_prev->tac_prev->v1);
@@ -1612,9 +1627,11 @@ void otimizacao_propagacao_copia(comp_list_tac_t* lista){
 	comp_list_tac_t* ptaux2;
 	ptaux = lista;
 	int usado = 0;
-	char* deslocamento;
+	char* deslocamento = malloc(sizeof(char)*200);
+
 	while(ptaux != NULL){
 		if(ptaux->tipo == TAC_ADD_VAL && strcmp(ptaux->v2,"rbss") == 0){
+            print_tac_item(ptaux, NULL);
 			strcpy(deslocamento,ptaux->v3);
 
 			ptaux2 = ptaux->tac_next;
@@ -1637,6 +1654,8 @@ void otimizacao_propagacao_copia(comp_list_tac_t* lista){
 		usado = 0;
 	ptaux = ptaux->tac_next;
 	}
+
+    free(deslocamento);
 }
 
 void otimizacao_instrucoes_redundantes(comp_list_tac_t* lista){

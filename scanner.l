@@ -9,6 +9,7 @@
 #include "comp_tree.h"
 
 extern int cur_line;
+extern int global_optimization_parameter;
 extern struct comp_dict_t* symbol_table_root;
 extern struct comp_dict_t* symbol_table_cur;
 

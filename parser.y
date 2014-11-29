@@ -29,6 +29,7 @@ comp_list_tac_t* tac_fim_registro_ativacao;
 
 int linha_escopo_estatico = -1;
 int linha_escopo_dinamico = -1;
+
 %}
 
 %define parse.error verbose
